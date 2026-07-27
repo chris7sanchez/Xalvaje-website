@@ -1,14 +1,19 @@
-import { type MouseEvent } from 'react';
+import { type MouseEvent, type ElementType } from 'react';
 import { cn } from '@/lib/utils';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
-import { ArrowUpRight } from 'lucide-react';
+import {
+  ArrowUpRight, Circle,
+  Instagram, Youtube, Mail, Twitter, Linkedin, Github, Facebook, Dribbble,
+} from 'lucide-react';
 import { footerConfig } from '@/config';
-import * as LucideIcons from 'lucide-react';
-import { type ElementType } from 'react';
+
+// Solo se empaquetan los iconos que usamos (evita importar toda la librería lucide-react).
+const ICON_MAP: Record<string, ElementType> = {
+  Instagram, Youtube, Mail, Twitter, Linkedin, Github, Facebook, Dribbble,
+};
 
 function getIcon(iconName: string): ElementType {
-  const icons = LucideIcons as unknown as Record<string, ElementType>;
-  return icons[iconName] || LucideIcons.Circle;
+  return ICON_MAP[iconName] || Circle;
 }
 
 export function Footer() {
@@ -38,8 +43,26 @@ export function Footer() {
             )}
           >
             {footerConfig.logo && (
-              <a href="#" className="inline-block">
-                <span className="text-2xl font-semibold tracking-tight">{footerConfig.logo}</span>
+              <a
+                href="#"
+                className="inline-flex flex-col gap-1 group"
+                aria-label={`${footerConfig.logo} — Inicio`}
+              >
+                <span className="flex items-center gap-1">
+                  <img
+                    src="/images/logo-x.webp"
+                    alt="X"
+                    width={187}
+                    height={240}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-16 w-auto transition-transform duration-500 ease-out-quart group-hover:scale-110"
+                  />
+                  <span className="text-3xl font-medium tracking-[0.12em]">ALVAJE</span>
+                </span>
+                <span className="text-[0.6rem] font-geist-mono uppercase tracking-[0.45em] text-white/40 pl-1">
+                  Producciones
+                </span>
               </a>
             )}
             {footerConfig.description && (

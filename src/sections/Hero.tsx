@@ -6,10 +6,9 @@ const boxSize = 450;
 const halfBox = boxSize / 2;
 
 export function Hero() {
-  if (!heroConfig.name && heroConfig.roles.length === 0) return null;
-
   const [isLoaded, setIsLoaded] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
+  const [revealReady, setRevealReady] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -29,6 +28,17 @@ export function Hero() {
     }
   }, [videoLoaded]);
 
+  // Revela el hero en cuanto el vídeo está listo, o tras un timeout de seguridad /
+  // ante un error de carga: un vídeo lento o ausente nunca deja la pantalla en negro.
+  useEffect(() => {
+    if (videoLoaded) {
+      setRevealReady(true);
+      return;
+    }
+    const t = setTimeout(() => setRevealReady(true), 2500);
+    return () => clearTimeout(t);
+  }, [videoLoaded]);
+
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLElement>) => {
     const section = e.currentTarget;
     const rect = section.getBoundingClientRect();
@@ -40,6 +50,8 @@ export function Hero() {
     section.style.setProperty('--mouse-y', `${y - halfBox}px`);
   }, []);
 
+  if (!heroConfig.name && heroConfig.roles.length === 0) return null;
+
   return (
     <section
       ref={sectionRef}
@@ -48,11 +60,20 @@ export function Hero() {
       onMouseMove={handleMouseMove}
       style={{ '--mouse-x': 'calc(42vw - 200px)', '--mouse-y': 'calc(28vh - 200px)' } as React.CSSProperties}
     >
+      {/* Fondo de respaldo estático: se ve si el vídeo tarda o falla (nunca negro) */}
+      <div
+        className="absolute inset-0 z-0 bg-cover bg-center"
+        style={{
+          backgroundImage: `url(${heroConfig.backgroundImage})`,
+          filter: 'blur(8px) brightness(0.6)',
+        }}
+      />
+
       {/* Cinematic fade-in overlay */}
       <div 
         className={cn(
           'absolute inset-0 bg-black z-40 pointer-events-none transition-opacity duration-[2000ms] ease-out',
-          videoLoaded ? 'opacity-0' : 'opacity-100'
+          revealReady ? 'opacity-0' : 'opacity-100'
         )}
       />
 
@@ -72,7 +93,9 @@ export function Hero() {
           playsInline
           className="absolute inset-0 w-full h-full object-cover"
           style={{ filter: 'blur(8px) brightness(0.75)' }}
+          poster={heroConfig.backgroundImage}
           onLoadedData={() => setVideoLoaded(true)}
+          onError={() => setRevealReady(true)}
         />
         
         {/* Cinematic vignette overlay */}
@@ -88,7 +111,7 @@ export function Hero() {
       <div
         className={cn(
           'absolute top-0 left-0 overflow-hidden pointer-events-none z-30',
-          isLoaded && videoLoaded ? 'opacity-100' : 'opacity-0'
+          isLoaded && revealReady ? 'opacity-100' : 'opacity-0'
         )}
         style={{
           width: boxSize,
@@ -119,7 +142,7 @@ export function Hero() {
       <div
         className={cn(
           'absolute top-0 left-0 pointer-events-none z-30',
-          isLoaded && videoLoaded ? 'opacity-100' : 'opacity-0'
+          isLoaded && revealReady ? 'opacity-100' : 'opacity-0'
         )}
         style={{
           width: boxSize,
@@ -141,7 +164,7 @@ export function Hero() {
         <div
           className={cn(
             'absolute left-8 lg:left-16 top-1/2 -translate-y-1/2 z-20 transition-all duration-1000 ease-out',
-            isLoaded && videoLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
+            isLoaded && revealReady ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
           )}
           style={{ transitionDelay: '1500ms' }}
         >
@@ -154,7 +177,7 @@ export function Hero() {
         <div
           className={cn(
             'absolute right-8 lg:right-16 top-1/2 -translate-y-1/2 z-20 transition-all duration-1000 ease-out',
-            isLoaded && videoLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'
+            isLoaded && revealReady ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'
           )}
           style={{ transitionDelay: '1700ms' }}
         >
@@ -170,7 +193,7 @@ export function Hero() {
         <div
           className={cn(
             'text-center transition-all duration-1000 ease-out pb-8 md:pb-12',
-            isLoaded && videoLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
+            isLoaded && revealReady ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
           )}
           style={{ transitionDelay: '1200ms' }}
         >

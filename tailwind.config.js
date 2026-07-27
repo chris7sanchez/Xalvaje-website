@@ -46,6 +46,10 @@ module.exports = {
           border: '#EFEFF2',
           blue: '#0082F3',
           focus: '#4D65FF',
+          /* Color de marca XALVAJE, muestreado de la X del logo */
+          red: '#B8442A',
+          'red-dark': '#8F3320',
+          'red-light': '#C04D32',
         },
       },
       fontFamily: {

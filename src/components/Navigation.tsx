@@ -48,14 +48,27 @@ export function Navigation() {
       >
         <div className="w-full px-6 lg:px-12 py-4">
           <div className="flex items-center justify-between">
-            {/* Logo */}
+            {/* Logo: la X del logotipo + "ALVAJE" como texto.
+                La X es la primera letra de la marca; alt="X" hace que,
+                si la imagen fallara, se siga leyendo "XALVAJE". */}
             {navigationConfig.logo && (
-              <a href="#" className="flex items-center">
+              <a
+                href="#"
+                className="flex items-center gap-0.5 group"
+                aria-label={`${navigationConfig.logo} — Inicio`}
+              >
+                <img
+                  src="/images/logo-x.webp"
+                  alt="X"
+                  width={187}
+                  height={240}
+                  className="h-10 w-auto transition-transform duration-500 ease-out-quart group-hover:scale-110"
+                />
                 <span className={cn(
-                  "text-2xl font-semibold tracking-tight transition-colors duration-500",
+                  "text-2xl font-medium tracking-[0.12em] transition-colors duration-500",
                   isScrolled ? "text-exvia-black" : "text-white"
                 )}>
-                  {navigationConfig.logo}
+                  ALVAJE
                 </span>
               </a>
             )}
@@ -74,10 +87,7 @@ export function Navigation() {
                     )}
                   >
                     {link.label}
-                    <span className={cn(
-                      "absolute -bottom-1 left-0 w-0 h-0.5 transition-all duration-300 group-hover:w-full",
-                      isScrolled ? "bg-exvia-black" : "bg-white"
-                    )} />
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-exvia-red transition-all duration-300 group-hover:w-full" />
                   </a>
                 ))}
               </div>

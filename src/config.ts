@@ -35,7 +35,7 @@ export const navigationConfig: NavigationConfig = {
     { label: "Stills", href: "#stills" },
   ],
   contactLabel: "Contacto",
-  contactHref: "#cta",
+  contactHref: "#contact",
 };
 
 // Hero section configuration
@@ -48,7 +48,7 @@ export interface HeroConfig {
 export const heroConfig: HeroConfig = {
   name: "XALVAJE",
   roles: ["Producción Audiovisual", "Dirección", "Fotografía", "Arte"],
-  backgroundImage: "/images/hero-bg.jpg",
+  backgroundImage: "/images/hero-bg.webp",
 };
 
 // About section configuration
@@ -81,10 +81,10 @@ export const aboutConfig: AboutConfig = {
     { value: "3", label: "Premios ganados" },
   ],
   images: [
-    { src: "/images/about-1.jpg", alt: "Producción audiovisual" },
-    { src: "/images/about-2.jpg", alt: "Ángel Lara - Director" },
-    { src: "/images/about-3.png", alt: "Christian Sánchez - Director" },
-    { src: "/images/about-4.jpg", alt: "Equipo creativo" },
+    { src: "/images/about-1.webp", alt: "Producción audiovisual" },
+    { src: "/images/about-2.webp", alt: "Ángel Lara - Director" },
+    { src: "/images/about-3.webp", alt: "Christian Sánchez - Director" },
+    { src: "/images/about-4.webp", alt: "Equipo creativo" },
   ],
 };
 
@@ -110,25 +110,25 @@ export const servicesConfig: ServicesConfig = {
       iconName: "Camera",
       title: "Producción Audiovisual",
       description: "Desde la idea hasta la pantalla. Cortometrajes, largometrajes, series y contenido digital con visión cinematográfica.",
-      image: "/images/prisma-3.png",
+      image: "/images/prisma-3.webp",
     },
     {
       iconName: "Aperture",
       title: "Fotografía",
       description: "Book artístico, fotografía de moda, retratos y cobertura de eventos con visión cinematográfica y atención al detalle.",
-      image: "/images/service-2.jpg",
+      image: "/images/service-2.webp",
     },
     {
       iconName: "Palette",
       title: "Dirección de Arte",
       description: "Diseño visual, escenografía, vestuario y dirección artística para proyectos audiovisuales de alto impacto.",
-      image: "/images/service-3.jpg",
+      image: "/images/service-3.webp",
     },
     {
       iconName: "TrendingUp",
       title: "Marketing y creación de contenido para marcas",
       description: "Estrategias de contenido visual, gestión de redes sociales, campañas publicitarias y branded content que conecta con tu audiencia.",
-      image: "/images/objeto1.png",
+      image: "/images/objeto1.webp",
     },
   ],
 };
@@ -169,56 +169,56 @@ export const portfolioConfig: PortfolioConfig = {
       title: "PRISMA",
       category: "Largometraje",
       year: "2021",
-      image: "/images/prisma-3-new.png",
-      hoverImage: "/images/prisma-1.png",
+      image: "/images/prisma-3-new.webp",
+      hoverImage: "/images/prisma-1.webp",
       featured: true,
     },
     {
       title: "El Viaje Continúa...",
       category: "Cortometraje premiado",
       year: "2022",
-      image: "/images/viaje-1a.jpg",
-      hoverImage: "/images/viaje-1b.png",
+      image: "/images/viaje-1a.webp",
+      hoverImage: "/images/viaje-1b.webp",
       youtubeUrl: "https://www.youtube.com/watch?v=KE3xAOQLitA",
     },
     {
       title: "Pantera Rosa",
       category: "Cortometraje premiado",
       year: "2021",
-      image: "/images/pantera-2a.png",
-      hoverImage: "/images/pantera-2b.png",
+      image: "/images/pantera-2a.webp",
+      hoverImage: "/images/pantera-2b.webp",
       youtubeUrl: "https://www.youtube.com/watch?v=XBYdj9WHbXI",
     },
     {
       title: "El Mejor Regalo",
       category: "Cortometraje premiado",
       year: "2020",
-      image: "/images/regalo-3a.jpg",
-      hoverImage: "/images/regalo-3b.png",
+      image: "/images/regalo-3a.webp",
+      hoverImage: "/images/regalo-3b.webp",
       youtubeUrl: "https://www.youtube.com/watch?v=UObXpwbo0RQ",
     },
     {
       title: "Papá no es",
       category: "Cortometraje",
       year: "2020",
-      image: "/images/papa-4a.jpg",
-      hoverImage: "/images/papa-4b.png",
+      image: "/images/papa-4a.webp",
+      hoverImage: "/images/papa-4b.webp",
       youtubeUrl: "https://youtu.be/54oR1p9xxM8",
     },
     {
       title: "Vamos Tú Puedes",
       category: "Cortometraje",
       year: "2020",
-      image: "/images/vamos-5a.jpg",
-      hoverImage: "/images/vamos-5b.png",
+      image: "/images/vamos-5a.webp",
+      hoverImage: "/images/vamos-5b.webp",
       youtubeUrl: "https://www.youtube.com/watch?v=uzKOL_YLpF8",
     },
     {
       title: "En reserva",
       category: "Cortometraje",
       year: "En producción",
-      image: "/images/reserva-6a.jpg",
-      hoverImage: "/images/reserva-6b.png",
+      image: "/images/reserva-6a.webp",
+      hoverImage: "/images/reserva-6b.webp",
       youtubeUrl: "https://www.youtube.com/watch?v=JwBHxL6ZHUI",
     },
   ],
@@ -226,7 +226,7 @@ export const portfolioConfig: PortfolioConfig = {
     label: "¿Tienes un proyecto?",
     heading: "Hagamos magia juntos",
     linkText: "Contáctanos",
-    linkHref: "#cta",
+    linkHref: "#contact",
   },
   viewAllLabel: "Ver Todos los Proyectos",
 };
@@ -256,7 +256,7 @@ export const testimonialsConfig: TestimonialsConfig = {
       author: "María González",
       role: "Directora",
       company: "Arte Visual Studios",
-      image: "/images/about-1.jpg",
+      image: "/images/about-1.webp",
       rating: 5,
     },
     {
@@ -264,7 +264,7 @@ export const testimonialsConfig: TestimonialsConfig = {
       author: "Carlos Ruiz",
       role: "Productor",
       company: "Cine Independiente",
-      image: "/images/about-2.jpg",
+      image: "/images/about-2.webp",
       rating: 5,
     },
     {
@@ -272,7 +272,7 @@ export const testimonialsConfig: TestimonialsConfig = {
       author: "Laura Martínez",
       role: "Guionista",
       company: "Narrativa Films",
-      image: "/images/about-3.png",
+      image: "/images/about-3.webp",
       rating: 5,
     },
   ],
@@ -296,7 +296,7 @@ export const ctaConfig: CTAConfig = {
   buttonText: "Enviar Mensaje",
   buttonHref: "mailto:info@xalvaje.com",
   email: "info@xalvaje.com",
-  backgroundImage: "/images/cta-bg.jpg",
+  backgroundImage: "/images/cta-bg.webp",
 };
 
 // Footer section configuration
@@ -334,7 +334,7 @@ export const footerConfig: FooterConfig = {
         { label: "Nosotros", href: "#about" },
         { label: "Proyectos", href: "#portfolio" },
         { label: "Servicios", href: "#services" },
-        { label: "Contacto", href: "#cta" },
+        { label: "Contacto", href: "#contact" },
       ],
     },
     {

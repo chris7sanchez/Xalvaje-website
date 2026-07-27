@@ -140,8 +140,8 @@ export function About() {
               style={{ transitionDelay: '300ms' }}
             >
               <div className="w-32 h-40 flex-shrink-0 rounded-lg overflow-hidden shadow-lg">
-                <img 
-                  src="/images/christian-director.png" 
+                <img loading="lazy" decoding="async" 
+                  src="/images/christian-director.webp" 
                   alt="Christian Sánchez - Director" 
                   className="w-full h-full object-cover"
                 />
@@ -164,8 +164,8 @@ export function About() {
               style={{ transitionDelay: '400ms' }}
             >
               <div className="w-32 h-40 flex-shrink-0 rounded-lg overflow-hidden shadow-lg">
-                <img 
-                  src="/images/angel-lara.png" 
+                <img loading="lazy" decoding="async" 
+                  src="/images/angel-lara.webp" 
                   alt="Ángel Lara - Productor" 
                   className="w-full h-full object-cover"
                 />
@@ -199,8 +199,8 @@ export function About() {
                 </p>
               </div>
               <div className="rounded-lg overflow-hidden shadow-xl">
-                <img 
-                  src="/images/en-equipo.png" 
+                <img loading="lazy" decoding="async" 
+                  src="/images/en-equipo.webp" 
                   alt="El equipo de XALVAJE" 
                   className="w-full h-auto object-cover"
                 />

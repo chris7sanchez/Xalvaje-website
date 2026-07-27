@@ -55,7 +55,7 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
             project.featured && 'lg:aspect-[16/9]'
           )}>
             {/* Imagen base (sin hover) - object-contain para ver cartel completo */}
-            <img
+            <img loading="lazy" decoding="async"
               src={project.image}
               alt={project.title}
               className={cn(
@@ -65,7 +65,7 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
             />
             {/* Imagen hover (si existe) */}
             {hasHoverEffect && (
-              <img
+              <img loading="lazy" decoding="async"
                 src={hoverImage}
                 alt={`${project.title} - hover`}
                 className={cn(

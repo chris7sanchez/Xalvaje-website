@@ -14,7 +14,7 @@ export function CTA() {
     <section id="contact" className="relative w-full py-32 lg:py-48 overflow-hidden">
       {/* Background Image */}
       <div className="absolute inset-0">
-        <img
+        <img loading="lazy" decoding="async"
           src={ctaConfig.backgroundImage}
           alt="Background"
           className="w-full h-full object-cover"

@@ -8,8 +8,8 @@ export function Photography() {
     <section id="photography" className="w-full min-h-screen bg-neutral-900 relative overflow-hidden">
       {/* Full screen image */}
       <div className="absolute inset-0">
-        <img 
-          src="/images/fotografia.png" 
+        <img loading="lazy" decoding="async" 
+          src="/images/fotografia.webp" 
           alt="Fotografía XALVAJE" 
           className="w-full h-full object-cover"
         />

@@ -1,0 +1,41 @@
+# Dependencias
+node_modules/
+
+# macOS
+.DS_Store
+
+# Entornos y secretos
+.env
+.env.local
+.env.*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Editores
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Vercel
+.vercel
+
+# Material de vídeo en bruto: no debe entrar en el repositorio.
+# Los vídeos que usa la web están en public/videos/ y sí se versionan.
+/*.mov
+/*.mp4
+/*.MOV
+/*.MP4
+
+# Carpetas de trabajo y copias de seguridad locales
+_to_delete/
+_imagenes-originales-backup/
+*.tgz
+XALVAJE-WEB-PARA-SUBIR.zip
+
+# OJO: dist/ NO se ignora a propósito. Este repositorio versiona la carpeta
+# compilada, así que el despliegue funciona tanto si Vercel construye desde
+# el código como si sirve directamente dist/.

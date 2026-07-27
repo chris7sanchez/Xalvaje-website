@@ -8,8 +8,8 @@ export function Stills() {
     <section id="stills" className="w-full min-h-screen bg-neutral-900 relative overflow-hidden">
       {/* Full screen image */}
       <div className="absolute inset-0">
-        <img 
-          src="/images/still-producciones.png" 
+        <img loading="lazy" decoding="async" 
+          src="/images/still-producciones.webp" 
           alt="Stills de producción XALVAJE" 
           className="w-full h-full object-cover"
         />

@@ -3,12 +3,20 @@ import { cn } from '@/lib/utils';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { useServiceParallax } from '@/hooks/useMouseParallax';
 import { servicesConfig } from '@/config';
-import * as LucideIcons from 'lucide-react';
-import { ArrowUpRight, ChevronDown } from 'lucide-react';
+import {
+  ArrowUpRight, ChevronDown, Circle,
+  Camera, Aperture, Palette, TrendingUp,
+  Film, Video, Clapperboard, Image, Layers, Megaphone, Sparkles, PenTool, Monitor, Compass,
+} from 'lucide-react';
+
+// Solo se empaquetan los iconos que usamos (evita importar toda la librería lucide-react).
+const ICON_MAP: Record<string, ElementType> = {
+  Camera, Aperture, Palette, TrendingUp,
+  Film, Video, Clapperboard, Image, Layers, Megaphone, Sparkles, PenTool, Monitor, Compass,
+};
 
 function getIcon(iconName: string): ElementType {
-  const icons = LucideIcons as unknown as Record<string, ElementType>;
-  return icons[iconName] || LucideIcons.Circle;
+  return ICON_MAP[iconName] || Circle;
 }
 
 // Marcas para el submenu de Marketing
@@ -127,7 +135,7 @@ function ServiceCard({ service, index, onNavigate }: ServiceCardProps) {
         )}
         style={getTransform(50, 6)}
       >
-        <img
+        <img loading="lazy" decoding="async"
           src={service.image}
           alt={service.title}
           className="w-full h-full object-cover"

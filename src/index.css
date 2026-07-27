@@ -37,7 +37,10 @@
     --exvia-border: #EFEFF2;
     --exvia-blue: #0082F3;
     --exvia-focus: #4D65FF;
-    
+    /* Color de marca XALVAJE, muestreado de la X del logo */
+    --exvia-red: #B8442A;
+    --exvia-red-dark: #8F3320;
+
     /* shadcn tokens mapped to Exvia */
     --background: 0 0% 100%;
     --foreground: 0 0% 7.5%;
@@ -347,7 +350,7 @@
 
 /* Selection styling */
 ::selection {
-  background: var(--exvia-black);
+  background: var(--exvia-red);
   color: var(--exvia-white);
 }
 
@@ -366,7 +369,7 @@
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #333;
+  background: var(--exvia-red);
 }
 
 /* Mobile responsive typography */

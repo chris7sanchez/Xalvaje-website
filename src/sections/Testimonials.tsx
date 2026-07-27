@@ -30,7 +30,7 @@ export function Testimonials() {
             >
               {/* Small avatar */}
               <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 shadow-md">
-                <img
+                <img loading="lazy" decoding="async"
                   src={testimonial.image}
                   alt={testimonial.author}
                   className="w-full h-full object-cover"
