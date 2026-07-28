@@ -62,7 +62,10 @@ export interface HeroConfig {
 export const heroConfig: HeroConfig = {
   name: "XALVAJE",
   roles: ["Producción Audiovisual", "Dirección", "Fotografía", "Arte"],
-  backgroundImage: "/images/hero-bg.webp",
+  // Respaldo instantáneo mientras cargan los fotogramas: usamos el primer
+  // fotograma real (no la foto antigua) para que nunca se vea una imagen
+  // que no pertenece al hero nuevo, ni siquiera un instante.
+  backgroundImage: "/images/hero-scrub/f-001.webp",
   headlineLines: ["Donde las sombras", "salen a la luz y se hacen historia"],
   tagline: "Productora audiovisual — cortometrajes, largometrajes y contenido de marca",
   scrubFrameCount: 60,
