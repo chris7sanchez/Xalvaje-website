@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, type MouseEvent } from 'react';
 import { cn } from '@/lib/utils';
 import { heroConfig } from '@/config';
 
@@ -9,6 +9,15 @@ const SCRUB_SCREENS = 3.5;
 function frameUrl(index: number) {
   const n = String(index + 1).padStart(3, '0');
   return `${heroConfig.scrubFramePathPrefix}${n}.webp`;
+}
+
+// El salto nativo del navegador a #ancla no es fiable en esta web (confirmado:
+// tampoco funciona en el nav principal sin este mismo workaround). Mismo
+// patrón que usa Navigation.tsx: conservamos el href real (SEO, teclado,
+// abrir en pestaña nueva) y forzamos el scroll manualmente.
+function handleZoneClick(e: MouseEvent<HTMLAnchorElement>, href: string) {
+  e.preventDefault();
+  document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
 }
 
 export function Hero() {
@@ -153,6 +162,7 @@ export function Hero() {
               <a
                 key={zone.href}
                 href={zone.href}
+                onClick={(e) => handleZoneClick(e, zone.href)}
                 className="group relative px-3 py-2 sm:px-5 sm:py-3 text-center"
               >
                 <span className="text-[0.65rem] sm:text-sm font-geist-mono uppercase tracking-[0.2em] text-white/90 group-hover:text-white transition-colors duration-300">
