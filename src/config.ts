@@ -39,16 +39,39 @@ export const navigationConfig: NavigationConfig = {
 };
 
 // Hero section configuration
+export interface HeroZone {
+  label: string;
+  href: string;
+}
+
 export interface HeroConfig {
   name: string;
   roles: string[];
   backgroundImage: string;
+  /** Titular poético, una línea por elemento del array */
+  headlineLines: string[];
+  /** Línea corta y clara: qué es Xalvaje, para quien no conoce la marca */
+  tagline: string;
+  /** Fotogramas del scroll-scrub: public/images/hero-scrub/f-001.webp ... f-0XX.webp */
+  scrubFrameCount: number;
+  scrubFramePathPrefix: string;
+  /** Zonas clicables que aparecen sobre el último fotograma */
+  zones: HeroZone[];
 }
 
 export const heroConfig: HeroConfig = {
   name: "XALVAJE",
   roles: ["Producción Audiovisual", "Dirección", "Fotografía", "Arte"],
   backgroundImage: "/images/hero-bg.webp",
+  headlineLines: ["Donde las sombras", "salen a la luz y se hacen historia"],
+  tagline: "Productora audiovisual — cortometrajes, largometrajes y contenido de marca",
+  scrubFrameCount: 40,
+  scrubFramePathPrefix: "/images/hero-scrub/f-",
+  zones: [
+    { label: "Proyectos", href: "#portfolio" },
+    { label: "Servicios", href: "#services" },
+    { label: "Sobre Nosotros", href: "#about" },
+  ],
 };
 
 // About section configuration
