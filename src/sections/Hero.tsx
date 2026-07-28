@@ -130,7 +130,7 @@ export function Hero() {
               alt={i === 0 ? 'XALVAJE — rodaje' : ''}
               aria-hidden={i !== 0}
               className={cn(
-                'absolute inset-0 w-full h-full object-cover transition-opacity duration-150',
+                'absolute inset-0 w-full h-full object-cover',
                 i === currentFrame ? 'opacity-100' : 'opacity-0'
               )}
               loading={i < 3 ? 'eager' : 'lazy'}

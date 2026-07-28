@@ -65,7 +65,7 @@ export const heroConfig: HeroConfig = {
   backgroundImage: "/images/hero-bg.webp",
   headlineLines: ["Donde las sombras", "salen a la luz y se hacen historia"],
   tagline: "Productora audiovisual — cortometrajes, largometrajes y contenido de marca",
-  scrubFrameCount: 40,
+  scrubFrameCount: 60,
   scrubFramePathPrefix: "/images/hero-scrub/f-",
   zones: [
     { label: "Proyectos", href: "#portfolio" },
