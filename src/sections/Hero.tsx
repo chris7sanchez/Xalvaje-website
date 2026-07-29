@@ -4,7 +4,12 @@ import { heroConfig } from '@/config';
 
 // Alto del contenedor de scroll, en "pantallas" (vh). Da el recorrido
 // necesario para que el scrub de fotogramas se sienta gradual, no un salto.
-const SCRUB_SCREENS = 3.5;
+const SCRUB_SCREENS = 4.5;
+
+// Porción del recorrido dedicada a pasar fotogramas. El resto (1 - esto) se
+// reserva para que el ÚLTIMO fotograma se quede quieto en pantalla, como
+// portada, antes de que la siguiente sección empiece a entrar.
+const SCRUB_PORTION = 0.68;
 
 function frameUrl(index: number) {
   const n = String(index + 1).padStart(3, '0');
@@ -72,15 +77,20 @@ export function Hero() {
 
   if (!heroConfig.headlineLines.length && !heroConfig.name) return null;
 
-  const currentFrame = reducedMotion
-    ? Math.floor(frameCount / 2)
-    : Math.min(frameCount - 1, Math.floor(progress * frameCount));
+  // El scrub de fotogramas consume solo SCRUB_PORTION del recorrido. Pasado
+  // ese punto scrubProgress se queda en 1: el último fotograma no se mueve
+  // aunque el usuario siga bajando, y así la portada "se frena" de verdad.
+  const scrubProgress = Math.min(1, progress / SCRUB_PORTION);
 
-  const showZones = reducedMotion || progress > 0.6;
+  const currentFrame = reducedMotion
+    ? frameCount - 1
+    : Math.min(frameCount - 1, Math.floor(scrubProgress * frameCount));
+
+  const showZones = reducedMotion || scrubProgress > 0.6;
   const showScrollCue = !reducedMotion && progress < 0.05;
-  // Tramo final: el último fotograma ya está fijo en pantalla (fin del scrub).
-  // Marcamos este momento como "portada" intencional, no como un parón.
-  const isFinalFrame = reducedMotion || progress > 0.92;
+  // Tramo de portada: los fotogramas ya han terminado y la imagen final
+  // permanece fija en pantalla.
+  const isFinalFrame = reducedMotion || scrubProgress >= 1;
 
   return (
     <div
@@ -98,7 +108,7 @@ export function Hero() {
         >
           <div
             className="h-full bg-exvia-red transition-[width] duration-100 ease-linear"
-            style={{ width: `${progress * 100}%` }}
+            style={{ width: `${scrubProgress * 100}%` }}
           />
         </div>
       )}
