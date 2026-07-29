@@ -4,12 +4,7 @@ import { heroConfig } from '@/config';
 
 // Alto del contenedor de scroll, en "pantallas" (vh). Da el recorrido
 // necesario para que el scrub de fotogramas se sienta gradual, no un salto.
-const SCRUB_SCREENS = 4.5;
-
-// Porción del recorrido dedicada a pasar fotogramas. El resto (1 - esto) se
-// reserva para que el ÚLTIMO fotograma se quede quieto en pantalla, como
-// portada, antes de que la siguiente sección empiece a entrar.
-const SCRUB_PORTION = 0.68;
+const SCRUB_SCREENS = 3.5;
 
 function frameUrl(index: number) {
   const n = String(index + 1).padStart(3, '0');
@@ -35,6 +30,14 @@ export function Hero() {
     () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
   );
   const tickingRef = useRef(false);
+  // Mientras esté bloqueado, el scroll no pasa del último fotograma: la
+  // portada es un menú y solo se sale de ella pulsando un botón.
+  // Si se entra con un ancla en la URL (/#portfolio), el visitante quiere ir
+  // directo a esa sección: el tope no debe arrastrarlo de vuelta al hero.
+  const unlockedRef = useRef(
+    typeof window !== 'undefined' && window.location.hash.length > 1
+  );
+  const [locked, setLocked] = useState(false);
 
   const frameCount = heroConfig.scrubFrameCount;
 
@@ -65,6 +68,19 @@ export function Hero() {
       }
       const raw = -rect.top / scrollable;
       setProgress(Math.min(1, Math.max(0, raw)));
+
+      // Tope duro al final del hero: la secuencia termina y la página se
+      // queda ahí. Hacia arriba se puede volver sin problema; hacia abajo
+      // solo se avanza pulsando un enlace del menú (ver efecto de abajo).
+      if (!unlockedRef.current) {
+        const lockY = el.offsetTop + el.offsetHeight - viewportH;
+        if (window.scrollY > lockY) {
+          window.scrollTo(0, lockY);
+          setLocked(true);
+        } else {
+          setLocked(false);
+        }
+      }
     });
   }, []);
 
@@ -75,12 +91,25 @@ export function Hero() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [handleScroll, reducedMotion]);
 
+  // Cualquier enlace de ancla (nav principal o zonas del hero) libera el
+  // tope. Se escucha en captura para que el desbloqueo ocurra ANTES del
+  // scrollIntoView del propio enlace; si no, el clamp lo frenaría en seco.
+  useEffect(() => {
+    if (reducedMotion) return;
+    const unlock = (e: Event) => {
+      const target = e.target as HTMLElement | null;
+      if (target?.closest?.('a[href^="#"]')) {
+        unlockedRef.current = true;
+        setLocked(false);
+      }
+    };
+    document.addEventListener('click', unlock, true);
+    return () => document.removeEventListener('click', unlock, true);
+  }, [reducedMotion]);
+
   if (!heroConfig.headlineLines.length && !heroConfig.name) return null;
 
-  // El scrub de fotogramas consume solo SCRUB_PORTION del recorrido. Pasado
-  // ese punto scrubProgress se queda en 1: el último fotograma no se mueve
-  // aunque el usuario siga bajando, y así la portada "se frena" de verdad.
-  const scrubProgress = Math.min(1, progress / SCRUB_PORTION);
+  const scrubProgress = progress;
 
   const currentFrame = reducedMotion
     ? frameCount - 1
@@ -153,15 +182,22 @@ export function Hero() {
               onError={i === 0 ? () => setTimeoutElapsed(true) : undefined}
             />
           ))}
-          {/* Vignette cinematográfico: se intensifica en el fotograma final
-              para que la "portada" se lea como remate intencional, no como
-              un frame cualquiera que se quedó congelado. */}
+          {/* Vignette cinematográfico. Son DOS capas que se funden por opacidad:
+              un `background` con gradiente no se puede animar (el navegador lo
+              cambia de golpe y se ve un salto de luz), pero la opacidad sí. */}
           <div
-            className="absolute inset-0 pointer-events-none z-20 transition-[background] duration-700 ease-out"
+            className="absolute inset-0 pointer-events-none z-20"
             style={{
-              background: isFinalFrame
-                ? 'radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.72) 100%)'
-                : 'radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.55) 100%)',
+              background: 'radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.55) 100%)',
+            }}
+          />
+          <div
+            className={cn(
+              'absolute inset-0 pointer-events-none z-20 transition-opacity duration-1000 ease-out',
+              isFinalFrame ? 'opacity-100' : 'opacity-0'
+            )}
+            style={{
+              background: 'radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.72) 100%)',
             }}
           />
         </div>
@@ -258,18 +294,17 @@ export function Hero() {
           </span>
         </div>
 
-        {/* Cue final: reemplaza al de inicio una vez el scrub ha terminado,
-            para que el tramo "fijo" se sienta como un remate, no como un corte. */}
+        {/* Cue final: aquí el scroll está topado a propósito, así que el aviso
+            dirige al menú en vez de invitar a seguir bajando. */}
         <div
           className={cn(
             'absolute bottom-6 left-1/2 -translate-x-1/2 z-20 transition-opacity duration-700 flex flex-col items-center gap-2',
             isFinalFrame && revealReady ? 'opacity-70' : 'opacity-0'
           )}
         >
-          <span className="text-[0.6rem] font-geist-mono uppercase tracking-[0.35em] text-white">
-            Descubre XALVAJE
+          <span className="text-[0.6rem] font-geist-mono uppercase tracking-[0.35em] text-white text-center">
+            {locked ? 'Elige una sección' : 'Descubre XALVAJE'}
           </span>
-          <span className="w-px h-6 bg-gradient-to-b from-white/70 to-transparent animate-pulse" />
         </div>
 
         {/* Bottom gradient fade */}
