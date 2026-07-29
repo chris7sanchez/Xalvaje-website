@@ -39,3 +39,6 @@ XALVAJE-WEB-PARA-SUBIR.zip
 # OJO: dist/ NO se ignora a propósito. Este repositorio versiona la carpeta
 # compilada, así que el despliegue funciona tanto si Vercel construye desde
 # el código como si sirve directamente dist/.
+
+# Originales de fotografia sin optimizar (quedan solo en local)
+recursos/

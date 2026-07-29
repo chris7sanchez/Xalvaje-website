@@ -66,7 +66,7 @@ export const heroConfig: HeroConfig = {
   // fotograma real (no la foto antigua) para que nunca se vea una imagen
   // que no pertenece al hero nuevo, ni siquiera un instante.
   backgroundImage: "/images/hero-scrub/f-001.webp",
-  headlineLines: ["Donde las sombras", "salen a la luz y se hacen historia"],
+  headlineLines: ["Dando luz a las sombras", "Contando el odio desde el amor"],
   tagline: "Productora audiovisual — cortometrajes, largometrajes y contenido de marca",
   scrubFrameCount: 60,
   scrubFramePathPrefix: "/images/hero-scrub/f-",

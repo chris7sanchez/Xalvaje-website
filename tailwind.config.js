@@ -58,6 +58,9 @@ module.exports = {
         /* Titulares tipo cartel de cine: hero, encabezados de sección,
            títulos de tarjeta, banners. No usar en cuerpo de texto. */
         display: ['Anton', 'Arial Narrow', 'sans-serif'],
+        /* Voz de marca: frase del hero. Serif de alto contraste en peso ligero,
+           elegante y sin gritar. No usar para encabezados de sección. */
+        'display-serif': ['Cormorant Garamond', 'Georgia', 'serif'],
       },
       fontSize: {
         'h1': ['clamp(3rem, 21vw, 21vw)', { lineHeight: '1', letterSpacing: '-0.04em' }],

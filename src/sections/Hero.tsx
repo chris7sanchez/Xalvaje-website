@@ -344,12 +344,12 @@ export function Hero() {
             style={{ transitionDelay: '900ms' }}
           >
             {heroConfig.headlineLines[0] && (
-              <h1 className="font-display text-[clamp(2.5rem,9vw,7rem)] text-white uppercase tracking-[-0.01em] leading-[0.9] drop-shadow-2xl">
+              <h1 className="font-display-serif font-light text-[clamp(2.75rem,8.5vw,6.5rem)] text-white tracking-[-0.015em] leading-[1.05] drop-shadow-2xl">
                 {heroConfig.headlineLines[0]}
               </h1>
             )}
             {heroConfig.headlineLines[1] && (
-              <p className="mt-1 text-[clamp(1rem,3.2vw,2rem)] font-medium text-white/85 uppercase tracking-[-0.01em] leading-tight drop-shadow-xl">
+              <p className="mt-2 font-display-serif font-light italic text-[clamp(1.125rem,3.4vw,2.125rem)] text-white/90 tracking-[0.005em] leading-snug drop-shadow-xl">
                 {heroConfig.headlineLines[1]}
               </p>
             )}
