@@ -50,6 +50,11 @@ module.exports = {
           red: '#B8442A',
           'red-dark': '#8F3320',
           'red-light': '#C04D32',
+          /* Rojo de marca aclarado para TEXTO PEQUEÑO sobre fondo negro. El
+             #B8442A da 3,9:1 y el red-light 4,35:1, ambos por debajo del 4,5:1
+             que exige WCAG AA; este mide 5,10:1. Usar solo en texto: las líneas
+             y adornos siguen con `red`, que como elemento gráfico cumple con 3:1. */
+          'red-text': '#D2553A',
         },
       },
       fontFamily: {

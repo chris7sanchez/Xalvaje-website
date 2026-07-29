@@ -77,41 +77,107 @@ export const heroConfig: HeroConfig = {
   ],
 };
 
-// About section configuration
-export interface AboutStat {
-  value: string;
-  label: string;
+// Sección NOSOTROS: una ficha por autor (foto alternando lado) y un bloque
+// final de dúo. Las biografías largas alimentan el diálogo de "Ver biografía".
+export interface AboutPerson {
+  number: string;
+  firstName: string;
+  lastName: string;
+  roles: string[];
+  quote: string;
+  intro: string;
+  bio: string[];
+  image: string;
+  imageAlt: string;
+  /** true = foto a la derecha (bloque en espejo) */
+  mirrored: boolean;
 }
 
-export interface AboutImage {
-  src: string;
-  alt: string;
+export interface AboutTeam {
+  label: string;
+  headlineLines: string[];
+  /** Tres columnas de párrafos, como en el diseño. Se apilan en móvil. */
+  columns: string[][];
+  closing: string;
+  image: string;
+  imageAlt: string;
 }
 
 export interface AboutConfig {
-  label: string;
-  description: string;
-  experienceValue: string;
-  experienceLabel: string;
-  stats: AboutStat[];
-  images: AboutImage[];
+  people: AboutPerson[];
+  team: AboutTeam;
 }
 
 export const aboutConfig: AboutConfig = {
-  label: "Sobre Nosotros",
-  description: '"Juntos creamos mundos donde la luz encuentra su camino"\n\nXALVAJE nació en 2020 de la unión de dos visiones creativas con una misma pasión: contar historias que trasciendan la pantalla y lleguen directamente al corazón del espectador.\n\nNuestro nombre representa la dualidad de la luz y la sombra, ese equilibrio perfecto entre lo salvaje y lo refinado que buscamos en cada proyecto. Somos cazadores de emociones, arquitectos de sueños visuales.\n\nDesde cortometrajes premiados hasta nuestro primer largometraje "PRISMA", cada proyecto es una oportunidad de explorar nuevas formas de narrativa visual y conectar con audiencias de manera auténtica.\n\nNuestra filosofía se basa en la colaboración, la experimentación y el compromiso con la excelencia artística. Cada historia merece ser contada de la mejor manera posible.',
-  experienceValue: "5+",
-  experienceLabel: "Años de\nexperiencia",
-  stats: [
-    { value: "10+", label: "Proyectos realizados" },
-    { value: "3", label: "Premios ganados" },
+  people: [
+    {
+      number: "01",
+      firstName: "Christian",
+      lastName: "Sánchez",
+      roles: ["Director", "Guionista", "Productor"],
+      quote: "Las historias nacen mucho antes de que exista una cámara.",
+      intro:
+        "Nací contando historias desde distintos lenguajes: la interpretación, la música y la dirección. Con el tiempo entendí que todas hablaban de lo mismo: emocionar. Hoy mi mirada busca la luz que existe en cada personaje, incluso cuando habita la oscuridad.",
+      bio: [
+        "Director, actor, guionista, músico y cantante.",
+        "Nace en Barcelona, donde comienza su desarrollo como artista plástico en la diplomatura de Diseño de producto.",
+        'Su vida toma un giro inesperado en 2006 y empieza su carrera profesional como actor de musicales en títulos como "High School Musical", "Fiebre del Sábado Noche", "Hair" o "El Rey León". Protagoniza el musical de "Dirty Dancing" y "Ghost, el musical" tanto en Madrid como en su gira nacional, durante más de cinco años cada uno.',
+        'En televisión empieza su recorrido con "La Pecera de Eva" en 2010, y protagoniza las series musicales "Dreamland" y "Yo quisiera" (Mediaset). Series para las que además compone las canciones del proyecto y con las que gira por España, convirtiendo a alguno de estos temas en los más sonados de "Los 40 Principales". Llega a crear uno de los himnos que Coca-Cola le encarga para su campaña de Navidad en 2013, y la canción corporativa de ese mismo año para el grupo Mediaset.',
+        '"Gym Tony" (Cuatro), "Perdóname Señor" (Telecinco), "El Continental" (TVE1) o "Cupido" (Playz) son otros de los títulos en los que forma parte, en cine y televisión, como actor y director de casting, emprendiendo las labores de supervisión de postproducción en la productora "Gossip Events & Productions".',
+        "Sus estudios de diseño e imagen le permiten desarrollarse como fotógrafo, y el desempeño en los diferentes departamentos artísticos y de producción le llevan a adentrarse, más tarde, en el mundo de la realización y la dirección.",
+      ],
+      image: "/images/nosotros/christian.webp",
+      imageAlt: "Christian Sánchez, director de XALVAJE",
+      mirrored: false,
+    },
+    {
+      number: "02",
+      firstName: "Ángel",
+      lastName: "Lara",
+      roles: ["Director artístico", "Coreógrafo"],
+      quote: "La emoción también se construye desde el silencio y el movimiento.",
+      intro:
+        "Mi lenguaje nace del cuerpo, del espacio y del ritmo. Busco la belleza en la tensión, en aquello que no necesita palabras para emocionar. Cada plano es una coreografía donde la sombra también cuenta una historia.",
+      bio: [
+        "Nace en Madrid y se forma en arte dramático y danza.",
+        'Comienza su carrera de bailarín en compañías como la de Aida Gómez y el NBE, y logra entrar como cuerpo de baile y más tarde como solista del Ballet Nacional de España a lo largo de siete años.',
+        'Ha participado en las películas "Iberia" de Carlos Saura y "Mi gran noche" de Álex de la Iglesia, y en televisión en programas como "La Voz", "La Voz Kids" y "OT", o series como "Dreamland".',
+        'Más tarde se une al elenco de musicales como "Dirty Dancing" y forma parte de la producción teatral de "Esto no es la casa de Bernarda Alba" de Carlota Ferrer, así como de diversas óperas en el Teatro Real.',
+        'Se encarga de la dirección artística además de ser el coreógrafo del programa de televisión "Buscando un sueño" (CMM).',
+        "Crea piezas artísticas para el grupo Na'Art y La caja sensorial de Isaacdospuntos.",
+        "Actualmente se encuentra en WAH Show, una de las experiencias musicales más exitosas de Madrid.",
+      ],
+      image: "/images/nosotros/angel.webp",
+      imageAlt: "Ángel Lara, director artístico de XALVAJE",
+      mirrored: true,
+    },
   ],
-  images: [
-    { src: "/images/about-1.webp", alt: "Producción audiovisual" },
-    { src: "/images/about-2.webp", alt: "Ángel Lara - Director" },
-    { src: "/images/about-3.webp", alt: "Christian Sánchez - Director" },
-    { src: "/images/about-4.webp", alt: "Equipo creativo" },
-  ],
+  team: {
+    label: "Nosotros",
+    headlineLines: ["Dos miradas.", "Una misma historia."],
+    columns: [
+      [
+        "Hay historias que nacen de una sola voz.",
+        "Las nuestras nacen del diálogo.",
+        "Durante años hemos aprendido a mirar el mismo mundo desde lugares distintos.",
+        "A veces uno encontraba la luz mientras el otro descendía a las sombras.",
+      ],
+      [
+        "Con el tiempo dejamos de ocupar siempre el mismo lugar. Aprendimos a intercambiar los papeles.",
+        "A dirigir y dejarnos dirigir. A escuchar antes de responder. A sostener cuando el otro necesitaba avanzar.",
+        "Comprendimos que ninguna mirada está completa por sí sola.",
+      ],
+      [
+        "Porque la emoción necesita estructura. Y la estructura necesita emoción.",
+        "La luz revela. La sombra da profundidad.",
+        "Solo cuando ambas conviven aparece una historia capaz de permanecer.",
+        "No somos dos personas haciendo cine. Somos una única mirada construida entre dos.",
+      ],
+    ],
+    closing: "Eso es XALVAJE.",
+    image: "/images/nosotros/juntos.webp",
+    imageAlt: "Christian Sánchez y Ángel Lara, frente a frente",
+  },
 };
 
 // Services section configuration
