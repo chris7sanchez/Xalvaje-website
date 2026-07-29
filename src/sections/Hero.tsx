@@ -40,6 +40,9 @@ export function Hero() {
     typeof window !== 'undefined' && window.location.hash.length > 1
   );
   const lockedRef = useRef(false);
+  // Tras descongelar rebobinando, no se vuelve a congelar hasta salir de la
+  // zona final; si no, el primer gesto de subida quedaría atrapado al instante.
+  const suppressRelockRef = useRef(false);
   const [locked, setLocked] = useState(false);
 
   const frameCount = heroConfig.scrubFrameCount;
@@ -72,15 +75,26 @@ export function Hero() {
       const raw = -rect.top / scrollable;
       setProgress(Math.min(1, Math.max(0, raw)));
 
-      // Congelación al final del hero: un único ajuste de posición y el
-      // scroll del documento se apaga. Nada de reposicionar en cada evento
-      // (eso vibra con trackpad/móvil): apagado limpio, encendido limpio.
-      if (!unlockedRef.current && !lockedRef.current && raw >= 1) {
+      // Congelación al final del hero. Se activa EN CUANTO aparece el último
+      // fotograma, no al agotar el recorrido: como la sección es sticky y
+      // ocupa toda la pantalla, congelar aquí se ve idéntico y evita que la
+      // inercia se pase del final y haya que recolocar (eso era el salto).
+      const finalZone = 1 - 1 / heroConfig.scrubFrameCount;
+      if (raw < finalZone) suppressRelockRef.current = false;
+      if (
+        !unlockedRef.current &&
+        !lockedRef.current &&
+        !suppressRelockRef.current &&
+        raw >= finalZone
+      ) {
         lockedRef.current = true;
         setLocked(true);
-        const lockY = el.offsetTop + el.offsetHeight - viewportH;
-        window.scrollTo(0, lockY);
+        setProgress(1);
         document.documentElement.style.overflow = 'hidden';
+        // Solo si la inercia ya se pasó del final (la siguiente sección
+        // asomaba), se recoloca; en el caso normal no hay ningún ajuste.
+        const lockY = el.offsetTop + el.offsetHeight - viewportH;
+        if (window.scrollY > lockY) window.scrollTo(0, lockY);
       }
     });
   }, []);
@@ -88,6 +102,7 @@ export function Hero() {
   const releaseLock = useCallback(() => {
     if (!lockedRef.current) return;
     lockedRef.current = false;
+    suppressRelockRef.current = true;
     setLocked(false);
     document.documentElement.style.overflow = '';
   }, []);
