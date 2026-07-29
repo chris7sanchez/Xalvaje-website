@@ -55,6 +55,9 @@ module.exports = {
       fontFamily: {
         geist: ['Geist', 'Arial', 'sans-serif'],
         'geist-mono': ['GeistMono', 'Courier New', 'monospace'],
+        /* Titulares tipo cartel de cine: hero, encabezados de sección,
+           títulos de tarjeta, banners. No usar en cuerpo de texto. */
+        display: ['Anton', 'Arial Narrow', 'sans-serif'],
       },
       fontSize: {
         'h1': ['clamp(3rem, 21vw, 21vw)', { lineHeight: '1', letterSpacing: '-0.04em' }],

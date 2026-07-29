@@ -105,7 +105,7 @@ function FeaturedPrisma({ project, isVisible }: { project: Project; isVisible: b
         <span className="text-[0.6rem] font-geist-mono uppercase tracking-[0.25em] text-exvia-red">
           {project.category}
         </span>
-        <h3 className="mt-1 text-3xl lg:text-4xl font-black text-white uppercase tracking-[-0.02em] leading-none">
+        <h3 className="mt-1 text-3xl lg:text-4xl font-display text-white uppercase tracking-[-0.02em] leading-none">
           {project.title}
         </h3>
       </div>
@@ -179,7 +179,7 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
           </span>
 
           {/* Título grande superpuesto */}
-          <h3 className="absolute left-4 right-4 bottom-14 text-2xl lg:text-3xl font-black text-white uppercase tracking-[-0.02em] leading-[0.95] drop-shadow-lg">
+          <h3 className="absolute left-4 right-4 bottom-14 text-2xl lg:text-3xl font-display text-white uppercase tracking-[-0.02em] leading-[0.95] drop-shadow-lg">
             {project.title}
           </h3>
 
@@ -266,7 +266,7 @@ export function Portfolio() {
           {portfolioConfig.heading && (
             <h2
               className={cn(
-                'text-h2 font-black uppercase tracking-[-0.02em] text-white mt-4 transition-all duration-800 ease-out-quart',
+                'font-display text-h2 uppercase tracking-[-0.01em] text-white mt-4 transition-all duration-800 ease-out-quart',
                 headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
               )}
               style={{ transitionDelay: '100ms' }}
@@ -330,7 +330,7 @@ export function Portfolio() {
                     <span className="inline-block w-10 h-px bg-exvia-red" />
                   </span>
                 )}
-                <h3 className="mt-3 text-4xl lg:text-6xl font-black text-white uppercase tracking-[-0.02em] leading-[0.95] max-w-2xl">
+                <h3 className="mt-3 text-4xl lg:text-6xl font-display text-white uppercase tracking-[-0.02em] leading-[0.95] max-w-2xl">
                   {portfolioConfig.cta.heading}
                 </h3>
               </div>

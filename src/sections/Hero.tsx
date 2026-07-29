@@ -54,6 +54,23 @@ export function Hero() {
     const t = setTimeout(() => setTimeoutElapsed(true), 2500);
     return () => clearTimeout(t);
   }, []);
+
+  // Precarga de TODOS los fotogramas en segundo plano al abrir la página.
+  // Sin esto, la primera pasada del scroll pide imágenes que aún no han
+  // llegado y la secuencia va a trompicones; con la caché caliente, fluye.
+  useEffect(() => {
+    if (reducedMotion) return;
+    const imgs: HTMLImageElement[] = [];
+    for (let i = 0; i < frameCount; i++) {
+      const img = new Image();
+      img.src = frameUrl(i);
+      imgs.push(img);
+    }
+    return () => {
+      // Cancela descargas pendientes si el componente se desmonta
+      imgs.forEach((img) => { img.src = ''; });
+    };
+  }, [frameCount, reducedMotion]);
   const revealReady = firstFrameLoaded || timeoutElapsed;
 
   const handleScroll = useCallback(() => {
@@ -327,7 +344,7 @@ export function Hero() {
             style={{ transitionDelay: '900ms' }}
           >
             {heroConfig.headlineLines[0] && (
-              <h1 className="text-[clamp(2.25rem,8vw,6rem)] font-black text-white uppercase tracking-[-0.03em] leading-[0.95] drop-shadow-2xl">
+              <h1 className="font-display text-[clamp(2.5rem,9vw,7rem)] text-white uppercase tracking-[-0.01em] leading-[0.9] drop-shadow-2xl">
                 {heroConfig.headlineLines[0]}
               </h1>
             )}

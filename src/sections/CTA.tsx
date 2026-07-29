@@ -45,7 +45,7 @@ export function CTA() {
           {ctaConfig.heading && (
             <h2
               className={cn(
-                'text-3xl lg:text-5xl font-semibold text-white leading-tight transition-all duration-800 ease-out-quart',
+                'font-display text-4xl lg:text-6xl uppercase tracking-[-0.01em] text-white leading-[0.95] transition-all duration-800 ease-out-quart',
                 isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
               )}
               style={{ transitionDelay: '100ms' }}

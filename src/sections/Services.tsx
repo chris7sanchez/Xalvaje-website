@@ -199,7 +199,7 @@ export function Services() {
           {servicesConfig.heading && (
             <h2
               className={cn(
-                'text-3xl lg:text-4xl xl:text-5xl font-semibold text-exvia-black mt-4 transition-all duration-800 ease-out-quart',
+                'font-display text-4xl lg:text-5xl xl:text-6xl uppercase tracking-[-0.01em] text-exvia-black mt-4 transition-all duration-800 ease-out-quart',
                 headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
               )}
               style={{ transitionDelay: '100ms' }}

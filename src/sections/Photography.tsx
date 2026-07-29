@@ -29,7 +29,7 @@ export function Photography() {
             <span className="text-sm font-geist-mono uppercase tracking-[0.25em] text-white/60 mb-4 block">
               Portfolio
             </span>
-            <h2 className="text-4xl lg:text-6xl font-bold text-white mb-4">
+            <h2 className="font-display text-5xl lg:text-7xl uppercase tracking-[-0.01em] text-white mb-4">
               Fotografía
             </h2>
             <p className="text-lg text-white/70 leading-relaxed max-w-xl">
