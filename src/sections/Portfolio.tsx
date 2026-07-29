@@ -139,7 +139,7 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
     <>
       <div
         className={cn(
-          'group cursor-pointer transition-all duration-700 ease-out-quart flex-1 min-w-[270px] max-w-[560px]',
+          'group cursor-pointer transition-all duration-700 ease-out-quart',
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
         )}
         style={{ transitionDelay: `${index * 100}ms` }}
@@ -295,43 +295,59 @@ export function Portfolio() {
           </div>
         )}
 
-        {/* Resto de proyectos - grid compacto */}
-        <div ref={gridRef} className="flex flex-wrap gap-6">
+        {/* Resto de proyectos: 3 por fila en escritorio, siempre filas completas */}
+        <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {portfolioConfig.projects.slice(1).map((project, i) => (
             <ProjectCard key={project.title} project={project} index={i + 1} isVisible={visibleItems[i + 1]} />
           ))}
+        </div>
 
-          {/* Decorative CTA Card */}
-          {portfolioConfig.cta.heading && (
-            <div
-              className={cn(
-                'relative overflow-hidden bg-white/[0.04] border border-white/10 rounded-lg p-5 flex flex-col justify-between transition-all duration-700 ease-out-quart aspect-[3/4] flex-1 min-w-[270px] max-w-[560px]',
-                visibleItems[portfolioConfig.projects.length] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-              )}
-              style={{ transitionDelay: '400ms' }}
-            >
+        {/* Banner CTA a todo el ancho, como remate de la sección */}
+        {portfolioConfig.cta.heading && (
+          <div
+            className={cn(
+              'relative overflow-hidden mt-6 transition-all duration-700 ease-out-quart',
+              visibleItems[portfolioConfig.projects.length] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+            )}
+            style={{ transitionDelay: '300ms' }}
+          >
+            {/* Fondo de rodaje con oscurecido cinematográfico */}
+            <img
+              src="/images/cta-bg.webp"
+              alt=""
+              aria-hidden
+              loading="lazy"
+              decoding="async"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-black/40" />
+
+            <div className="relative px-8 py-14 lg:px-16 lg:py-20 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
               <div>
                 {portfolioConfig.cta.label && (
-                  <span className="text-[0.65rem] font-geist-mono uppercase tracking-widest text-white/50">
+                  <span className="inline-flex items-center gap-3 text-xs font-geist-mono uppercase tracking-[0.25em] text-exvia-red">
                     {portfolioConfig.cta.label}
+                    <span className="inline-block w-10 h-px bg-exvia-red" />
                   </span>
                 )}
-                <h3 className="text-lg font-semibold text-white mt-2 leading-tight">
+                <h3 className="mt-3 text-4xl lg:text-6xl font-black text-white uppercase tracking-[-0.02em] leading-[0.95] max-w-2xl">
                   {portfolioConfig.cta.heading}
                 </h3>
               </div>
               {portfolioConfig.cta.linkText && (
-                <a href={portfolioConfig.cta.linkHref || '#contact'} className="flex items-center gap-2 text-white/80 hover:text-white transition-colors cursor-pointer group">
-                  <span className="text-xs font-medium">{portfolioConfig.cta.linkText}</span>
-                  <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                <a
+                  href={portfolioConfig.cta.linkHref || '#contact'}
+                  className="group inline-flex items-center gap-3 self-start lg:self-auto border border-white/40 hover:border-exvia-red hover:bg-exvia-red px-7 py-4 transition-colors"
+                >
+                  <span className="text-sm font-geist-mono uppercase tracking-[0.2em] text-white">
+                    {portfolioConfig.cta.linkText}
+                  </span>
+                  <ArrowUpRight className="w-4 h-4 text-white transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </a>
               )}
-              {/* Decorative circle */}
-              <div className="absolute -bottom-16 -right-16 w-48 h-48 rounded-full bg-white/5" />
-              <div className="absolute -bottom-8 -right-8 w-32 h-32 rounded-full bg-white/5" />
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* View All Button */}
         {portfolioConfig.viewAllLabel && (

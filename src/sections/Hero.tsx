@@ -90,11 +90,14 @@ export function Hero() {
         lockedRef.current = true;
         setLocked(true);
         setProgress(1);
-        document.documentElement.style.overflow = 'hidden';
-        // Solo si la inercia ya se pasó del final (la siguiente sección
-        // asomaba), se recoloca; en el caso normal no hay ningún ajuste.
+        // ORDEN CRÍTICO: recolocar PRIMERO y apagar el scroll DESPUÉS.
+        // Con overflow hidden ya puesto, Chrome puede ignorar el scrollTo y
+        // dejar la página pasada de largo (se veía la sección blanca).
         const lockY = el.offsetTop + el.offsetHeight - viewportH;
         if (window.scrollY > lockY) window.scrollTo(0, lockY);
+        // En body, no en <html>: es el método estándar de bloqueo (modales)
+        // y conserva la posición de scroll en todos los navegadores.
+        document.body.style.overflow = 'hidden';
       }
     });
   }, []);
@@ -104,7 +107,7 @@ export function Hero() {
     lockedRef.current = false;
     suppressRelockRef.current = true;
     setLocked(false);
-    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
   }, []);
 
   useEffect(() => {
@@ -140,22 +143,29 @@ export function Hero() {
       touchStartY = e.touches[0]?.clientY ?? 0;
     };
     const onTouchMove = (e: TouchEvent) => {
+      if (!lockedRef.current) return;
       const y = e.touches[0]?.clientY ?? 0;
-      // Dedo bajando = intención de subir la página
-      if (lockedRef.current && y > touchStartY + 12) releaseLock();
+      if (y > touchStartY + 12) {
+        // Dedo bajando = intención de subir la página: descongelar
+        releaseLock();
+      } else if (y < touchStartY) {
+        // Dedo subiendo = intento de seguir bajando: bloquear el gesto
+        // (iOS puede ignorar overflow:hidden en body; esto lo cubre)
+        e.preventDefault();
+      }
     };
 
     document.addEventListener('click', unlock, true);
     window.addEventListener('wheel', onWheel, { passive: true });
     window.addEventListener('touchstart', onTouchStart, { passive: true });
-    window.addEventListener('touchmove', onTouchMove, { passive: true });
+    window.addEventListener('touchmove', onTouchMove, { passive: false });
     return () => {
       document.removeEventListener('click', unlock, true);
       window.removeEventListener('wheel', onWheel);
       window.removeEventListener('touchstart', onTouchStart);
       window.removeEventListener('touchmove', onTouchMove);
       // Nunca dejar la página sin scroll si el componente se desmonta
-      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
     };
   }, [reducedMotion, releaseLock]);
 
