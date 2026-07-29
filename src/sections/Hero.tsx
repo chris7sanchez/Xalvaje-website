@@ -30,13 +30,16 @@ export function Hero() {
     () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
   );
   const tickingRef = useRef(false);
-  // Mientras esté bloqueado, el scroll no pasa del último fotograma: la
-  // portada es un menú y solo se sale de ella pulsando un botón.
+  // Portada-menú: al llegar al último fotograma se congela el scroll del
+  // documento (overflow hidden — sin pelear con la inercia, sin vibración).
+  // Hacia abajo solo se sale pulsando un enlace del menú; un gesto de scroll
+  // hacia arriba descongela para poder rebobinar la secuencia.
   // Si se entra con un ancla en la URL (/#portfolio), el visitante quiere ir
-  // directo a esa sección: el tope no debe arrastrarlo de vuelta al hero.
+  // directo a esa sección: el tope no debe aplicarse.
   const unlockedRef = useRef(
     typeof window !== 'undefined' && window.location.hash.length > 1
   );
+  const lockedRef = useRef(false);
   const [locked, setLocked] = useState(false);
 
   const frameCount = heroConfig.scrubFrameCount;
@@ -69,19 +72,24 @@ export function Hero() {
       const raw = -rect.top / scrollable;
       setProgress(Math.min(1, Math.max(0, raw)));
 
-      // Tope duro al final del hero: la secuencia termina y la página se
-      // queda ahí. Hacia arriba se puede volver sin problema; hacia abajo
-      // solo se avanza pulsando un enlace del menú (ver efecto de abajo).
-      if (!unlockedRef.current) {
+      // Congelación al final del hero: un único ajuste de posición y el
+      // scroll del documento se apaga. Nada de reposicionar en cada evento
+      // (eso vibra con trackpad/móvil): apagado limpio, encendido limpio.
+      if (!unlockedRef.current && !lockedRef.current && raw >= 1) {
+        lockedRef.current = true;
+        setLocked(true);
         const lockY = el.offsetTop + el.offsetHeight - viewportH;
-        if (window.scrollY > lockY) {
-          window.scrollTo(0, lockY);
-          setLocked(true);
-        } else {
-          setLocked(false);
-        }
+        window.scrollTo(0, lockY);
+        document.documentElement.style.overflow = 'hidden';
       }
     });
+  }, []);
+
+  const releaseLock = useCallback(() => {
+    if (!lockedRef.current) return;
+    lockedRef.current = false;
+    setLocked(false);
+    document.documentElement.style.overflow = '';
   }, []);
 
   useEffect(() => {
@@ -91,21 +99,50 @@ export function Hero() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [handleScroll, reducedMotion]);
 
-  // Cualquier enlace de ancla (nav principal o zonas del hero) libera el
-  // tope. Se escucha en captura para que el desbloqueo ocurra ANTES del
-  // scrollIntoView del propio enlace; si no, el clamp lo frenaría en seco.
+  // Salidas de la congelación:
+  // 1) Clic en cualquier enlace de ancla (nav o zonas del hero): desbloqueo
+  //    definitivo y scroll normal a partir de ahí. En captura, para restaurar
+  //    el overflow ANTES del scrollIntoView del enlace.
+  // 2) Gesto de scroll hacia ARRIBA (rueda o dedo): descongela para poder
+  //    rebobinar la secuencia; si se vuelve a llegar al final, se recongela.
   useEffect(() => {
     if (reducedMotion) return;
+
     const unlock = (e: Event) => {
       const target = e.target as HTMLElement | null;
       if (target?.closest?.('a[href^="#"]')) {
         unlockedRef.current = true;
-        setLocked(false);
+        releaseLock();
       }
     };
+
+    const onWheel = (e: WheelEvent) => {
+      if (lockedRef.current && e.deltaY < 0) releaseLock();
+    };
+
+    let touchStartY = 0;
+    const onTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0]?.clientY ?? 0;
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      const y = e.touches[0]?.clientY ?? 0;
+      // Dedo bajando = intención de subir la página
+      if (lockedRef.current && y > touchStartY + 12) releaseLock();
+    };
+
     document.addEventListener('click', unlock, true);
-    return () => document.removeEventListener('click', unlock, true);
-  }, [reducedMotion]);
+    window.addEventListener('wheel', onWheel, { passive: true });
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('touchmove', onTouchMove, { passive: true });
+    return () => {
+      document.removeEventListener('click', unlock, true);
+      window.removeEventListener('wheel', onWheel);
+      window.removeEventListener('touchstart', onTouchStart);
+      window.removeEventListener('touchmove', onTouchMove);
+      // Nunca dejar la página sin scroll si el componente se desmonta
+      document.documentElement.style.overflow = '';
+    };
+  }, [reducedMotion, releaseLock]);
 
   if (!heroConfig.headlineLines.length && !heroConfig.name) return null;
 
