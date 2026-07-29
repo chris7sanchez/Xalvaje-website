@@ -139,7 +139,7 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
     <>
       <div
         className={cn(
-          'group cursor-pointer transition-all duration-700 ease-out-quart',
+          'group cursor-pointer transition-all duration-700 ease-out-quart flex-1 min-w-[270px] max-w-[560px]',
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
         )}
         style={{ transitionDelay: `${index * 100}ms` }}
@@ -296,7 +296,7 @@ export function Portfolio() {
         )}
 
         {/* Resto de proyectos - grid compacto */}
-        <div ref={gridRef} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div ref={gridRef} className="flex flex-wrap gap-6">
           {portfolioConfig.projects.slice(1).map((project, i) => (
             <ProjectCard key={project.title} project={project} index={i + 1} isVisible={visibleItems[i + 1]} />
           ))}
@@ -305,7 +305,7 @@ export function Portfolio() {
           {portfolioConfig.cta.heading && (
             <div
               className={cn(
-                'relative overflow-hidden bg-white/[0.04] border border-white/10 rounded-lg p-5 flex flex-col justify-between transition-all duration-700 ease-out-quart aspect-[3/4]',
+                'relative overflow-hidden bg-white/[0.04] border border-white/10 rounded-lg p-5 flex flex-col justify-between transition-all duration-700 ease-out-quart aspect-[3/4] flex-1 min-w-[270px] max-w-[560px]',
                 visibleItems[portfolioConfig.projects.length] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
               )}
               style={{ transitionDelay: '400ms' }}
