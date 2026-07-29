@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useScrollAnimation, useStaggerAnimation } from '@/hooks/useScrollAnimation';
-import { ArrowUpRight, Play, X } from 'lucide-react';
+import { ArrowUpRight, ChevronLeft, ChevronRight, Play, X } from 'lucide-react';
 import { portfolioConfig } from '@/config';
 
 interface Project {
@@ -12,6 +12,101 @@ interface Project {
   hoverImage?: string;
   featured?: boolean;
   youtubeUrl?: string;
+  carouselImages?: string[];
+}
+
+function FeaturedPrisma({ project, isVisible }: { project: Project; isVisible: boolean }) {
+  const images = project.carouselImages || [];
+  const [current, setCurrent] = useState(0);
+
+  const prev = () => setCurrent((i) => (i - 1 + images.length) % images.length);
+  const next = () => setCurrent((i) => (i + 1) % images.length);
+
+  return (
+    <div
+      className={cn(
+        'grid grid-cols-1 md:grid-cols-2 gap-6 transition-all duration-700 ease-out-quart',
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+      )}
+    >
+      {/* Cartel fijo, sin nombre superpuesto, contraste reducido */}
+      <div className="relative overflow-hidden bg-neutral-900 aspect-[4/3] md:aspect-auto">
+        <img
+          src={project.image}
+          alt={project.title}
+          loading="lazy"
+          decoding="async"
+          className="w-full h-full object-cover"
+          style={{ filter: 'contrast(0.88) brightness(1.04)' }}
+        />
+        <div className="absolute top-4 right-4">
+          <span className="px-3 py-1.5 text-xs font-geist-mono bg-white/90 backdrop-blur-sm rounded-full text-exvia-black">
+            {project.year}
+          </span>
+        </div>
+      </div>
+
+      {/* Carrusel de fotos, con flechas */}
+      <div className="relative overflow-hidden bg-neutral-900 aspect-[4/3] md:aspect-auto group">
+        {images.map((src, i) => (
+          <img
+            key={src}
+            src={src}
+            alt={`${project.title} - foto ${i + 1}`}
+            loading={i === 0 ? 'eager' : 'lazy'}
+            decoding="async"
+            className={cn(
+              'absolute inset-0 w-full h-full object-cover transition-opacity duration-500',
+              i === current ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            )}
+          />
+        ))}
+
+        {images.length > 1 && (
+          <>
+            <button
+              type="button"
+              onClick={prev}
+              aria-label="Foto anterior"
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+            >
+              <ChevronLeft className="w-5 h-5 text-white" />
+            </button>
+            <button
+              type="button"
+              onClick={next}
+              aria-label="Foto siguiente"
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+            >
+              <ChevronRight className="w-5 h-5 text-white" />
+            </button>
+
+            {/* Indicadores */}
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+              {images.map((src, i) => (
+                <button
+                  key={src}
+                  type="button"
+                  onClick={() => setCurrent(i)}
+                  aria-label={`Ir a foto ${i + 1}`}
+                  className={cn(
+                    'w-1.5 h-1.5 rounded-full transition-all',
+                    i === current ? 'bg-white w-4' : 'bg-white/40'
+                  )}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Título e info debajo, igual que el resto de proyectos */}
+      <div className="md:col-span-2 space-y-1">
+        <h3 className="text-lg font-semibold text-white">{project.title}</h3>
+        <p className="text-sm text-white/50">{project.category}</p>
+      </div>
+    </div>
+  );
 }
 
 function ProjectCard({ project, index, isVisible }: { project: Project; index: number; isVisible: boolean }) {
@@ -26,7 +121,7 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
 
   const getYoutubeEmbedUrl = (url: string) => {
     // Extract video ID from various YouTube URL formats
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const match = url.match(regExp);
     const videoId = match && match[2].length === 11 ? match[2] : null;
     return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1` : url;
@@ -41,7 +136,6 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
       <div
         className={cn(
           'group cursor-pointer transition-all duration-700 ease-out-quart',
-          project.featured ? 'lg:col-span-2' : '',
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
         )}
         style={{ transitionDelay: `${index * 100}ms` }}
@@ -50,10 +144,7 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
         onMouseLeave={() => setIsHovered(false)}
       >
         <div className="relative overflow-hidden bg-neutral-900">
-          <div className={cn(
-            'aspect-[3/4] flex items-center justify-center',
-            project.featured && 'lg:aspect-[16/9]'
-          )}>
+          <div className="aspect-[3/4] flex items-center justify-center">
             {/* Imagen base (sin hover) - object-contain para ver cartel completo */}
             <img loading="lazy" decoding="async"
               src={project.image}
@@ -77,7 +168,7 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
           </div>
 
           {/* Overlay */}
-          <div className="absolute inset-0 bg-exvia-black/0 group-hover:bg-exvia-black/20 transition-colors duration-500" />
+          <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors duration-500" />
 
           {/* Year Badge */}
           <div className="absolute top-4 right-4">
@@ -108,11 +199,11 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
         </div>
 
         {/* Project Info */}
-        <div className="mt-4 space-y-1">
-          <h3 className="text-lg font-semibold text-exvia-black group-hover:text-exvia-black/80 transition-colors">
+        <div className="mt-3 space-y-0.5">
+          <h3 className="text-sm font-semibold text-white group-hover:text-white/80 transition-colors">
             {project.title}
           </h3>
-          <p className="text-sm text-exvia-black/50">{project.category}</p>
+          <p className="text-xs text-white/50">{project.category}</p>
         </div>
       </div>
 
@@ -150,13 +241,13 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
 }
 
 export function Portfolio() {
-  if (!portfolioConfig.heading && portfolioConfig.projects.length === 0) return null;
-
   const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation({ threshold: 0.3 });
   const { containerRef: gridRef, visibleItems } = useStaggerAnimation(portfolioConfig.projects.length + 1, 120);
 
+  if (!portfolioConfig.heading && portfolioConfig.projects.length === 0) return null;
+
   return (
-    <section id="portfolio" className="w-full py-24 lg:py-32 bg-exvia-subtle/30">
+    <section id="portfolio" className="w-full py-24 lg:py-32 bg-neutral-900">
       <div className="container-large px-6 lg:px-12">
         {/* Header */}
         <div ref={headerRef} className="max-w-3xl mb-16">
@@ -167,7 +258,7 @@ export function Portfolio() {
                 headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               )}
             >
-              <span className="text-xs font-geist-mono uppercase tracking-widest text-exvia-black/50">
+              <span className="text-xs font-geist-mono uppercase tracking-widest text-white/50">
                 {portfolioConfig.label}
               </span>
             </div>
@@ -176,7 +267,7 @@ export function Portfolio() {
           {portfolioConfig.heading && (
             <h2
               className={cn(
-                'text-h2 font-semibold text-exvia-black mt-4 transition-all duration-800 ease-out-quart',
+                'text-h2 font-semibold text-white mt-4 transition-all duration-800 ease-out-quart',
                 headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
               )}
               style={{ transitionDelay: '100ms' }}
@@ -188,7 +279,7 @@ export function Portfolio() {
           {portfolioConfig.description && (
             <p
               className={cn(
-                'mt-6 text-lg text-exvia-black/60 leading-relaxed transition-all duration-800 ease-out-quart',
+                'mt-6 text-lg text-white/60 leading-relaxed transition-all duration-800 ease-out-quart',
                 headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
               )}
               style={{ transitionDelay: '200ms' }}
@@ -198,64 +289,41 @@ export function Portfolio() {
           )}
         </div>
 
-        {/* Projects Grid - Bento Style */}
-        <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Row 1: Featured (2 cols) + Small (1 col) */}
-          {portfolioConfig.projects[0] && (
-            <div className="lg:col-span-2 md:col-span-1">
-              <ProjectCard
-                project={portfolioConfig.projects[0]}
-                index={0}
-                isVisible={visibleItems[0]}
-              />
-            </div>
-          )}
-          {portfolioConfig.projects[1] && (
-            <ProjectCard
-              project={portfolioConfig.projects[1]}
-              index={1}
-              isVisible={visibleItems[1]}
-            />
-          )}
+        {/* PRISMA: cartel + carrusel, fuera del grid */}
+        {portfolioConfig.projects[0] && (
+          <div className="mb-6">
+            <FeaturedPrisma project={portfolioConfig.projects[0]} isVisible={visibleItems[0]} />
+          </div>
+        )}
 
-          {/* Row 2: Two small + CTA card */}
-          {portfolioConfig.projects[2] && (
-            <ProjectCard
-              project={portfolioConfig.projects[2]}
-              index={2}
-              isVisible={visibleItems[2]}
-            />
-          )}
-          {portfolioConfig.projects[3] && (
-            <ProjectCard
-              project={portfolioConfig.projects[3]}
-              index={3}
-              isVisible={visibleItems[3]}
-            />
-          )}
+        {/* Resto de proyectos - grid compacto */}
+        <div ref={gridRef} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {portfolioConfig.projects.slice(1).map((project, i) => (
+            <ProjectCard key={project.title} project={project} index={i + 1} isVisible={visibleItems[i + 1]} />
+          ))}
 
           {/* Decorative CTA Card */}
           {portfolioConfig.cta.heading && (
             <div
               className={cn(
-                'relative overflow-hidden bg-exvia-black rounded-lg p-8 flex flex-col justify-between transition-all duration-700 ease-out-quart aspect-[4/3]',
+                'relative overflow-hidden bg-white/[0.04] border border-white/10 rounded-lg p-5 flex flex-col justify-between transition-all duration-700 ease-out-quart aspect-[3/4]',
                 visibleItems[portfolioConfig.projects.length] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
               )}
               style={{ transitionDelay: '400ms' }}
             >
               <div>
                 {portfolioConfig.cta.label && (
-                  <span className="text-xs font-geist-mono uppercase tracking-widest text-white/50">
+                  <span className="text-[0.65rem] font-geist-mono uppercase tracking-widest text-white/50">
                     {portfolioConfig.cta.label}
                   </span>
                 )}
-                <h3 className="text-2xl font-semibold text-white mt-3 leading-tight">
+                <h3 className="text-lg font-semibold text-white mt-2 leading-tight">
                   {portfolioConfig.cta.heading}
                 </h3>
               </div>
               {portfolioConfig.cta.linkText && (
                 <a href={portfolioConfig.cta.linkHref || '#contact'} className="flex items-center gap-2 text-white/80 hover:text-white transition-colors cursor-pointer group">
-                  <span className="text-sm font-medium">{portfolioConfig.cta.linkText}</span>
+                  <span className="text-xs font-medium">{portfolioConfig.cta.linkText}</span>
                   <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </a>
               )}
@@ -263,29 +331,6 @@ export function Portfolio() {
               <div className="absolute -bottom-16 -right-16 w-48 h-48 rounded-full bg-white/5" />
               <div className="absolute -bottom-8 -right-8 w-32 h-32 rounded-full bg-white/5" />
             </div>
-          )}
-
-          {/* Row 3: Additional projects */}
-          {portfolioConfig.projects[4] && (
-            <ProjectCard
-              project={portfolioConfig.projects[4]}
-              index={4}
-              isVisible={visibleItems[4]}
-            />
-          )}
-          {portfolioConfig.projects[5] && (
-            <ProjectCard
-              project={portfolioConfig.projects[5]}
-              index={5}
-              isVisible={visibleItems[5]}
-            />
-          )}
-          {portfolioConfig.projects[6] && (
-            <ProjectCard
-              project={portfolioConfig.projects[6]}
-              index={6}
-              isVisible={visibleItems[6]}
-            />
           )}
         </div>
 
@@ -298,7 +343,7 @@ export function Portfolio() {
             )}
             style={{ transitionDelay: '600ms' }}
           >
-            <button className="group inline-flex items-center gap-2 text-sm font-geist-mono text-exvia-black hover:text-exvia-black/70 transition-colors">
+            <button className="group inline-flex items-center gap-2 text-sm font-geist-mono text-white hover:text-white/70 transition-colors">
               <span>{portfolioConfig.viewAllLabel}</span>
               <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </button>

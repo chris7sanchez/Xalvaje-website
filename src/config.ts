@@ -168,6 +168,8 @@ export interface ProjectItem {
   hoverImage?: string;
   featured?: boolean;
   youtubeUrl?: string;
+  /** Carrusel de fotos propio (solo para el proyecto destacado, ej. PRISMA) */
+  carouselImages?: string[];
 }
 
 export interface PortfolioCTA {
@@ -195,9 +197,17 @@ export const portfolioConfig: PortfolioConfig = {
       title: "PRISMA",
       category: "Largometraje",
       year: "2021",
-      image: "/images/prisma-3-new.webp",
-      hoverImage: "/images/prisma-1.webp",
+      image: "/images/prisma-carousel/prisma-cartel.webp",
       featured: true,
+      carouselImages: [
+        "/images/prisma-carousel/prisma-c1.webp",
+        "/images/prisma-carousel/prisma-c2.webp",
+        "/images/prisma-carousel/prisma-c3.webp",
+        "/images/prisma-carousel/prisma-c4.webp",
+        "/images/prisma-carousel/prisma-c5.webp",
+        "/images/prisma-carousel/prisma-c6.webp",
+        "/images/prisma-carousel/prisma-c7.webp",
+      ],
     },
     {
       title: "El Viaje Continúa...",
