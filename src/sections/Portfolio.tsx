@@ -100,10 +100,14 @@ function FeaturedPrisma({ project, isVisible }: { project: Project; isVisible: b
         )}
       </div>
 
-      {/* Título e info debajo, igual que el resto de proyectos */}
-      <div className="md:col-span-2 space-y-1">
-        <h3 className="text-lg font-semibold text-white">{project.title}</h3>
-        <p className="text-sm text-white/50">{project.category}</p>
+      {/* Título e info debajo del cartel (el nombre no va superpuesto en PRISMA) */}
+      <div className="md:col-span-2">
+        <span className="text-[0.6rem] font-geist-mono uppercase tracking-[0.25em] text-exvia-red">
+          {project.category}
+        </span>
+        <h3 className="mt-1 text-3xl lg:text-4xl font-black text-white uppercase tracking-[-0.02em] leading-none">
+          {project.title}
+        </h3>
       </div>
     </div>
   );
@@ -143,67 +147,61 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div className="relative overflow-hidden bg-neutral-900">
-          <div className="aspect-[3/4] flex items-center justify-center">
-            {/* Imagen base (sin hover) - object-contain para ver cartel completo */}
+        <div className="relative overflow-hidden bg-neutral-900 aspect-[3/4]">
+          {/* Imagen base (cartel) a sangre completa */}
+          <img loading="lazy" decoding="async"
+            src={project.image}
+            alt={project.title}
+            className={cn(
+              'absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-out-cubic',
+              hasHoverEffect && isHovered ? 'opacity-0' : 'opacity-100',
+              isHovered && !hasHoverEffect && 'scale-105'
+            )}
+          />
+          {/* Imagen hover (si existe) */}
+          {hasHoverEffect && (
             <img loading="lazy" decoding="async"
-              src={project.image}
-              alt={project.title}
+              src={hoverImage}
+              alt={`${project.title} - hover`}
               className={cn(
-                'max-w-full max-h-full object-contain transition-all duration-500 ease-out-cubic',
-                hasHoverEffect && isHovered ? 'opacity-0' : 'opacity-100'
+                'absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-out-cubic',
+                isHovered ? 'opacity-100 scale-105' : 'opacity-0 scale-100'
               )}
             />
-            {/* Imagen hover (si existe) */}
-            {hasHoverEffect && (
-              <img loading="lazy" decoding="async"
-                src={hoverImage}
-                alt={`${project.title} - hover`}
-                className={cn(
-                  'absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-out-cubic',
-                  isHovered ? 'opacity-100 scale-105' : 'opacity-0 scale-100'
-                )}
-              />
-            )}
-          </div>
-
-          {/* Overlay */}
-          <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors duration-500" />
-
-          {/* Year Badge */}
-          <div className="absolute top-4 right-4">
-            <span className="px-3 py-1.5 text-xs font-geist-mono bg-white/90 backdrop-blur-sm rounded-full text-exvia-black">
-              {project.year}
-            </span>
-          </div>
-
-          {/* Play Icon for YouTube videos */}
-          {project.youtubeUrl && (
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
-              <div className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
-                <Play className="w-6 h-6 text-exvia-black ml-1" fill="currentColor" />
-              </div>
-            </div>
           )}
 
-          {/* Arrow Icon */}
-          <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-              {project.youtubeUrl ? (
-                <Play className="w-4 h-4 text-exvia-black ml-0.5" fill="currentColor" />
-              ) : (
-                <ArrowUpRight className="w-4 h-4 text-exvia-black" />
-              )}
-            </div>
-          </div>
-        </div>
+          {/* Degradado para legibilidad del texto superpuesto */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/40 transition-opacity duration-500" />
 
-        {/* Project Info */}
-        <div className="mt-3 space-y-0.5">
-          <h3 className="text-sm font-semibold text-white group-hover:text-white/80 transition-colors">
+          {/* Categoría en rojo, arriba a la izquierda */}
+          <span className="absolute top-4 left-4 text-[0.6rem] font-geist-mono uppercase tracking-[0.25em] text-exvia-red">
+            {project.category}
+          </span>
+
+          {/* Título grande superpuesto */}
+          <h3 className="absolute left-4 right-4 bottom-14 text-2xl lg:text-3xl font-black text-white uppercase tracking-[-0.02em] leading-[0.95] drop-shadow-lg">
             {project.title}
           </h3>
-          <p className="text-xs text-white/50">{project.category}</p>
+
+          {/* Año, abajo a la izquierda */}
+          <span className="absolute bottom-4 left-4 text-xs font-geist-mono text-white/80 border-b border-white/40 pb-0.5">
+            {project.year}
+          </span>
+
+          {/* Ver proyecto, abajo a la derecha */}
+          <span className="absolute bottom-4 right-4 inline-flex items-center gap-1.5 text-[0.65rem] font-geist-mono uppercase tracking-[0.15em] text-white/80 group-hover:text-white transition-colors">
+            {project.youtubeUrl ? (
+              <>
+                Ver proyecto
+                <Play className="w-3 h-3 transition-transform duration-300 group-hover:translate-x-0.5" fill="currentColor" />
+              </>
+            ) : (
+              <>
+                Próximamente
+                <ArrowUpRight className="w-3 h-3" />
+              </>
+            )}
+          </span>
         </div>
       </div>
 
@@ -258,8 +256,9 @@ export function Portfolio() {
                 headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               )}
             >
-              <span className="text-xs font-geist-mono uppercase tracking-widest text-white/50">
+              <span className="inline-flex items-center gap-3 text-xs font-geist-mono uppercase tracking-widest text-exvia-red">
                 {portfolioConfig.label}
+                <span className="inline-block w-10 h-px bg-exvia-red" />
               </span>
             </div>
           )}
@@ -267,7 +266,7 @@ export function Portfolio() {
           {portfolioConfig.heading && (
             <h2
               className={cn(
-                'text-h2 font-semibold text-white mt-4 transition-all duration-800 ease-out-quart',
+                'text-h2 font-black uppercase tracking-[-0.02em] text-white mt-4 transition-all duration-800 ease-out-quart',
                 headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
               )}
               style={{ transitionDelay: '100ms' }}

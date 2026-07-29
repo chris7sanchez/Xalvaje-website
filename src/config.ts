@@ -250,10 +250,10 @@ export const portfolioConfig: PortfolioConfig = {
       youtubeUrl: "https://www.youtube.com/watch?v=uzKOL_YLpF8",
     },
     {
-      title: "En reserva",
+      title: "Añadas en Reserva",
       category: "Cortometraje",
       year: "En producción",
-      image: "/images/reserva-6a.webp",
+      image: "/images/anadas-cartel.webp",
       hoverImage: "/images/reserva-6b.webp",
       youtubeUrl: "https://www.youtube.com/watch?v=JwBHxL6ZHUI",
     },
