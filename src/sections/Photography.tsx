@@ -48,7 +48,10 @@ export function Photography() {
 
   return (
     <section id="photography" className="w-full bg-neutral-900 py-24 lg:py-32">
-      <div ref={sectionRef} className="px-8 lg:px-16">
+      {/* Mismo contenedor que Proyectos, Nosotros y Servicios: sin esto la
+          rejilla se iba a 1304 px y las fotos salían un 10 % más grandes que
+          las tarjetas de Proyectos, y las dos secciones no cuadraban. */}
+      <div ref={sectionRef} className="container-large px-6 lg:px-12">
         {/* Encabezado */}
         <div
           className={cn(

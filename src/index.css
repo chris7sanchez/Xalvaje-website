@@ -82,6 +82,13 @@
     font-family: 'Geist', Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Reserva el hueco de la barra de scroll en navegadores con barra clásica
+       (Windows/Chrome), para que el ancho del contenido no baile al aparecer o
+       desaparecer la barra. OJO: no cubre el caso de overflow:hidden — la
+       especificación no reserva hueco cuando el elemento deja de ser
+       scrollable, así que el bloqueo del hero sigue moviendo 8 px allí donde
+       la barra ocupa espacio. Medido, no supuesto. */
+    scrollbar-gutter: stable;
   }
   
   body {
@@ -89,6 +96,9 @@
     font-family: 'Geist', Arial, sans-serif;
     color: var(--exvia-black);
     overflow-x: hidden;
+    /* Va aquí además de en <html> porque este overflow-x convierte al body en
+       contenedor de scroll: es el body quien tiene la barra. */
+    scrollbar-gutter: stable;
   }
 }
 

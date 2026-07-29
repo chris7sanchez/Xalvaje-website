@@ -111,7 +111,11 @@ export function Hero() {
         // Con overflow hidden ya puesto, Chrome puede ignorar el scrollTo y
         // dejar la página pasada de largo (se veía la sección blanca).
         const lockY = el.offsetTop + el.offsetHeight - viewportH;
-        if (window.scrollY > lockY) window.scrollTo(0, lockY);
+        // 'instant' es obligatorio: el CSS pone scroll-behavior:smooth en <html>,
+        // así que un scrollTo normal se ANIMA. Esta recolocación debe ser
+        // imperceptible; animada se veía como un salto de la página al llegar
+        // al último fotograma, y encima competía con la inercia del gesto.
+        if (window.scrollY > lockY) window.scrollTo({ top: lockY, behavior: 'instant' });
         // En body, no en <html>: es el método estándar de bloqueo (modales)
         // y conserva la posición de scroll en todos los navegadores.
         document.body.style.overflow = 'hidden';
