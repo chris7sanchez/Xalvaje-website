@@ -78,6 +78,9 @@ export function Hero() {
 
   const showZones = reducedMotion || progress > 0.6;
   const showScrollCue = !reducedMotion && progress < 0.05;
+  // Tramo final: el último fotograma ya está fijo en pantalla (fin del scrub).
+  // Marcamos este momento como "portada" intencional, no como un parón.
+  const isFinalFrame = reducedMotion || progress > 0.92;
 
   return (
     <div
@@ -140,11 +143,15 @@ export function Hero() {
               onError={i === 0 ? () => setTimeoutElapsed(true) : undefined}
             />
           ))}
-          {/* Vignette cinematográfico */}
+          {/* Vignette cinematográfico: se intensifica en el fotograma final
+              para que la "portada" se lea como remate intencional, no como
+              un frame cualquiera que se quedó congelado. */}
           <div
-            className="absolute inset-0 pointer-events-none z-20"
+            className="absolute inset-0 pointer-events-none z-20 transition-[background] duration-700 ease-out"
             style={{
-              background: 'radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.55) 100%)',
+              background: isFinalFrame
+                ? 'radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.72) 100%)'
+                : 'radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.55) 100%)',
             }}
           />
         </div>
@@ -229,7 +236,7 @@ export function Hero() {
           </div>
         </div>
 
-        {/* Scroll cue */}
+        {/* Scroll cue inicial: invita a empezar el scrub */}
         <div
           className={cn(
             'absolute bottom-6 left-1/2 -translate-x-1/2 z-20 transition-opacity duration-700',
@@ -239,6 +246,20 @@ export function Hero() {
           <span className="text-[0.6rem] font-geist-mono uppercase tracking-[0.35em] text-white">
             Scroll para explorar
           </span>
+        </div>
+
+        {/* Cue final: reemplaza al de inicio una vez el scrub ha terminado,
+            para que el tramo "fijo" se sienta como un remate, no como un corte. */}
+        <div
+          className={cn(
+            'absolute bottom-6 left-1/2 -translate-x-1/2 z-20 transition-opacity duration-700 flex flex-col items-center gap-2',
+            isFinalFrame && revealReady ? 'opacity-70' : 'opacity-0'
+          )}
+        >
+          <span className="text-[0.6rem] font-geist-mono uppercase tracking-[0.35em] text-white">
+            Descubre XALVAJE
+          </span>
+          <span className="w-px h-6 bg-gradient-to-b from-white/70 to-transparent animate-pulse" />
         </div>
 
         {/* Bottom gradient fade */}
