@@ -13,6 +13,13 @@ const SCRUB_SCREENS = 3.5;
 const esPantallaPequena = () =>
   typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches;
 
+// Respeta el ahorro de datos del móvil: con él activado no se descarga el vídeo.
+const conAhorroDeDatos = () => {
+  if (typeof navigator === 'undefined') return false;
+  const c = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+  return c?.saveData === true;
+};
+
 function frameUrl(index: number, pequena: boolean) {
   const n = String(index + 1).padStart(3, '0');
   const prefijo = pequena
@@ -58,6 +65,11 @@ export function Hero() {
   // Portada estática en móvil: sin scrub, sin congelación, sin precargar 60
   // fotogramas. Reutiliza la rama de reducedMotion, que ya está probada.
   const portadaEstatica = pequena && !!heroConfig.portadaMovil;
+  // El vídeo manda sobre la imagen, salvo que se pida menos animación o haya
+  // ahorro de datos: entonces se queda el póster fijo.
+  const [ahorroDatos] = useState(conAhorroDeDatos);
+  const portadaVideo =
+    pequena && !!heroConfig.portadaMovilVideo && !reducedMotion && !ahorroDatos;
   const sinScrub = reducedMotion || portadaEstatica;
   const [reelOpen, setReelOpen] = useState(false);
   // En ref además de en estado: los handlers de gesto la consultan sin obligar
@@ -289,7 +301,7 @@ export function Hero() {
         <div
           className="absolute inset-0 z-0 bg-cover bg-center"
           style={{
-            backgroundImage: `url(${portadaEstatica ? heroConfig.portadaMovil : heroConfig.backgroundImage})`,
+            backgroundImage: `url(${portadaVideo ? heroConfig.portadaMovilVideoPoster : portadaEstatica ? heroConfig.portadaMovil : heroConfig.backgroundImage})`,
             filter: 'blur(8px) brightness(0.6)',
           }}
         />
@@ -306,7 +318,21 @@ export function Hero() {
             pantalla. Los 60 fotogramas son 16:9 y aquí o se recortaban al 26 %
             o dejaban 300 px de franja. */}
         <div className="absolute inset-0 z-10">
-          {portadaEstatica ? (
+          {portadaVideo ? (
+            <video
+              className="absolute inset-0 w-full h-full object-cover object-center"
+              src={heroConfig.portadaMovilVideo}
+              poster={heroConfig.portadaMovilVideoPoster}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              aria-label="XALVAJE Producciones — rodaje en la nave"
+              onCanPlay={() => setFirstFrameLoaded(true)}
+              onError={() => setTimeoutElapsed(true)}
+            />
+          ) : portadaEstatica ? (
             <img
               src={heroConfig.portadaMovil}
               alt="XALVAJE Producciones — el logo pintado en la persiana del garaje"
@@ -397,9 +423,18 @@ export function Hero() {
         {reelConfig.src && (
           <div
             className={cn(
-              'absolute left-[28%] top-[46%] md:left-1/2 md:top-1/2 -translate-x-1/2 -translate-y-1/2 z-30 transition-all duration-700 ease-out',
+              'absolute md:left-1/2 md:top-1/2 -translate-x-1/2 -translate-y-1/2 z-30 transition-all duration-700 ease-out',
               showZones ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
             )}
+            style={
+              pequena
+                ? // La X está en distinto sitio en cada portada: al 47 %/45 % en
+                  // el vídeo de la nave, al 28 %/46 % en la foto del garaje.
+                  portadaVideo
+                  ? { left: '47%', top: '45%' }
+                  : { left: '28%', top: '46%' }
+                : undefined
+            }
           >
             <button
               type="button"

@@ -63,6 +63,13 @@ export interface HeroConfig {
    * Cadena vacía = volver al scrub también en móvil.
    */
   portadaMovil: string;
+  /**
+   * Vídeo VERTICAL de portada para móvil, en bucle y sin sonido. Manda sobre
+   * portadaMovil. Si el visitante pide menos animación o tiene el ahorro de
+   * datos activado, se muestra el póster fijo en su lugar.
+   */
+  portadaMovilVideo: string;
+  portadaMovilVideoPoster: string;
   /** Zonas clicables que aparecen sobre el último fotograma */
   zones: HeroZone[];
 }
@@ -82,6 +89,8 @@ export const heroConfig: HeroConfig = {
   // 3,36 MB, que en móvil saturaban la conexión y retrasaban las fotos.
   scrubFramePathPrefixSmall: "/images/hero-scrub-sm/f-",
   portadaMovil: "/images/hero-portada-movil.webp",
+  portadaMovilVideo: "/videos/portada-movil.mp4",
+  portadaMovilVideoPoster: "/videos/portada-movil-poster.jpg",
   zones: [
     { label: "Proyectos", href: "#portfolio" },
     { label: "Servicios", href: "#services" },
