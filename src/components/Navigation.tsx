@@ -58,10 +58,12 @@ export function Navigation() {
                 className="flex items-center group"
                 aria-label={`${navigationConfig.logo} — Inicio`}
               >
-                {/* Sin "PRODUCCIONES": a la altura de una barra de navegación
-                    quedaría en 3 px. Va en el pie, donde hay sitio para leerlo. */}
+                {/* PRODUCCIONES en horizontal, no lateral: en vertical, 12
+                    caracteres dentro de los 44 px del logo darían una letra de
+                    3 px. En el pie sí va lateral, que hay altura de sobra. */}
                 <Logo
                   size={44}
+                  produccionesDebajo
                   claro={!isScrolled}
                   className="transition-transform duration-500 ease-out-quart group-hover:scale-105"
                 />

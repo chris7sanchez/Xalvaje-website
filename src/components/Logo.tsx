@@ -25,6 +25,12 @@ type Props = {
   size?: number;
   /** "PRODUCCIONES" en vertical. Requiere size >= 110 para que se lea. */
   conProducciones?: boolean;
+  /**
+   * "PRODUCCIONES" en horizontal, bajo "ALVAJE". Para sitios de poca altura
+   * como la barra de navegación: en vertical, 12 caracteres dentro de los 44 px
+   * del logo obligarían a una letra de 3 px.
+   */
+  produccionesDebajo?: boolean;
   /** false = letras negras (fondo claro) */
   claro?: boolean;
   /** Relieve como en el logo original */
@@ -35,6 +41,7 @@ type Props = {
 export function Logo({
   size = 44,
   conProducciones = false,
+  produccionesDebajo = false,
   claro = true,
   sombra = true,
   className,
@@ -65,15 +72,34 @@ export function Logo({
         }}
       />
 
-      <span
-        className={cn('font-logo font-light leading-none', claro ? 'text-white' : 'text-exvia-black')}
-        style={{
-          fontSize: alvajePx,
-          letterSpacing: '0.16em',
-          textShadow: sombraTexto,
-        }}
-      >
-        ALVAJE
+      <span className="inline-flex flex-col">
+        <span
+          className={cn('font-logo font-light leading-none', claro ? 'text-white' : 'text-exvia-black')}
+          style={{
+            fontSize: alvajePx,
+            letterSpacing: '0.16em',
+            textShadow: sombraTexto,
+          }}
+        >
+          ALVAJE
+        </span>
+
+        {produccionesDebajo && (
+          <span
+            className={cn(
+              'font-logo font-normal leading-none whitespace-nowrap',
+              claro ? 'text-white/85' : 'text-exvia-black/75'
+            )}
+            style={{
+              fontSize: Math.max(8, size * 0.16),
+              letterSpacing: '0.42em',
+              marginTop: size * 0.12,
+              textShadow: sombraTexto,
+            }}
+          >
+            PRODUCCIONES
+          </span>
+        )}
       </span>
 
       {conProducciones && (

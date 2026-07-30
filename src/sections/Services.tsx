@@ -7,6 +7,8 @@ import { servicesConfig, type ServiceItem } from '@/config';
 function ServiceRow({ service, index }: { service: ServiceItem; index: number }) {
   const [isHovered, setIsHovered] = useState(false);
   const [showBrands, setShowBrands] = useState(false);
+  // Desplegable de la fila (solo actua en movil)
+  const [abierto, setAbierto] = useState(false);
   const { containerRef, getTransform } = useServiceParallax();
 
   const goTo = (href: string) => {
@@ -20,18 +22,40 @@ function ServiceRow({ service, index }: { service: ServiceItem; index: number })
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="px-1 py-10 lg:py-12">
-        <div className="flex flex-col lg:flex-row lg:items-baseline gap-4 lg:gap-10">
+      <div className="px-1 py-5 lg:py-12">
+        <div className="flex flex-row items-baseline gap-3 lg:gap-10">
           {/* Número, como en las fichas de Nosotros */}
-          <span className="shrink-0 text-sm font-geist-mono tracking-[0.2em] text-exvia-red-text lg:w-16">
+          <span className="shrink-0 text-xs lg:text-sm font-geist-mono tracking-[0.2em] text-exvia-red-text lg:w-16">
             0{index + 1}
           </span>
 
           <div className="flex-1 lg:max-w-xl">
-            <h3 className="font-display uppercase text-white leading-[1.02] tracking-[0.04em] text-[clamp(1.5rem,2.6vw,2.25rem)]">
-              {service.title}
-            </h3>
-            <p className="mt-4 text-sm leading-relaxed text-white/70 max-w-lg">
+            {/* En móvil la fila es un desplegable: solo el título ocupa sitio y
+                el detalle se abre al tocar. Así la sección baja a la mitad sin
+                recortar ni una palabra. En escritorio está todo visible y este
+                botón no hace nada. */}
+            <button
+              type="button"
+              onClick={() => setAbierto((v) => !v)}
+              aria-expanded={abierto}
+              className="w-full flex items-baseline justify-between gap-3 text-left lg:pointer-events-none"
+            >
+              <h3 className="font-display uppercase text-white leading-[1.02] tracking-[0.04em] text-[clamp(1.25rem,2.6vw,2.25rem)]">
+                {service.title}
+              </h3>
+              <span
+                aria-hidden
+                className={cn(
+                  'lg:hidden shrink-0 text-exvia-red-text text-lg leading-none transition-transform duration-300',
+                  abierto && 'rotate-45'
+                )}
+              >
+                +
+              </span>
+            </button>
+
+            <div className={cn(abierto ? 'block' : 'hidden', 'lg:block')}>
+            <p className="mt-2 lg:mt-4 text-[0.8125rem] leading-snug lg:leading-relaxed text-white/70 max-w-lg">
               {service.description}
             </p>
 
@@ -39,7 +63,7 @@ function ServiceRow({ service, index }: { service: ServiceItem; index: number })
               <button
                 type="button"
                 onClick={() => goTo(service.link!)}
-                className="group mt-7 inline-flex items-center gap-4 border-b border-exvia-red/50 pb-1.5 text-xs font-geist-mono uppercase tracking-[0.22em] text-exvia-red-text hover:border-exvia-red hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-exvia-red focus-visible:ring-offset-4 focus-visible:ring-offset-black"
+                className="group mt-3.5 lg:mt-7 inline-flex items-center gap-4 border-b border-exvia-red/50 pb-1.5 text-xs font-geist-mono uppercase tracking-[0.22em] text-exvia-red-text hover:border-exvia-red hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-exvia-red focus-visible:ring-offset-4 focus-visible:ring-offset-black"
               >
                 {service.linkLabel}
                 <span
@@ -57,7 +81,7 @@ function ServiceRow({ service, index }: { service: ServiceItem; index: number })
                   type="button"
                   onClick={() => setShowBrands((v) => !v)}
                   aria-expanded={showBrands}
-                  className="group mt-7 inline-flex items-center gap-4 border-b border-exvia-red/50 pb-1.5 text-xs font-geist-mono uppercase tracking-[0.22em] text-exvia-red-text hover:border-exvia-red hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-exvia-red focus-visible:ring-offset-4 focus-visible:ring-offset-black"
+                  className="group mt-3.5 lg:mt-7 inline-flex items-center gap-4 border-b border-exvia-red/50 pb-1.5 text-xs font-geist-mono uppercase tracking-[0.22em] text-exvia-red-text hover:border-exvia-red hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-exvia-red focus-visible:ring-offset-4 focus-visible:ring-offset-black"
                 >
                   {servicesConfig.brandsLabel}
                   <span
@@ -82,6 +106,7 @@ function ServiceRow({ service, index }: { service: ServiceItem; index: number })
                 )}
               </>
             )}
+            </div>
           </div>
         </div>
       </div>
@@ -117,9 +142,9 @@ export function Services() {
   if (!servicesConfig.heading && servicesConfig.services.length === 0) return null;
 
   return (
-    <section id="services" className="w-full bg-black py-24 lg:py-32">
+    <section id="services" className="w-full bg-black py-14 lg:py-32">
       <div className="container-large px-6 lg:px-12">
-        <div ref={headerRef} className="max-w-2xl mb-14 lg:mb-16">
+        <div ref={headerRef} className="max-w-2xl mb-8 lg:mb-16">
           <div
             className={cn(
               'flex items-center gap-4 mb-6 transition-all duration-800 ease-out-quart',

@@ -6,9 +6,11 @@ import { ArrowRight, Mail } from 'lucide-react';
 import { ctaConfig } from '@/config';
 
 export function CTA() {
-  if (!ctaConfig.heading && !ctaConfig.description) return null;
-
+  // El hook va antes del return: llamarlo condicionalmente rompe el orden de
+  // hooks de React.
   const { ref: sectionRef, isVisible } = useScrollAnimation({ threshold: 0.3 });
+
+  if (!ctaConfig.heading && !ctaConfig.description) return null;
 
   return (
     <section id="contact" className="relative w-full py-32 lg:py-48 overflow-hidden">

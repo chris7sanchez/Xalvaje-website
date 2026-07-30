@@ -165,6 +165,20 @@ export function About() {
 
   return (
     <section id="about" className="w-full bg-black">
+      {/* Encabezado de sección: al entrar por el menú aparecía directamente la
+          foto del primer autor, sin decir dónde estabas. */}
+      <div className="container-large px-6 lg:px-12 pt-14 lg:pt-24 pb-8 lg:pb-14">
+        <div className="flex items-center gap-4 mb-4">
+          <span className="text-xs font-geist-mono uppercase tracking-[0.25em] text-exvia-red-text">
+            {aboutConfig.sectionLabel}
+          </span>
+          <span aria-hidden className="h-px w-12 bg-exvia-red/70" />
+        </div>
+        <h2 className="font-display uppercase text-white leading-[0.9] tracking-[-0.02em] text-[clamp(2.75rem,14vw,6rem)]">
+          {aboutConfig.sectionHeading}
+        </h2>
+      </div>
+
       {aboutConfig.people.map((person) => (
         <PersonBlock key={person.number} person={person} onOpenBio={() => setOpenBio(person)} />
       ))}

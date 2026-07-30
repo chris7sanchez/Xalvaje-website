@@ -115,11 +115,17 @@ export interface AboutTeam {
 }
 
 export interface AboutConfig {
+  /** Encabezado de la sección: sin esto, al entrar por el menú aparecía
+      directamente la foto del primer autor sin decir dónde estabas. */
+  sectionLabel: string;
+  sectionHeading: string;
   people: AboutPerson[];
   team: AboutTeam;
 }
 
 export const aboutConfig: AboutConfig = {
+  sectionLabel: "Quiénes somos",
+  sectionHeading: "Sobre nosotros",
   people: [
     {
       number: "01",
@@ -369,7 +375,8 @@ export const portfolioConfig: PortfolioConfig = {
     linkText: "Contáctanos",
     linkHref: "#contact",
   },
-  viewAllLabel: "Ver Todos los Proyectos",
+  // Vaciado a proposito: no habia pagina de listado a la que llevar.
+  viewAllLabel: "",
 };
 
 // Testimonials section configuration

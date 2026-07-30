@@ -55,16 +55,22 @@ export function Photography() {
         {/* Encabezado */}
         <div
           className={cn(
-            'max-w-2xl mb-14 lg:mb-20 transition-all duration-800 ease-out-quart',
+            'max-w-2xl mb-8 lg:mb-16 transition-all duration-800 ease-out-quart',
             sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
           )}
         >
-          <span className="text-sm font-geist-mono uppercase tracking-[0.25em] text-white/60 mb-4 block">
-            Retratos
-          </span>
-          <h2 className="font-display text-5xl lg:text-7xl uppercase tracking-[-0.01em] text-white mb-4">
+          {/* El nombre de la sección va primero y "Retratos" debajo, como
+              subtítulo: antes estaba al revés y se leía la especialidad antes
+              que la sección. */}
+          <h2 className="font-display text-[clamp(3rem,15vw,7rem)] leading-[0.9] uppercase tracking-[-0.02em] text-white mb-3">
             Fotografía
           </h2>
+          <div className="flex items-center gap-4 mb-5">
+            <span className="text-sm font-geist-mono uppercase tracking-[0.25em] text-exvia-red-text">
+              Retratos
+            </span>
+            <span aria-hidden className="h-px w-12 bg-exvia-red/70" />
+          </div>
           <p className="text-lg text-white/70 leading-relaxed max-w-xl">
             Retrato de autor: luz trabajada, dirección de mirada y una historia por cara.
             Estudio y localización.

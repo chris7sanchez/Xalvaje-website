@@ -250,14 +250,14 @@ export function Portfolio() {
   if (!portfolioConfig.heading && portfolioConfig.projects.length === 0) return null;
 
   return (
-    <section id="portfolio" className="w-full py-24 lg:py-32 bg-neutral-900">
+    <section id="portfolio" className="w-full py-14 lg:py-32 bg-neutral-900">
       {/* El observador va en el contenedor que envuelve TODO, no en el grid de
           abajo: visibleItems gobierna también PRISMA (que está encima del grid)
           y el banner. Con el ref en el grid, al entrar por el enlace del menú
           PRISMA se quedaba invisible hasta que hacías scroll y el grid asomaba. */}
       <div ref={gridRef} className="container-large px-6 lg:px-12">
         {/* Header */}
-        <div ref={headerRef} className="max-w-3xl mb-16">
+        <div ref={headerRef} className="max-w-3xl mb-4 lg:mb-10">
           {portfolioConfig.label && (
             <div
               className={cn(
@@ -275,7 +275,7 @@ export function Portfolio() {
           {portfolioConfig.heading && (
             <h2
               className={cn(
-                'font-display text-h2 uppercase tracking-[-0.01em] text-white mt-4 transition-all duration-800 ease-out-quart',
+                'font-display text-[clamp(4.25rem,21.5vw,9rem)] leading-[0.9] uppercase tracking-[-0.02em] text-white mt-3 transition-all duration-800 ease-out-quart',
                 headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
               )}
               style={{ transitionDelay: '100ms' }}
@@ -287,7 +287,7 @@ export function Portfolio() {
           {portfolioConfig.description && (
             <p
               className={cn(
-                'mt-6 text-lg text-white/60 leading-relaxed transition-all duration-800 ease-out-quart',
+                'mt-4 text-base lg:text-lg text-white/60 leading-relaxed transition-all duration-800 ease-out-quart',
                 headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
               )}
               style={{ transitionDelay: '200ms' }}
