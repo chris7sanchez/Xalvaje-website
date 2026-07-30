@@ -374,8 +374,6 @@ export interface TestimonialItem {
   author: string;
   role: string;
   company: string;
-  image: string;
-  rating: number;
 }
 
 export interface TestimonialsConfig {
@@ -393,24 +391,18 @@ export const testimonialsConfig: TestimonialsConfig = {
       author: "María González",
       role: "Directora",
       company: "Arte Visual Studios",
-      image: "/images/about-1.webp",
-      rating: 5,
     },
     {
       quote: "Trabajar con XALVAJE fue una experiencia extraordinaria. Capturaron la esencia de nuestro proyecto de manera que superó todas nuestras expectativas.",
       author: "Carlos Ruiz",
       role: "Productor",
       company: "Cine Independiente",
-      image: "/images/about-2.webp",
-      rating: 5,
     },
     {
       quote: "El equipo de XALVAJE tiene una capacidad única para contar historias que conectan emocionalmente con la audiencia. Verdaderos artistas.",
       author: "Laura Martínez",
       role: "Guionista",
       company: "Narrativa Films",
-      image: "/images/about-3.webp",
-      rating: 5,
     },
   ],
 };
