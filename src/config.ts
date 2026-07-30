@@ -54,6 +54,7 @@ export interface HeroConfig {
   /** Fotogramas del scroll-scrub: public/images/hero-scrub/f-001.webp ... f-0XX.webp */
   scrubFrameCount: number;
   scrubFramePathPrefix: string;
+  scrubFramePathPrefixSmall: string;
   /** Zonas clicables que aparecen sobre el último fotograma */
   zones: HeroZone[];
 }
@@ -69,6 +70,9 @@ export const heroConfig: HeroConfig = {
   tagline: "Productora audiovisual — cortometrajes, largometrajes y contenido de marca",
   scrubFrameCount: 60,
   scrubFramePathPrefix: "/images/hero-scrub/f-",
+  // Variante de 800x450 para móvil: los de escritorio son 1600x900 y suman
+  // 3,36 MB, que en móvil saturaban la conexión y retrasaban las fotos.
+  scrubFramePathPrefixSmall: "/images/hero-scrub-sm/f-",
   zones: [
     { label: "Proyectos", href: "#portfolio" },
     { label: "Servicios", href: "#services" },
@@ -186,7 +190,7 @@ export const aboutConfig: AboutConfig = {
     closing: "Eso es XALVAJE.",
     image: "/images/nosotros/juntos.webp",
     imageAlt: "Christian Sánchez y Ángel Lara, frente a frente",
-    imageRatio: 945 / 1014,
+    imageRatio: 731 / 1002,
   },
 };
 

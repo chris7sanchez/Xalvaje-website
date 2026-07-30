@@ -47,7 +47,7 @@ export function Photography() {
   const open = openIndex !== null ? PHOTOS[openIndex] : null;
 
   return (
-    <section id="photography" className="w-full bg-neutral-900 py-24 lg:py-32">
+    <section id="photography" className="w-full bg-neutral-900 pt-6 lg:pt-10 pb-24 lg:pb-32">
       {/* Mismo contenedor que Proyectos, Nosotros y Servicios: sin esto la
           rejilla se iba a 1304 px y las fotos salían un 10 % más grandes que
           las tarjetas de Proyectos, y las dos secciones no cuadraban. */}
@@ -73,7 +73,7 @@ export function Photography() {
 
         {/* Rejilla — respeta la proporción real de cada foto */}
         <div
-          className="columns-1 sm:columns-2 lg:columns-3 gap-4 lg:gap-6"
+          className="columns-2 lg:columns-3 gap-3 sm:gap-4 lg:gap-6"
           onMouseLeave={() => setHovered(null)}
         >
           {PHOTOS.map((photo, i) => (
@@ -95,13 +95,23 @@ export function Photography() {
               style={{ transitionDelay: sectionVisible ? `${Math.min(i * 70, 700)}ms` : '0ms' }}
             >
               <div className={cn('relative w-full', photo.vertical ? 'aspect-[2/3]' : 'aspect-[3/2]')}>
-                <img
-                  loading="lazy"
-                  decoding="async"
-                  src={`/images/fotografia/${photo.slug}.webp`}
-                  alt={photo.alt}
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out-quart group-hover:scale-[1.04]"
-                />
+                {/* <picture> y no srcset/sizes: con srcset el navegador puede
+                    reutilizar una versión mayor que ya tenga en caché, así que
+                    el ahorro en móvil no estaba garantizado. La media query sí
+                    es determinista: 197 KB en total en vez de 615 KB. */}
+                <picture>
+                  <source
+                    media="(max-width: 767px)"
+                    srcSet={`/images/fotografia/${photo.slug}-sm.webp`}
+                  />
+                  <img
+                    loading="lazy"
+                    decoding="async"
+                    src={`/images/fotografia/${photo.slug}.webp`}
+                    alt={photo.alt}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out-quart group-hover:scale-[1.04]"
+                  />
+                </picture>
               </div>
             </button>
           ))}

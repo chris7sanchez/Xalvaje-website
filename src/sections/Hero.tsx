@@ -7,9 +7,18 @@ import { heroConfig, reelConfig } from '@/config';
 // necesario para que el scrub de fotogramas se sienta gradual, no un salto.
 const SCRUB_SCREENS = 3.5;
 
-function frameUrl(index: number) {
+// En móvil se sirven los fotogramas de 800x450: los de escritorio son 1600x900
+// y suman 3,36 MB, que ahogaban la conexión y hacían que las fotos de las demás
+// secciones tardasen en aparecer.
+const esPantallaPequena = () =>
+  typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches;
+
+function frameUrl(index: number, pequena: boolean) {
   const n = String(index + 1).padStart(3, '0');
-  return `${heroConfig.scrubFramePathPrefix}${n}.webp`;
+  const prefijo = pequena
+    ? heroConfig.scrubFramePathPrefixSmall
+    : heroConfig.scrubFramePathPrefix;
+  return `${prefijo}${n}.webp`;
 }
 
 // El salto nativo del navegador a #ancla no es fiable en esta web (confirmado:
@@ -45,6 +54,7 @@ export function Hero() {
   // zona final; si no, el primer gesto de subida quedaría atrapado al instante.
   const suppressRelockRef = useRef(false);
   const [locked, setLocked] = useState(false);
+  const [pequena] = useState(esPantallaPequena);
   const [reelOpen, setReelOpen] = useState(false);
   // En ref además de en estado: los handlers de gesto la consultan sin obligar
   // a re-crear el efecto. Si el efecto se re-ejecutase, su limpieza pondría
@@ -72,13 +82,22 @@ export function Hero() {
     const retenidas: HTMLImageElement[] = [];
     const TANDA = 6;
 
+    // Esperamos a que la página termine de cargar antes de pedir los 60
+    // fotogramas: si arrancan a la vez, se comen el ancho de banda y las fotos
+    // de las demás secciones tardan en aparecer (se notaba mucho en móvil).
+    const esperarCarga = () =>
+      document.readyState === 'complete'
+        ? Promise.resolve()
+        : new Promise<void>((res) => window.addEventListener('load', () => res(), { once: true }));
+
     (async () => {
+      await esperarCarga();
       for (let inicio = 0; inicio < frameCount && !cancelado; inicio += TANDA) {
         const lote = Math.min(TANDA, frameCount - inicio);
         await Promise.all(
           Array.from({ length: lote }, async (_, k) => {
             const img = new Image();
-            img.src = frameUrl(inicio + k);
+            img.src = frameUrl(inicio + k, pequena);
             retenidas.push(img);
             try {
               // decode() es la clave: descargar no es suficiente, hay que tener
@@ -97,7 +116,7 @@ export function Hero() {
       // No vaciamos los src: abortar la precarga es justamente lo que dejaba
       // la primera pasada sin decodificar.
     };
-  }, [frameCount, reducedMotion]);
+  }, [frameCount, reducedMotion, pequena]);
   const revealReady = firstFrameLoaded || timeoutElapsed;
 
   const handleScroll = useCallback(() => {
@@ -284,7 +303,7 @@ export function Hero() {
           {Array.from({ length: frameCount }).map((_, i) => (
             <img
               key={i}
-              src={frameUrl(i)}
+              src={frameUrl(i, pequena)}
               alt={i === 0 ? 'XALVAJE — rodaje' : ''}
               aria-hidden={i !== 0}
               className={cn(
@@ -409,7 +428,10 @@ export function Hero() {
         )}
 
         {/* Content Container */}
-        <div className="relative z-20 flex flex-col items-center justify-end min-h-screen px-6 lg:px-12 pointer-events-none pb-16 md:pb-20">
+        {/* pb-28 en móvil: el tagline ocupa tres líneas ahí y llegaba a 16 px del
+            fondo, pisándose con el aviso de scroll ("Descubre XALVAJE" /
+            "Scroll para explorar"), que va en bottom-6. Texto sobre texto. */}
+        <div className="relative z-20 flex flex-col items-center justify-end min-h-screen px-6 lg:px-12 pointer-events-none pb-28 md:pb-20">
           <div
             className={cn(
               'text-center transition-all duration-1000 ease-out',

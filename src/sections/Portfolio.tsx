@@ -44,7 +44,7 @@ function FeaturedPrisma({ project, isVisible }: { project: Project; isVisible: b
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/40" />
 
         {/* Categoría en rojo, arriba a la izquierda */}
-        <span className="absolute top-4 left-4 text-[0.6rem] font-geist-mono uppercase tracking-[0.25em] text-exvia-red-text">
+        <span className="absolute top-3 left-3 sm:top-4 sm:left-4 text-[0.55rem] sm:text-[0.6rem] font-geist-mono uppercase tracking-[0.2em] sm:tracking-[0.25em] text-exvia-red-text">
           {project.category}
         </span>
 
@@ -54,7 +54,7 @@ function FeaturedPrisma({ project, isVisible }: { project: Project; isVisible: b
         </h3>
 
         {/* Año, abajo a la izquierda */}
-        <span className="absolute bottom-4 left-4 text-xs font-geist-mono text-white/80 border-b border-white/40 pb-0.5">
+        <span className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 text-[0.65rem] sm:text-xs font-geist-mono text-white/80 border-b border-white/40 pb-0.5">
           {project.year}
         </span>
       </div>
@@ -179,22 +179,22 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
 
           {/* Categoría en rojo, arriba a la izquierda. Va con el rojo aclarado:
               a 9,6 px sobre imagen, el de marca se queda en 3,9:1 (AA pide 4,5). */}
-          <span className="absolute top-4 left-4 text-[0.6rem] font-geist-mono uppercase tracking-[0.25em] text-exvia-red-text">
+          <span className="absolute top-3 left-3 sm:top-4 sm:left-4 text-[0.55rem] sm:text-[0.6rem] font-geist-mono uppercase tracking-[0.2em] sm:tracking-[0.25em] text-exvia-red-text">
             {project.category}
           </span>
 
           {/* Título grande superpuesto */}
-          <h3 className="absolute left-4 right-4 bottom-14 text-2xl lg:text-3xl font-display text-white uppercase tracking-[-0.02em] leading-[0.95] drop-shadow-lg">
+          <h3 className="absolute left-3 right-3 sm:left-4 sm:right-4 bottom-10 sm:bottom-14 text-base sm:text-2xl lg:text-3xl font-display text-white uppercase tracking-[-0.02em] leading-[0.95] drop-shadow-lg">
             {project.title}
           </h3>
 
           {/* Año, abajo a la izquierda */}
-          <span className="absolute bottom-4 left-4 text-xs font-geist-mono text-white/80 border-b border-white/40 pb-0.5">
+          <span className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 text-[0.65rem] sm:text-xs font-geist-mono text-white/80 border-b border-white/40 pb-0.5">
             {project.year}
           </span>
 
           {/* Ver proyecto, abajo a la derecha */}
-          <span className="absolute bottom-4 right-4 inline-flex items-center gap-1.5 text-[0.65rem] font-geist-mono uppercase tracking-[0.15em] text-white/80 group-hover:text-white transition-colors">
+          <span className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 inline-flex items-center gap-1 sm:gap-1.5 text-[0.55rem] sm:text-[0.65rem] font-geist-mono uppercase tracking-[0.12em] sm:tracking-[0.15em] text-white/80 group-hover:text-white transition-colors">
             {project.youtubeUrl ? (
               <>
                 Ver proyecto
@@ -305,7 +305,7 @@ export function Portfolio() {
         )}
 
         {/* Resto de proyectos: 3 por fila en escritorio, siempre filas completas */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
           {portfolioConfig.projects.slice(1).map((project, i) => (
             <ProjectCard key={project.title} project={project} index={i + 1} isVisible={visibleItems[i + 1]} />
           ))}
