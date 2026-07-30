@@ -6,6 +6,22 @@ interface UseScrollAnimationOptions {
   triggerOnce?: boolean;
 }
 
+/**
+ * Red de seguridad contra contenido que no se revela nunca.
+ *
+ * Un `threshold` del 10-30 % es IMPOSIBLE de cumplir cuando el elemento
+ * observado es más alto que el viewport dividido por ese umbral (un contenedor
+ * de 4000 px con threshold 0,3 necesitaría 1200 px visibles). En esos casos el
+ * IntersectionObserver no dispara jamás y la sección se queda en opacity 0.
+ * Si el elemento ya está en pantalla y seguimos ocultos, revelamos.
+ */
+const RESCATE_MS = 1200;
+
+function estaEnPantalla(el: Element) {
+  const r = el.getBoundingClientRect();
+  return r.bottom > 0 && r.top < window.innerHeight;
+}
+
 export function useScrollAnimation(options: UseScrollAnimationOptions = {}) {
   const { threshold = 0.1, rootMargin = '0px 0px -50px 0px', triggerOnce = true } = options;
   const ref = useRef<HTMLDivElement>(null);
@@ -33,7 +49,12 @@ export function useScrollAnimation(options: UseScrollAnimationOptions = {}) {
 
     observer.observe(element);
 
+    const rescate = setTimeout(() => {
+      if (estaEnPantalla(element)) setIsVisible(true);
+    }, RESCATE_MS);
+
     return () => {
+      clearTimeout(rescate);
       observer.disconnect();
     };
   }, [threshold, rootMargin, triggerOnce]);
@@ -48,31 +69,44 @@ export function useStaggerAnimation(itemCount: number, baseDelay: number = 100) 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
+    let lanzado = false;
+
+    const revelar = () => {
+      if (lanzado) return;
+      lanzado = true;
+      for (let i = 0; i < itemCount; i++) {
+        setTimeout(() => {
+          setVisibleItems((prev) => {
+            const newState = [...prev];
+            newState[i] = true;
+            return newState;
+          });
+        }, i * baseDelay);
+      }
+    };
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            // Stagger the reveal of each item
-            for (let i = 0; i < itemCount; i++) {
-              setTimeout(() => {
-                setVisibleItems((prev) => {
-                  const newState = [...prev];
-                  newState[i] = true;
-                  return newState;
-                });
-              }, i * baseDelay);
-            }
+            revelar();
             observer.unobserve(entry.target);
           }
         });
       },
-      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+      // threshold 0: basta con que asome un píxel. Este contenedor envuelve
+      // secciones enteras, y con 0,1 podía no cumplirse nunca.
+      { threshold: 0, rootMargin: '0px 0px -50px 0px' }
     );
 
     observer.observe(container);
 
+    const rescate = setTimeout(() => {
+      if (estaEnPantalla(container)) revelar();
+    }, RESCATE_MS);
+
     return () => {
+      clearTimeout(rescate);
       observer.disconnect();
     };
   }, [itemCount, baseDelay]);

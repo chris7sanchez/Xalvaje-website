@@ -1,11 +1,10 @@
 import { useState, useEffect, type MouseEvent } from 'react';
 import { cn } from '@/lib/utils';
+import { Logo } from '@/components/Logo';
 import { AnimatedButton } from './AnimatedButton';
 import { navigationConfig } from '@/config';
 
 export function Navigation() {
-  if (!navigationConfig.logo && navigationConfig.links.length === 0) return null;
-
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
@@ -27,6 +26,8 @@ export function Navigation() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  if (!navigationConfig.logo && navigationConfig.links.length === 0) return null;
 
   const handleNavClick = (e: MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
@@ -54,22 +55,16 @@ export function Navigation() {
             {navigationConfig.logo && (
               <a
                 href="#"
-                className="flex items-center gap-0.5 group"
+                className="flex items-center group"
                 aria-label={`${navigationConfig.logo} — Inicio`}
               >
-                <img
-                  src="/images/logo-x.webp"
-                  alt="X"
-                  width={187}
-                  height={240}
-                  className="h-10 w-auto transition-transform duration-500 ease-out-quart group-hover:scale-110"
+                {/* Sin "PRODUCCIONES": a la altura de una barra de navegación
+                    quedaría en 3 px. Va en el pie, donde hay sitio para leerlo. */}
+                <Logo
+                  size={44}
+                  claro={!isScrolled}
+                  className="transition-transform duration-500 ease-out-quart group-hover:scale-105"
                 />
-                <span className={cn(
-                  "text-2xl font-medium tracking-[0.12em] transition-colors duration-500",
-                  isScrolled ? "text-exvia-black" : "text-white"
-                )}>
-                  ALVAJE
-                </span>
               </a>
             )}
 

@@ -29,7 +29,7 @@ function FeaturedPrisma({ project, isVisible }: { project: Project; isVisible: b
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
       )}
     >
-      {/* Cartel fijo, sin nombre superpuesto, contraste reducido */}
+      {/* Cartel con el nombre dentro, igual que el resto de proyectos */}
       <div className="relative overflow-hidden bg-neutral-900 aspect-[4/3] md:aspect-auto">
         <img
           src={project.image}
@@ -39,11 +39,24 @@ function FeaturedPrisma({ project, isVisible }: { project: Project; isVisible: b
           className="w-full h-full object-cover"
           style={{ filter: 'contrast(0.88) brightness(1.04)' }}
         />
-        <div className="absolute top-4 right-4">
-          <span className="px-3 py-1.5 text-xs font-geist-mono bg-white/90 backdrop-blur-sm rounded-full text-exvia-black">
-            {project.year}
-          </span>
-        </div>
+
+        {/* Degradado para legibilidad del texto superpuesto */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/40" />
+
+        {/* Categoría en rojo, arriba a la izquierda */}
+        <span className="absolute top-4 left-4 text-[0.6rem] font-geist-mono uppercase tracking-[0.25em] text-exvia-red-text">
+          {project.category}
+        </span>
+
+        {/* Título grande superpuesto: algo mayor que las tarjetas, es el destacado */}
+        <h3 className="absolute left-4 right-4 bottom-12 text-3xl lg:text-5xl font-display text-white uppercase tracking-[-0.02em] leading-[0.95] drop-shadow-lg">
+          {project.title}
+        </h3>
+
+        {/* Año, abajo a la izquierda */}
+        <span className="absolute bottom-4 left-4 text-xs font-geist-mono text-white/80 border-b border-white/40 pb-0.5">
+          {project.year}
+        </span>
       </div>
 
       {/* Carrusel de fotos, con flechas */}
@@ -100,15 +113,6 @@ function FeaturedPrisma({ project, isVisible }: { project: Project; isVisible: b
         )}
       </div>
 
-      {/* Título e info debajo del cartel (el nombre no va superpuesto en PRISMA) */}
-      <div className="md:col-span-2">
-        <span className="text-[0.6rem] font-geist-mono uppercase tracking-[0.25em] text-exvia-red">
-          {project.category}
-        </span>
-        <h3 className="mt-1 text-3xl lg:text-4xl font-display text-white uppercase tracking-[-0.02em] leading-none">
-          {project.title}
-        </h3>
-      </div>
     </div>
   );
 }
@@ -173,8 +177,9 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
           {/* Degradado para legibilidad del texto superpuesto */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/40 transition-opacity duration-500" />
 
-          {/* Categoría en rojo, arriba a la izquierda */}
-          <span className="absolute top-4 left-4 text-[0.6rem] font-geist-mono uppercase tracking-[0.25em] text-exvia-red">
+          {/* Categoría en rojo, arriba a la izquierda. Va con el rojo aclarado:
+              a 9,6 px sobre imagen, el de marca se queda en 3,9:1 (AA pide 4,5). */}
+          <span className="absolute top-4 left-4 text-[0.6rem] font-geist-mono uppercase tracking-[0.25em] text-exvia-red-text">
             {project.category}
           </span>
 
@@ -246,7 +251,11 @@ export function Portfolio() {
 
   return (
     <section id="portfolio" className="w-full py-24 lg:py-32 bg-neutral-900">
-      <div className="container-large px-6 lg:px-12">
+      {/* El observador va en el contenedor que envuelve TODO, no en el grid de
+          abajo: visibleItems gobierna también PRISMA (que está encima del grid)
+          y el banner. Con el ref en el grid, al entrar por el enlace del menú
+          PRISMA se quedaba invisible hasta que hacías scroll y el grid asomaba. */}
+      <div ref={gridRef} className="container-large px-6 lg:px-12">
         {/* Header */}
         <div ref={headerRef} className="max-w-3xl mb-16">
           {portfolioConfig.label && (
@@ -256,7 +265,7 @@ export function Portfolio() {
                 headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               )}
             >
-              <span className="inline-flex items-center gap-3 text-xs font-geist-mono uppercase tracking-widest text-exvia-red">
+              <span className="inline-flex items-center gap-3 text-xs font-geist-mono uppercase tracking-widest text-exvia-red-text">
                 {portfolioConfig.label}
                 <span className="inline-block w-10 h-px bg-exvia-red" />
               </span>
@@ -296,7 +305,7 @@ export function Portfolio() {
         )}
 
         {/* Resto de proyectos: 3 por fila en escritorio, siempre filas completas */}
-        <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {portfolioConfig.projects.slice(1).map((project, i) => (
             <ProjectCard key={project.title} project={project} index={i + 1} isVisible={visibleItems[i + 1]} />
           ))}

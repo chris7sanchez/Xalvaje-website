@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback, type MouseEvent } from 'react';
 import { cn } from '@/lib/utils';
-import { heroConfig } from '@/config';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { heroConfig, reelConfig } from '@/config';
 
 // Alto del contenedor de scroll, en "pantallas" (vh). Da el recorrido
 // necesario para que el scrub de fotogramas se sienta gradual, no un salto.
@@ -44,6 +45,11 @@ export function Hero() {
   // zona final; si no, el primer gesto de subida quedaría atrapado al instante.
   const suppressRelockRef = useRef(false);
   const [locked, setLocked] = useState(false);
+  const [reelOpen, setReelOpen] = useState(false);
+  // En ref además de en estado: los handlers de gesto la consultan sin obligar
+  // a re-crear el efecto. Si el efecto se re-ejecutase, su limpieza pondría
+  // overflow:'' y descongelaría el hero justo al abrir el reel.
+  const reelOpenRef = useRef(false);
 
   const frameCount = heroConfig.scrubFrameCount;
 
@@ -60,15 +66,36 @@ export function Hero() {
   // llegado y la secuencia va a trompicones; con la caché caliente, fluye.
   useEffect(() => {
     if (reducedMotion) return;
-    const imgs: HTMLImageElement[] = [];
-    for (let i = 0; i < frameCount; i++) {
-      const img = new Image();
-      img.src = frameUrl(i);
-      imgs.push(img);
-    }
+    let cancelado = false;
+    // Guardamos las referencias: si el navegador descarta el bitmap decodificado
+    // porque nadie lo retiene, volveríamos a tener el tirón.
+    const retenidas: HTMLImageElement[] = [];
+    const TANDA = 6;
+
+    (async () => {
+      for (let inicio = 0; inicio < frameCount && !cancelado; inicio += TANDA) {
+        const lote = Math.min(TANDA, frameCount - inicio);
+        await Promise.all(
+          Array.from({ length: lote }, async (_, k) => {
+            const img = new Image();
+            img.src = frameUrl(inicio + k);
+            retenidas.push(img);
+            try {
+              // decode() es la clave: descargar no es suficiente, hay que tener
+              // el bitmap listo ANTES de que el scroll pida el fotograma.
+              await img.decode();
+            } catch {
+              // Un fotograma que falle no debe frenar a los demás
+            }
+          })
+        );
+      }
+    })();
+
     return () => {
-      // Cancela descargas pendientes si el componente se desmonta
-      imgs.forEach((img) => { img.src = ''; });
+      cancelado = true;
+      // No vaciamos los src: abortar la precarga es justamente lo que dejaba
+      // la primera pasada sin decodificar.
     };
   }, [frameCount, reducedMotion]);
   const revealReady = firstFrameLoaded || timeoutElapsed;
@@ -123,6 +150,10 @@ export function Hero() {
     });
   }, []);
 
+  useEffect(() => {
+    reelOpenRef.current = reelOpen;
+  }, [reelOpen]);
+
   const releaseLock = useCallback(() => {
     if (!lockedRef.current) return;
     lockedRef.current = false;
@@ -156,6 +187,7 @@ export function Hero() {
     };
 
     const onWheel = (e: WheelEvent) => {
+      if (reelOpenRef.current) return;
       if (lockedRef.current && e.deltaY < 0) releaseLock();
     };
 
@@ -164,6 +196,7 @@ export function Hero() {
       touchStartY = e.touches[0]?.clientY ?? 0;
     };
     const onTouchMove = (e: TouchEvent) => {
+      if (reelOpenRef.current) return;
       if (!lockedRef.current) return;
       const y = e.touches[0]?.clientY ?? 0;
       if (y > touchStartY + 12) {
@@ -258,7 +291,10 @@ export function Hero() {
                 'absolute inset-0 w-full h-full object-cover',
                 i === currentFrame ? 'opacity-100' : 'opacity-0'
               )}
-              loading={i < 3 ? 'eager' : 'lazy'}
+              // Todos eager: los 60 están dentro del viewport (absolute inset-0),
+              // así que 'lazy' no ahorraba nada y retrasaba la primera pasada.
+              // Es la misma URL que precarga el efecto de arriba: una sola petición.
+              loading="eager"
               fetchPriority={i === 0 ? 'high' : 'low'}
               decoding="async"
               onLoad={i === 0 ? () => setFirstFrameLoaded(true) : undefined}
@@ -307,6 +343,40 @@ export function Hero() {
                 <span className="absolute left-1/2 -bottom-0.5 h-px w-0 bg-exvia-red -translate-x-1/2 transition-all duration-300 group-hover:w-full" />
               </a>
             ))}
+          </div>
+        )}
+
+        {/* Reel: en el centro exacto del encuadre, que es donde cae el cruce de
+            la X. Vale para cualquier pantalla porque object-cover centra la
+            imagen, así que el centro del contenedor y el de la X coinciden.
+            Aparece con las zonas: es el momento en que el hero se congela como
+            portada-menú y el visitante está eligiendo a dónde ir.
+            Lleva fondo negro propio: el cruce de la X es la zona MÁS iluminada
+            del fotograma y un botón claro ahí sería invisible. */}
+        {reelConfig.src && (
+          <div
+            className={cn(
+              'absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-30 transition-all duration-700 ease-out',
+              showZones ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
+            )}
+          >
+            <button
+              type="button"
+              onClick={() => setReelOpen(true)}
+              aria-label={`${reelConfig.label}: vídeo de 90 segundos`}
+              className="group flex flex-col items-center gap-3 focus:outline-none"
+            >
+              <span className="grid place-items-center w-16 h-16 sm:w-20 sm:h-20 rounded-full border border-white/70 bg-black/55 backdrop-blur-sm transition-all duration-300 group-hover:bg-black/80 group-hover:border-white group-hover:scale-105 group-focus-visible:ring-2 group-focus-visible:ring-white group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-black/50">
+                {/* Triángulo de play, ligeramente descentrado para que se vea óptico */}
+                <span
+                  aria-hidden
+                  className="ml-1 block w-0 h-0 border-y-[9px] border-y-transparent border-l-[15px] border-l-white transition-transform duration-300 group-hover:scale-110"
+                />
+              </span>
+              <span className="px-2.5 py-1 rounded-full bg-black/55 backdrop-blur-sm text-[0.65rem] sm:text-xs font-geist-mono uppercase tracking-[0.22em] text-white">
+                {reelConfig.label}
+              </span>
+            </button>
           </div>
         )}
 
@@ -398,6 +468,53 @@ export function Hero() {
           }}
         />
       </section>
+
+      {/* Visor del reel. Al cerrar hay que devolver el bloqueo del scroll si el
+          hero estaba congelado: Radix gestiona su propio overflow y al soltarlo
+          dejaría la página suelta a mitad de la portada-menú. */}
+      <Dialog
+        open={reelOpen}
+        onOpenChange={(v) => {
+          setReelOpen(v);
+          if (!v && lockedRef.current) {
+            document.body.style.overflow = 'hidden';
+          }
+        }}
+      >
+        <DialogContent
+          showCloseButton={false}
+          className="z-[100] max-w-none sm:max-w-none w-screen h-screen p-0 border-0 bg-black/95 rounded-none flex items-center justify-center"
+        >
+          <DialogTitle className="sr-only">Reel de XALVAJE Producciones</DialogTitle>
+
+          {/* Ancho contenido a propósito: el reel es de 640x360 y a pantalla
+              completa se vería blando. */}
+          <video
+            className="w-[92vw] max-w-4xl aspect-video bg-black"
+            controls
+            autoPlay
+            playsInline
+            preload="metadata"
+            poster={reelConfig.poster}
+          >
+            <source src={reelConfig.src} type="video/mp4" />
+            Tu navegador no puede reproducir vídeo.{' '}
+            <a href={reelConfig.src} className="underline">
+              Descargar el reel
+            </a>
+            .
+          </video>
+
+          <button
+            type="button"
+            onClick={() => setReelOpen(false)}
+            aria-label="Cerrar el reel"
+            className="absolute top-6 right-6 z-10 px-4 py-2 rounded-full bg-black/70 backdrop-blur-sm text-sm font-geist-mono uppercase tracking-[0.2em] text-white hover:bg-black/90 transition-colors"
+          >
+            Cerrar
+          </button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

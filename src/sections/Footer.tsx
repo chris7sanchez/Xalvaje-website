@@ -1,4 +1,5 @@
 import { type MouseEvent, type ElementType } from 'react';
+import { Logo } from '@/components/Logo';
 import { cn } from '@/lib/utils';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import {
@@ -17,9 +18,9 @@ function getIcon(iconName: string): ElementType {
 }
 
 export function Footer() {
-  if (!footerConfig.logo && footerConfig.columns.length === 0 && footerConfig.socialLinks.length === 0) return null;
-
   const { ref, isVisible } = useScrollAnimation({ threshold: 0.1 });
+
+  if (!footerConfig.logo && footerConfig.columns.length === 0 && footerConfig.socialLinks.length === 0) return null;
 
   const handleNavClick = (e: MouseEvent<HTMLAnchorElement>, href: string) => {
     if (href.startsWith('#')) {
@@ -48,21 +49,13 @@ export function Footer() {
                 className="inline-flex flex-col gap-1 group"
                 aria-label={`${footerConfig.logo} — Inicio`}
               >
-                <span className="flex items-center gap-1">
-                  <img
-                    src="/images/logo-x.webp"
-                    alt="X"
-                    width={187}
-                    height={240}
-                    loading="lazy"
-                    decoding="async"
-                    className="h-16 w-auto transition-transform duration-500 ease-out-quart group-hover:scale-110"
-                  />
-                  <span className="text-3xl font-medium tracking-[0.12em]">ALVAJE</span>
-                </span>
-                <span className="text-[0.6rem] font-geist-mono uppercase tracking-[0.45em] text-white/40 pl-1">
-                  Producciones
-                </span>
+                {/* Aquí sí cabe el logotipo completo, con "PRODUCCIONES" en
+                    vertical y las proporciones del original. */}
+                <Logo
+                  size={120}
+                  conProducciones
+                  className="transition-transform duration-500 ease-out-quart group-hover:scale-105"
+                />
               </a>
             )}
             {footerConfig.description && (

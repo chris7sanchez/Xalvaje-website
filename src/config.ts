@@ -32,7 +32,6 @@ export const navigationConfig: NavigationConfig = {
     { label: "Nosotros", href: "#about" },
     { label: "Proyectos", href: "#portfolio" },
     { label: "Fotografía", href: "#photography" },
-    { label: "Stills", href: "#stills" },
   ],
   contactLabel: "Contacto",
   contactHref: "#contact",
@@ -189,6 +188,21 @@ export const aboutConfig: AboutConfig = {
     imageAlt: "Christian Sánchez y Ángel Lara, frente a frente",
     imageRatio: 945 / 1014,
   },
+};
+
+// REEL de la productora. No tiene sección propia: se abre desde el centro de la
+// X en la pantalla de entrada. El material es de 640x360 (también el .mov
+// original, no hay mejor fuente), así que en el visor va a ancho contenido.
+export interface ReelConfig {
+  label: string;
+  src: string;
+  poster: string;
+}
+
+export const reelConfig: ReelConfig = {
+  label: "Ver reel",
+  src: "/videos/reel.mp4",
+  poster: "/videos/reel-poster.jpg",
 };
 
 // Sección SERVICIOS: lista de cuatro servicios con el mismo lenguaje que

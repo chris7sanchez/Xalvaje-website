@@ -6,7 +6,6 @@ import { About } from '@/sections/About';
 import { Services } from '@/sections/Services';
 import { Portfolio } from '@/sections/Portfolio';
 import { Photography } from '@/sections/Photography';
-import { Stills } from '@/sections/Stills';
 import { Testimonials } from '@/sections/Testimonials';
 import { CTA } from '@/sections/CTA';
 import { Footer } from '@/sections/Footer';
@@ -30,7 +29,6 @@ function App() {
         <Services />
         <Portfolio />
         <Photography />
-        <Stills />
         <Testimonials />
         <CTA />
       </main>

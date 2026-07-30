@@ -50,11 +50,14 @@ module.exports = {
           red: '#B8442A',
           'red-dark': '#8F3320',
           'red-light': '#C04D32',
-          /* Rojo de marca aclarado para TEXTO PEQUEÑO sobre fondo negro. El
-             #B8442A da 3,9:1 y el red-light 4,35:1, ambos por debajo del 4,5:1
-             que exige WCAG AA; este mide 5,10:1. Usar solo en texto: las líneas
-             y adornos siguen con `red`, que como elemento gráfico cumple con 3:1. */
-          'red-text': '#D2553A',
+          /* Rojo de marca aclarado para TEXTO PEQUEÑO sobre fondo oscuro.
+             Cumple WCAG AA (4,5:1) en los DOS fondos que usa la web:
+               · sobre negro (#000, secciones About y Services): 5,59:1
+               · sobre neutral-900 (#171717, Portfolio/Photography/Stills): 4,69:1
+             Para comparar, el rojo de marca #B8442A da 3,9:1 y 3,33:1 — ambos
+             insuficientes. Usar solo en texto: las líneas y adornos siguen con
+             `red`, que como elemento gráfico se conforma con 3:1. */
+          'red-text': '#DA5C40',
         },
       },
       fontFamily: {
@@ -66,6 +69,10 @@ module.exports = {
         /* Voz de marca: frase del hero. Serif de alto contraste en peso ligero,
            elegante y sin gritar. No usar para encabezados de sección. */
         'display-serif': ['Cormorant Garamond', 'Georgia', 'serif'],
+        /* Logotipo: geométrica de trazo fino, la que acompaña a la X en el
+           logo original. Jost es la versión libre de Futura. Solo para el
+           logotipo, no para interfaz. */
+        logo: ['Jost', 'Century Gothic', 'Futura', 'sans-serif'],
       },
       fontSize: {
         'h1': ['clamp(3rem, 21vw, 21vw)', { lineHeight: '1', letterSpacing: '-0.04em' }],
