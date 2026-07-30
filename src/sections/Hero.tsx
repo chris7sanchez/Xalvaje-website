@@ -55,6 +55,10 @@ export function Hero() {
   const suppressRelockRef = useRef(false);
   const [locked, setLocked] = useState(false);
   const [pequena] = useState(esPantallaPequena);
+  // Portada estática en móvil: sin scrub, sin congelación, sin precargar 60
+  // fotogramas. Reutiliza la rama de reducedMotion, que ya está probada.
+  const portadaEstatica = pequena && !!heroConfig.portadaMovil;
+  const sinScrub = reducedMotion || portadaEstatica;
   const [reelOpen, setReelOpen] = useState(false);
   // En ref además de en estado: los handlers de gesto la consultan sin obligar
   // a re-crear el efecto. Si el efecto se re-ejecutase, su limpieza pondría
@@ -75,7 +79,7 @@ export function Hero() {
   // Sin esto, la primera pasada del scroll pide imágenes que aún no han
   // llegado y la secuencia va a trompicones; con la caché caliente, fluye.
   useEffect(() => {
-    if (reducedMotion) return;
+    if (sinScrub) return;
     let cancelado = false;
     // Guardamos las referencias: si el navegador descarta el bitmap decodificado
     // porque nadie lo retiene, volveríamos a tener el tirón.
@@ -116,7 +120,7 @@ export function Hero() {
       // No vaciamos los src: abortar la precarga es justamente lo que dejaba
       // la primera pasada sin decodificar.
     };
-  }, [frameCount, reducedMotion, pequena]);
+  }, [frameCount, sinScrub, pequena]);
   const revealReady = firstFrameLoaded || timeoutElapsed;
 
   const handleScroll = useCallback(() => {
@@ -182,11 +186,11 @@ export function Hero() {
   }, []);
 
   useEffect(() => {
-    if (reducedMotion) return;
+    if (sinScrub) return;
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [handleScroll, reducedMotion]);
+  }, [handleScroll, sinScrub]);
 
   // Salidas de la congelación:
   // 1) Clic en cualquier enlace de ancla (nav o zonas del hero): desbloqueo
@@ -195,7 +199,7 @@ export function Hero() {
   // 2) Gesto de scroll hacia ARRIBA (rueda o dedo): descongela para poder
   //    rebobinar la secuencia; si se vuelve a llegar al final, se recongela.
   useEffect(() => {
-    if (reducedMotion) return;
+    if (sinScrub) return;
 
     const unlock = (e: Event) => {
       const target = e.target as HTMLElement | null;
@@ -240,30 +244,30 @@ export function Hero() {
       // Nunca dejar la página sin scroll si el componente se desmonta
       document.body.style.overflow = '';
     };
-  }, [reducedMotion, releaseLock]);
+  }, [sinScrub, releaseLock]);
 
   if (!heroConfig.headlineLines.length && !heroConfig.name) return null;
 
   const scrubProgress = progress;
 
-  const currentFrame = reducedMotion
+  const currentFrame = sinScrub
     ? frameCount - 1
     : Math.min(frameCount - 1, Math.floor(scrubProgress * frameCount));
 
-  const showZones = reducedMotion || scrubProgress > 0.6;
-  const showScrollCue = !reducedMotion && progress < 0.05;
+  const showZones = sinScrub || scrubProgress > 0.6;
+  const showScrollCue = !sinScrub && progress < 0.05;
   // Tramo de portada: los fotogramas ya han terminado y la imagen final
   // permanece fija en pantalla.
-  const isFinalFrame = reducedMotion || scrubProgress >= 1;
+  const isFinalFrame = sinScrub || scrubProgress >= 1;
 
   return (
     <div
       ref={wrapperRef}
       className="relative w-full"
-      style={{ height: reducedMotion ? '100vh' : `${SCRUB_SCREENS * 100}vh` }}
+      style={{ height: sinScrub ? '100vh' : `${SCRUB_SCREENS * 100}vh` }}
     >
       {/* Barra de progreso: solo mientras el hero está en pantalla */}
-      {!reducedMotion && (
+      {!sinScrub && (
         <div
           className={cn(
             'fixed top-0 left-0 right-0 z-[60] h-[2px] bg-transparent transition-opacity duration-300',
@@ -285,7 +289,7 @@ export function Hero() {
         <div
           className="absolute inset-0 z-0 bg-cover bg-center"
           style={{
-            backgroundImage: `url(${heroConfig.backgroundImage})`,
+            backgroundImage: `url(${portadaEstatica ? heroConfig.portadaMovil : heroConfig.backgroundImage})`,
             filter: 'blur(8px) brightness(0.6)',
           }}
         />
@@ -298,9 +302,22 @@ export function Hero() {
           )}
         />
 
-        {/* Secuencia de fotogramas del scroll-scrub */}
+        {/* Portada estática en móvil: una sola imagen VERTICAL que llena la
+            pantalla. Los 60 fotogramas son 16:9 y aquí o se recortaban al 26 %
+            o dejaban 300 px de franja. */}
         <div className="absolute inset-0 z-10">
-          {Array.from({ length: frameCount }).map((_, i) => (
+          {portadaEstatica ? (
+            <img
+              src={heroConfig.portadaMovil}
+              alt="XALVAJE Producciones — el logo pintado en la persiana del garaje"
+              fetchPriority="high"
+              decoding="async"
+              className="absolute inset-0 w-full h-full object-cover object-center"
+              onLoad={() => setFirstFrameLoaded(true)}
+              onError={() => setTimeoutElapsed(true)}
+            />
+          ) : (
+            Array.from({ length: frameCount }).map((_, i) => (
             <img
               key={i}
               src={frameUrl(i, pequena)}
@@ -323,7 +340,8 @@ export function Hero() {
               onLoad={i === 0 ? () => setFirstFrameLoaded(true) : undefined}
               onError={i === 0 ? () => setTimeoutElapsed(true) : undefined}
             />
-          ))}
+            ))
+          )}
           {/* Vignette cinematográfico. Son DOS capas que se funden por opacidad:
               un `background` con gradiente no se puede animar (el navegador lo
               cambia de golpe y se ve un salto de luz), pero la opacidad sí. */}
@@ -349,7 +367,7 @@ export function Hero() {
         {heroConfig.zones.length > 0 && (
           <div
             className={cn(
-              'absolute inset-x-0 top-[62vw] md:top-[38%] z-30 flex justify-center items-center gap-2 sm:gap-6 px-4 transition-all duration-700 ease-out',
+              'absolute inset-x-0 top-[62%] md:top-[38%] z-30 flex justify-center items-center gap-2 sm:gap-6 px-4 transition-all duration-700 ease-out',
               showZones ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
             )}
           >
@@ -379,7 +397,7 @@ export function Hero() {
         {reelConfig.src && (
           <div
             className={cn(
-              'absolute left-1/2 top-[28vw] md:top-1/2 -translate-x-1/2 -translate-y-1/2 z-30 transition-all duration-700 ease-out',
+              'absolute left-[28%] top-[46%] md:left-1/2 md:top-1/2 -translate-x-1/2 -translate-y-1/2 z-30 transition-all duration-700 ease-out',
               showZones ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
             )}
           >

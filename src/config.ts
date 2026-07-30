@@ -55,6 +55,14 @@ export interface HeroConfig {
   scrubFrameCount: number;
   scrubFramePathPrefix: string;
   scrubFramePathPrefixSmall: string;
+  /**
+   * Portada VERTICAL para móvil. Si está puesta, en móvil no se usa el scrub:
+   * los 60 fotogramas son 16:9 y en una pantalla vertical o se recortaban al
+   * 26 % o dejaban 300 px de franja. Con una imagen vertical la portada llena
+   * la pantalla, se ahorra 1,37 MB y desaparecen los tirones en móvil.
+   * Cadena vacía = volver al scrub también en móvil.
+   */
+  portadaMovil: string;
   /** Zonas clicables que aparecen sobre el último fotograma */
   zones: HeroZone[];
 }
@@ -73,6 +81,7 @@ export const heroConfig: HeroConfig = {
   // Variante de 800x450 para móvil: los de escritorio son 1600x900 y suman
   // 3,36 MB, que en móvil saturaban la conexión y retrasaban las fotos.
   scrubFramePathPrefixSmall: "/images/hero-scrub-sm/f-",
+  portadaMovil: "/images/hero-portada-movil.webp",
   zones: [
     { label: "Proyectos", href: "#portfolio" },
     { label: "Servicios", href: "#services" },
