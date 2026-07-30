@@ -191,47 +191,57 @@ export const aboutConfig: AboutConfig = {
   },
 };
 
-// Services section configuration
+// Sección SERVICIOS: lista de cuatro servicios con el mismo lenguaje que
+// NOSOTROS (fondo negro, número en rojo, título condensado, enlace subrayado).
+// Sin iconos de librería a propósito: eran lo que daba aire de plantilla.
 export interface ServiceItem {
-  iconName: string;
   title: string;
   description: string;
   image: string;
+  /** Ancla interna, si el servicio lleva a otra sección */
+  link?: string;
+  /** Texto del enlace; solo se usa si hay `link` */
+  linkLabel?: string;
+  /** Despliega la lista de marcas en lugar de navegar */
+  brands?: string[];
 }
 
 export interface ServicesConfig {
   label: string;
   heading: string;
+  brandsLabel: string;
   services: ServiceItem[];
 }
 
 export const servicesConfig: ServicesConfig = {
   label: "Servicios",
   heading: "Lo que ofrecemos",
+  brandsLabel: "Marcas con las que hemos trabajado",
   services: [
     {
-      iconName: "Camera",
       title: "Producción Audiovisual",
       description: "Desde la idea hasta la pantalla. Cortometrajes, largometrajes, series y contenido digital con visión cinematográfica.",
       image: "/images/prisma-3.webp",
+      link: "#portfolio",
+      linkLabel: "Ver proyectos",
     },
     {
-      iconName: "Aperture",
       title: "Fotografía",
       description: "Book artístico, fotografía de moda, retratos y cobertura de eventos con visión cinematográfica y atención al detalle.",
       image: "/images/service-2.webp",
+      link: "#photography",
+      linkLabel: "Ver fotografías",
     },
     {
-      iconName: "Palette",
       title: "Dirección de Arte",
       description: "Diseño visual, escenografía, vestuario y dirección artística para proyectos audiovisuales de alto impacto.",
       image: "/images/service-3.webp",
     },
     {
-      iconName: "TrendingUp",
-      title: "Marketing y creación de contenido para marcas",
+      title: "Marketing y contenido para marcas",
       description: "Estrategias de contenido visual, gestión de redes sociales, campañas publicitarias y branded content que conecta con tu audiencia.",
       image: "/images/objeto1.webp",
+      brands: ["Apivita", "Belif", "Adidas", "Boss", "Camper"],
     },
   ],
 };

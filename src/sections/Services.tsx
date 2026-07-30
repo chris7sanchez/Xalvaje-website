@@ -1,143 +1,106 @@
-import { useState, type ElementType } from 'react';
+import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { useServiceParallax } from '@/hooks/useMouseParallax';
-import { servicesConfig } from '@/config';
-import {
-  ArrowUpRight, ChevronDown, Circle,
-  Camera, Aperture, Palette, TrendingUp,
-  Film, Video, Clapperboard, Image, Layers, Megaphone, Sparkles, PenTool, Monitor, Compass,
-} from 'lucide-react';
+import { servicesConfig, type ServiceItem } from '@/config';
 
-// Solo se empaquetan los iconos que usamos (evita importar toda la librería lucide-react).
-const ICON_MAP: Record<string, ElementType> = {
-  Camera, Aperture, Palette, TrendingUp,
-  Film, Video, Clapperboard, Image, Layers, Megaphone, Sparkles, PenTool, Monitor, Compass,
-};
-
-function getIcon(iconName: string): ElementType {
-  return ICON_MAP[iconName] || Circle;
-}
-
-// Marcas para el submenu de Marketing
-const brands = [
-  'Apivita',
-  'Belif', 
-  'Adidas',
-  'Boss',
-  'Camper'
-];
-
-interface ServiceCardProps {
-  service: { 
-    iconName: string; 
-    title: string; 
-    description: string; 
-    image: string;
-    link?: string;
-    hasSubmenu?: boolean;
-  };
-  index: number;
-  onNavigate?: (href: string) => void;
-}
-
-function ServiceCard({ service, index, onNavigate }: ServiceCardProps) {
+function ServiceRow({ service, index }: { service: ServiceItem; index: number }) {
   const [isHovered, setIsHovered] = useState(false);
   const [showBrands, setShowBrands] = useState(false);
   const { containerRef, getTransform } = useServiceParallax();
-  const Icon = getIcon(service.iconName);
 
-  const handleClick = () => {
-    if (service.hasSubmenu) {
-      setShowBrands(!showBrands);
-    } else if (service.link && onNavigate) {
-      onNavigate(service.link);
-    }
+  const goTo = (href: string) => {
+    document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
   };
-
-  const isClickable = service.link || service.hasSubmenu;
 
   return (
     <div
       ref={containerRef}
-      className={cn(
-        'relative border-t border-exvia-border transition-colors duration-300',
-        isClickable && 'cursor-pointer hover:bg-exvia-subtle/30'
-      )}
+      className="relative border-t border-white/10 transition-colors duration-300 hover:bg-white/[0.03]"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div 
-        className="p-8 lg:p-10"
-        onClick={handleClick}
-      >
-        <div className="flex flex-col lg:flex-row lg:items-start gap-6">
-          {/* Icon */}
-          <div className="flex-shrink-0">
-            <div className="w-12 h-12 flex items-center justify-center border border-exvia-border rounded-lg bg-white">
-              <Icon className="w-5 h-5 text-exvia-black" />
-            </div>
-          </div>
+      <div className="px-1 py-10 lg:py-12">
+        <div className="flex flex-col lg:flex-row lg:items-baseline gap-4 lg:gap-10">
+          {/* Número, como en las fichas de Nosotros */}
+          <span className="shrink-0 text-sm font-geist-mono tracking-[0.2em] text-exvia-red-text lg:w-16">
+            0{index + 1}
+          </span>
 
-          {/* Content */}
-          <div className="flex-1 space-y-3">
-            <div className="flex items-center gap-3">
-              <h3 className="text-h5 font-semibold text-exvia-black">{service.title}</h3>
-              {isClickable && (
-                <div className="flex items-center text-exvia-black/40">
-                  {service.hasSubmenu ? (
-                    <ChevronDown className={cn('w-4 h-4 transition-transform', showBrands && 'rotate-180')} />
-                  ) : (
-                    <ArrowUpRight className="w-4 h-4" />
-                  )}
-                </div>
-              )}
-            </div>
-            <p className="text-sm text-exvia-black/60 leading-relaxed max-w-md">
+          <div className="flex-1 lg:max-w-xl">
+            <h3 className="font-display uppercase text-white leading-[1.02] tracking-[0.04em] text-[clamp(1.5rem,2.6vw,2.25rem)]">
+              {service.title}
+            </h3>
+            <p className="mt-4 text-sm leading-relaxed text-white/70 max-w-lg">
               {service.description}
             </p>
-          </div>
 
-          {/* Index Number */}
-          <div className="hidden lg:block text-xs font-geist-mono text-exvia-black/30">
-            0{index + 1}
+            {service.link && service.linkLabel && (
+              <button
+                type="button"
+                onClick={() => goTo(service.link!)}
+                className="group mt-7 inline-flex items-center gap-4 border-b border-exvia-red/50 pb-1.5 text-xs font-geist-mono uppercase tracking-[0.22em] text-exvia-red-text hover:border-exvia-red hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-exvia-red focus-visible:ring-offset-4 focus-visible:ring-offset-black"
+              >
+                {service.linkLabel}
+                <span
+                  aria-hidden
+                  className="transition-transform duration-300 group-hover:translate-x-1"
+                >
+                  &rarr;
+                </span>
+              </button>
+            )}
+
+            {service.brands && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setShowBrands((v) => !v)}
+                  aria-expanded={showBrands}
+                  className="group mt-7 inline-flex items-center gap-4 border-b border-exvia-red/50 pb-1.5 text-xs font-geist-mono uppercase tracking-[0.22em] text-exvia-red-text hover:border-exvia-red hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-exvia-red focus-visible:ring-offset-4 focus-visible:ring-offset-black"
+                >
+                  {servicesConfig.brandsLabel}
+                  <span
+                    aria-hidden
+                    className={cn('transition-transform duration-300', showBrands && 'rotate-90')}
+                  >
+                    &rarr;
+                  </span>
+                </button>
+
+                {showBrands && (
+                  <div className="mt-6 flex flex-wrap gap-2.5">
+                    {service.brands.map((brand) => (
+                      <span
+                        key={brand}
+                        className="px-4 py-2 border border-white/20 text-xs font-geist-mono uppercase tracking-[0.15em] text-white/80"
+                      >
+                        {brand}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Submenu de Marcas (solo para Marketing) */}
-      {service.hasSubmenu && showBrands && (
-        <div className="px-8 lg:px-10 pb-8 lg:pb-10 pt-2">
-          <div className="pl-[72px] lg:pl-20">
-            <p className="text-xs font-geist-mono uppercase tracking-wider text-exvia-black/40 mb-3">
-              Marcas con las que hemos trabajado
-            </p>
-            <div className="flex flex-wrap gap-3">
-              {brands.map((brand) => (
-                <span 
-                  key={brand}
-                  className="px-4 py-2 bg-exvia-subtle rounded-full text-sm text-exvia-black/70 font-medium"
-                >
-                  {brand}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Hover Image */}
+      {/* Imagen que asoma al pasar el ratón, con paralaje suave */}
       <div
         className={cn(
-          'absolute right-8 top-1/2 -translate-y-1/2 w-48 h-32 lg:w-64 lg:h-40 overflow-hidden rounded-lg shadow-xl pointer-events-none z-10',
+          'hidden lg:block absolute right-0 top-1/2 -translate-y-1/2 w-64 h-40 overflow-hidden pointer-events-none z-10',
           'transition-opacity duration-300',
           isHovered ? 'opacity-100' : 'opacity-0'
         )}
         style={getTransform(50, 6)}
       >
-        <img loading="lazy" decoding="async"
+        <img
+          loading="lazy"
+          decoding="async"
           src={service.image}
-          alt={service.title}
+          alt=""
+          aria-hidden
           className="w-full h-full object-cover"
         />
       </div>
@@ -146,88 +109,51 @@ function ServiceCard({ service, index, onNavigate }: ServiceCardProps) {
 }
 
 export function Services() {
+  // Los hooks van SIEMPRE antes de cualquier return: con el early return
+  // delante, React lanzaba el error de orden de hooks al ocultar la sección.
+  const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation({ threshold: 0.3 });
+  const { ref: listRef, isVisible: listVisible } = useScrollAnimation({ threshold: 0.1 });
+
   if (!servicesConfig.heading && servicesConfig.services.length === 0) return null;
 
-  const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation({ threshold: 0.3 });
-  const { ref: servicesRef, isVisible: servicesVisible } = useScrollAnimation({ threshold: 0.1 });
-
-  const handleNavigate = (href: string) => {
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  // Configuración de servicios con links
-  const servicesWithLinks = [
-    {
-      ...servicesConfig.services[0], // Producción Audiovisual
-      link: '#portfolio'
-    },
-    {
-      ...servicesConfig.services[1], // Fotografía
-      link: '#photography'
-    },
-    {
-      ...servicesConfig.services[2], // Dirección de Arte
-      // Sin link
-    },
-    {
-      ...servicesConfig.services[3], // Marketing
-      hasSubmenu: true
-    }
-  ];
-
   return (
-    <section id="services" className="w-full py-24 lg:py-32 bg-white">
+    <section id="services" className="w-full bg-black py-24 lg:py-32">
       <div className="container-large px-6 lg:px-12">
-        {/* Header - TÍTULOS MÁS GRANDES */}
-        <div ref={headerRef} className="max-w-2xl mb-16">
-          {servicesConfig.label && (
-            <div
-              className={cn(
-                'transition-all duration-800 ease-out-quart',
-                headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-              )}
-            >
-              <span className="text-sm lg:text-base font-geist-mono uppercase tracking-[0.25em] text-exvia-black/60">
-                {servicesConfig.label}
-              </span>
-            </div>
-          )}
-
-          {servicesConfig.heading && (
-            <h2
-              className={cn(
-                'font-display text-4xl lg:text-5xl xl:text-6xl uppercase tracking-[-0.01em] text-exvia-black mt-4 transition-all duration-800 ease-out-quart',
-                headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-              )}
-              style={{ transitionDelay: '100ms' }}
-            >
-              {servicesConfig.heading}
-            </h2>
-          )}
-        </div>
-
-        {/* Services Grid */}
-        {servicesWithLinks.length > 0 && (
+        <div ref={headerRef} className="max-w-2xl mb-14 lg:mb-16">
           <div
-            ref={servicesRef}
             className={cn(
-              'border-b border-exvia-border transition-all duration-800 ease-out-quart',
-              servicesVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+              'flex items-center gap-4 mb-6 transition-all duration-800 ease-out-quart',
+              headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             )}
           >
-            {servicesWithLinks.map((service, index) => (
-              <ServiceCard 
-                key={service.title} 
-                service={service} 
-                index={index}
-                onNavigate={handleNavigate}
-              />
-            ))}
+            <span className="text-xs font-geist-mono uppercase tracking-[0.25em] text-exvia-red-text">
+              {servicesConfig.label}
+            </span>
+            <span aria-hidden className="h-px w-12 bg-exvia-red/70" />
           </div>
-        )}
+
+          <h2
+            className={cn(
+              'font-display uppercase text-white leading-[0.95] tracking-[0.02em] text-[clamp(2rem,4vw,3.25rem)] transition-all duration-800 ease-out-quart',
+              headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+            )}
+            style={{ transitionDelay: '100ms' }}
+          >
+            {servicesConfig.heading}
+          </h2>
+        </div>
+
+        <div
+          ref={listRef}
+          className={cn(
+            'border-b border-white/10 transition-all duration-800 ease-out-quart',
+            listVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          )}
+        >
+          {servicesConfig.services.map((service, index) => (
+            <ServiceRow key={service.title} service={service} index={index} />
+          ))}
+        </div>
       </div>
     </section>
   );
