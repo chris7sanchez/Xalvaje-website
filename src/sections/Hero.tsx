@@ -307,7 +307,11 @@ export function Hero() {
               alt={i === 0 ? 'XALVAJE — rodaje' : ''}
               aria-hidden={i !== 0}
               className={cn(
-                'absolute inset-0 w-full h-full object-cover',
+                // En móvil, CONTAIN: el fotograma es 16:9 y una pantalla vertical
+                // es 0,46, así que con cover solo se veía el 26 % del ancho del
+                // garaje. Con contain se ve entero y las franjas las rellena el
+                // fondo borroso que va detrás (z-0).
+                'absolute inset-0 w-full h-full object-contain md:object-cover',
                 i === currentFrame ? 'opacity-100' : 'opacity-0'
               )}
               // Todos eager: los 60 están dentro del viewport (absolute inset-0),
