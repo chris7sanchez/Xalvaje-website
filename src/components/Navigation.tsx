@@ -44,7 +44,13 @@ export function Navigation() {
         className={cn(
           'fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out-circ',
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4',
-          isScrolled ? 'bg-white/90 backdrop-blur-md shadow-sm' : 'bg-transparent'
+          // Sin fondo, el logo y los enlaces blancos caen sobre la zona más
+          // iluminada del fotograma: medido 1,12:1, invisible. Este degradado
+          // (negro 60 % arriba, a nada abajo) los deja en 6,06:1 sin que se vea
+          // como una barra sólida.
+          isScrolled
+            ? 'bg-white/90 backdrop-blur-md shadow-sm'
+            : 'bg-gradient-to-b from-black/60 via-black/25 to-transparent'
         )}
       >
         <div className="w-full px-6 lg:px-12 py-4">

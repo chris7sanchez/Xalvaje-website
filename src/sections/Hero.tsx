@@ -311,7 +311,7 @@ export function Hero() {
                 // es 0,46, así que con cover solo se veía el 26 % del ancho del
                 // garaje. Con contain se ve entero y las franjas las rellena el
                 // fondo borroso que va detrás (z-0).
-                'absolute inset-0 w-full h-full object-contain md:object-cover',
+                'absolute inset-0 w-full h-full object-contain object-top md:object-cover md:object-center',
                 i === currentFrame ? 'opacity-100' : 'opacity-0'
               )}
               // Todos eager: los 60 están dentro del viewport (absolute inset-0),
@@ -349,7 +349,7 @@ export function Hero() {
         {heroConfig.zones.length > 0 && (
           <div
             className={cn(
-              'absolute inset-x-0 top-[38%] z-30 flex justify-center items-center gap-2 sm:gap-6 px-4 transition-all duration-700 ease-out',
+              'absolute inset-x-0 top-[62vw] md:top-[38%] z-30 flex justify-center items-center gap-2 sm:gap-6 px-4 transition-all duration-700 ease-out',
               showZones ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
             )}
           >
@@ -379,7 +379,7 @@ export function Hero() {
         {reelConfig.src && (
           <div
             className={cn(
-              'absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-30 transition-all duration-700 ease-out',
+              'absolute left-1/2 top-[28vw] md:top-1/2 -translate-x-1/2 -translate-y-1/2 z-30 transition-all duration-700 ease-out',
               showZones ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
             )}
           >
@@ -407,7 +407,7 @@ export function Hero() {
         {heroConfig.roles[0] && (
           <div
             className={cn(
-              'absolute left-8 lg:left-16 top-1/2 -translate-y-1/2 z-20 transition-all duration-1000 ease-out',
+              'hidden md:block absolute left-8 lg:left-16 top-1/2 -translate-y-1/2 z-20 transition-all duration-1000 ease-out',
               revealReady ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
             )}
             style={{ transitionDelay: '1200ms' }}
@@ -420,7 +420,7 @@ export function Hero() {
         {heroConfig.roles[1] && (
           <div
             className={cn(
-              'absolute right-8 lg:right-16 top-1/2 -translate-y-1/2 z-20 transition-all duration-1000 ease-out',
+              'hidden md:block absolute right-8 lg:right-16 top-1/2 -translate-y-1/2 z-20 transition-all duration-1000 ease-out',
               revealReady ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'
             )}
             style={{ transitionDelay: '1400ms' }}
@@ -454,7 +454,7 @@ export function Hero() {
               </p>
             )}
             {heroConfig.tagline && (
-              <p className="mt-4 text-xs sm:text-sm font-geist-mono uppercase tracking-[0.2em] text-white/60">
+              <p className="mt-4 text-[0.6rem] sm:text-sm font-geist-mono uppercase tracking-[0.08em] sm:tracking-[0.2em] text-white/60 max-w-full break-words">
                 {heroConfig.tagline}
               </p>
             )}
