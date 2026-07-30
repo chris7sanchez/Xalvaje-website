@@ -89,6 +89,12 @@ export interface AboutPerson {
   bio: string[];
   image: string;
   imageAlt: string;
+  /**
+   * Proporción real (ancho/alto) de la foto. El contenedor la adopta para que
+   * `object-cover` no recorte NADA: con una altura fija, estas fotos casi
+   * cuadradas se ampliaban un 40 % y salían descabezadas.
+   */
+  imageRatio: number;
   /** true = foto a la derecha (bloque en espejo) */
   mirrored: boolean;
 }
@@ -98,6 +104,8 @@ export interface AboutTeam {
   headlineLines: string[];
   /** Tres columnas de párrafos, como en el diseño. Se apilan en móvil. */
   columns: string[][];
+  /** Proporción real de la foto; ver AboutPerson.imageRatio. */
+  imageRatio: number;
   closing: string;
   image: string;
   imageAlt: string;
@@ -128,6 +136,7 @@ export const aboutConfig: AboutConfig = {
       ],
       image: "/images/nosotros/christian.webp",
       imageAlt: "Christian Sánchez, director de XALVAJE",
+      imageRatio: 993 / 989,
       mirrored: false,
     },
     {
@@ -149,6 +158,7 @@ export const aboutConfig: AboutConfig = {
       ],
       image: "/images/nosotros/angel.webp",
       imageAlt: "Ángel Lara, director artístico de XALVAJE",
+      imageRatio: 1160 / 925,
       mirrored: true,
     },
   ],
@@ -177,6 +187,7 @@ export const aboutConfig: AboutConfig = {
     closing: "Eso es XALVAJE.",
     image: "/images/nosotros/juntos.webp",
     imageAlt: "Christian Sánchez y Ángel Lara, frente a frente",
+    imageRatio: 945 / 1014,
   },
 };
 

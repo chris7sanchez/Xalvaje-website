@@ -19,13 +19,16 @@ function PersonBlock({ person, onOpenBio }: { person: AboutPerson; onOpenBio: ()
   const { ref, isVisible } = useScrollAnimation({ threshold: 0.15 });
 
   const photo = (
-    <div className="relative w-full h-64 sm:h-80 lg:h-full min-h-0 lg:min-h-[38rem] overflow-hidden bg-neutral-950">
+    <div
+      className="relative w-full overflow-hidden bg-neutral-950"
+      style={{ aspectRatio: String(person.imageRatio) }}
+    >
       <img
         src={person.image}
         alt={person.imageAlt}
         loading="lazy"
         decoding="async"
-        className="absolute inset-0 w-full h-full object-cover object-top"
+        className="absolute inset-0 w-full h-full object-cover"
       />
     </div>
   );
@@ -77,7 +80,7 @@ function PersonBlock({ person, onOpenBio }: { person: AboutPerson; onOpenBio: ()
   return (
     <div
       ref={ref}
-      className="grid grid-cols-1 lg:grid-cols-2 border-b border-white/10 items-stretch"
+      className="grid grid-cols-1 lg:grid-cols-2 border-b border-white/10 items-center"
     >
       {/* En móvil la foto va siempre primero; el espejo solo aplica en escritorio */}
       {person.mirrored ? (
@@ -100,7 +103,7 @@ function TeamBlock() {
   const { team } = aboutConfig;
 
   return (
-    <div ref={ref} className="grid grid-cols-1 lg:grid-cols-2 items-stretch">
+    <div ref={ref} className="grid grid-cols-1 lg:grid-cols-2 items-center">
       <div
         className={cn(
           'flex flex-col justify-center px-8 py-16 lg:px-16 lg:py-24 transition-all duration-800 ease-out-quart',
@@ -141,7 +144,10 @@ function TeamBlock() {
         </div>
       </div>
 
-      <div className="relative w-full h-72 sm:h-96 lg:h-full min-h-0 lg:min-h-[38rem] overflow-hidden bg-neutral-950">
+      <div
+        className="relative w-full overflow-hidden bg-neutral-950"
+        style={{ aspectRatio: String(team.imageRatio) }}
+      >
         <img
           src={team.image}
           alt={team.imageAlt}
