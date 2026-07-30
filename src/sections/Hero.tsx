@@ -354,7 +354,7 @@ export function Hero() {
                 // es 0,46, así que con cover solo se veía el 26 % del ancho del
                 // garaje. Con contain se ve entero y las franjas las rellena el
                 // fondo borroso que va detrás (z-0).
-                'absolute inset-0 w-full h-full object-contain object-top md:object-cover md:object-center',
+                'absolute inset-0 w-full h-full object-cover object-center',
                 i === currentFrame ? 'opacity-100' : 'opacity-0'
               )}
               // Todos eager: los 60 están dentro del viewport (absolute inset-0),
@@ -432,7 +432,11 @@ export function Hero() {
                   // el vídeo de la nave, al 28 %/46 % en la foto del garaje.
                   portadaVideo
                   ? { left: '47%', top: '45%' }
-                  : { left: '28%', top: '46%' }
+                  : heroConfig.portadaMovil
+                  ? { left: '28%', top: '46%' }
+                  : // Scrub vertical: la X queda al 42 % de la imagen, que con el
+                    // recorte de cover cae en el 40 % del viewport.
+                    { left: '40%', top: '45%' }
                 : undefined
             }
           >

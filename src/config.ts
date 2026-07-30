@@ -87,9 +87,12 @@ export const heroConfig: HeroConfig = {
   scrubFramePathPrefix: "/images/hero-scrub/f-",
   // Variante de 800x450 para móvil: los de escritorio son 1600x900 y suman
   // 3,36 MB, que en móvil saturaban la conexión y retrasaban las fotos.
-  scrubFramePathPrefixSmall: "/images/hero-scrub-sm/f-",
-  portadaMovil: "/images/hero-portada-movil.webp",
-  portadaMovilVideo: "/videos/portada-movil.mp4",
+  // Fotogramas VERTICALES para móvil, sacados del vídeo vertical: llenan la
+  // pantalla (se ve el 82 % del ancho) en vez del 26 % que dejaba el 16:9.
+  scrubFramePathPrefixSmall: "/images/hero-scrub-vert/f-",
+  // Vacías: en móvil vuelve el scrub, ahora con fotogramas verticales.
+  portadaMovil: "",
+  portadaMovilVideo: "",
   portadaMovilVideoPoster: "/videos/portada-movil-poster.jpg",
   zones: [
     { label: "Proyectos", href: "#portfolio" },
