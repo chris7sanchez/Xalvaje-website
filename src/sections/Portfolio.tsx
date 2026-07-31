@@ -265,9 +265,8 @@ export function Portfolio() {
                 headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               )}
             >
-              <span className="inline-flex items-center gap-3 text-xs font-geist-mono uppercase tracking-widest text-exvia-red-text">
+              <span className="block text-[0.7rem] font-geist-mono uppercase tracking-[0.3em] text-white/85">
                 {portfolioConfig.label}
-                <span className="inline-block w-10 h-px bg-exvia-red" />
               </span>
             </div>
           )}
@@ -275,12 +274,24 @@ export function Portfolio() {
           {portfolioConfig.heading && (
             <h2
               className={cn(
-                'font-display text-[clamp(4.25rem,21.5vw,9rem)] leading-[0.9] uppercase tracking-[-0.02em] text-white mt-3 transition-all duration-800 ease-out-quart',
+                'font-display text-[clamp(2rem,4.2vw,3.5rem)] leading-[0.95] uppercase tracking-[-0.01em] text-white mt-2 transition-all duration-800 ease-out-quart',
                 headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
               )}
               style={{ transitionDelay: '100ms' }}
             >
-              {portfolioConfig.heading}
+              {(() => {
+                // Como en el diseño: la primera palabra en blanco y el resto en
+                // rojo, en la misma línea.
+                const [primera, ...resto] = portfolioConfig.heading.split(' ');
+                return (
+                  <>
+                    {primera}
+                    {resto.length > 0 && (
+                      <span className="text-exvia-red-text"> {resto.join(' ')}</span>
+                    )}
+                  </>
+                );
+              })()}
             </h2>
           )}
 

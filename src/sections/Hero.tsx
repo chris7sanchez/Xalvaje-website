@@ -397,7 +397,7 @@ export function Hero() {
         {heroConfig.zones.length > 0 && (
           <div
             className={cn(
-              'absolute inset-x-0 top-[62%] md:top-[38%] z-30 flex justify-center items-center gap-2 sm:gap-6 px-4 transition-all duration-700 ease-out',
+              'absolute inset-x-0 top-[52%] md:top-[38%] z-30 flex justify-center items-center gap-2 sm:gap-6 px-4 transition-all duration-700 ease-out',
               showZones ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
             )}
           >
@@ -430,7 +430,7 @@ export function Hero() {
         {reelConfig.src && (
           <div
             className={cn(
-              'absolute left-1/2 top-[26%] md:top-[24%] -translate-x-1/2 -translate-y-1/2 z-30 transition-all duration-700 ease-out',
+              'absolute left-1/2 top-[22%] md:top-[20%] -translate-x-1/2 -translate-y-1/2 z-30 transition-all duration-700 ease-out',
               showZones ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
             )}
           >
@@ -490,7 +490,7 @@ export function Hero() {
             cuando la escena se oscurece, con una disipación (desenfoque que se
             va + leve ascenso) en lugar de un simple fundido. Queda a la altura
             de la cámara, algo por debajo del centro. */}
-        <div className="absolute inset-x-0 top-[57%] -translate-y-1/2 z-20 flex flex-col items-center px-6 lg:px-12 pointer-events-none">
+        <div className="absolute inset-x-0 top-[78%] md:top-[64%] -translate-y-1/2 z-20 flex flex-col items-center px-6 lg:px-12 pointer-events-none">
           <div
             className={cn(
               'text-center transition-all ease-out',
@@ -500,7 +500,7 @@ export function Hero() {
             )}
           >
             {heroConfig.headlineLines[0] && (
-              <h1 className="font-roustel text-[clamp(3rem,9.5vw,7.5rem)] text-white tracking-normal leading-[1.15] pb-[0.12em] [text-shadow:0_2px_18px_rgba(0,0,0,0.85),0_1px_4px_rgba(0,0,0,0.9)]">
+              <h1 className="font-roustel text-[clamp(1.75rem,5vw,4rem)] text-white tracking-normal leading-[1.15] pb-[0.12em] [text-shadow:0_2px_18px_rgba(0,0,0,0.85),0_1px_4px_rgba(0,0,0,0.9)]">
                 {heroConfig.headlineLines[0]}
               </h1>
             )}
