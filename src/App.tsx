@@ -46,7 +46,9 @@ function Contenido() {
         </Routes>
       </main>
 
-      <Footer />
+      {/* La portada termina en el último fotograma, que hace de menú: debajo no
+          va nada, ni pie ni banner. Así el scroll no puede seguir bajando. */}
+      {!esPortada && <Footer />}
     </div>
   );
 }
