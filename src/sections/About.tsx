@@ -20,7 +20,7 @@ function PersonBlock({ person, onOpenBio }: { person: AboutPerson; onOpenBio: ()
 
   const photo = (
     <div
-      className="relative w-full lg:max-w-[78%] lg:mx-auto overflow-hidden bg-neutral-950"
+      className="relative w-full lg:max-w-[66%] lg:mx-auto overflow-hidden bg-neutral-950"
       style={{ aspectRatio: String(person.imageRatio) }}
     >
       <img
@@ -145,7 +145,7 @@ function TeamBlock() {
       </div>
 
       <div
-        className="relative w-full lg:max-w-[70%] lg:mx-auto overflow-hidden bg-neutral-950"
+        className="relative w-full lg:max-w-[60%] lg:mx-auto overflow-hidden bg-neutral-950"
         style={{ aspectRatio: String(team.imageRatio) }}
       >
         <img
@@ -168,14 +168,23 @@ export function About() {
       {/* Encabezado de sección: al entrar por el menú aparecía directamente la
           foto del primer autor, sin decir dónde estabas. */}
       <div className="container-large px-6 lg:px-12 pt-14 lg:pt-16 pb-8 lg:pb-10">
-        <div className="flex items-center gap-4 mb-4">
-          <span className="text-xs font-geist-mono uppercase tracking-[0.25em] text-exvia-red-text">
-            {aboutConfig.sectionLabel}
-          </span>
-          <span aria-hidden className="h-px w-12 bg-exvia-red/70" />
-        </div>
-        <h2 className="font-display uppercase text-white leading-[0.9] tracking-[-0.02em] text-[clamp(2.5rem,11vw,4.5rem)]">
-          {aboutConfig.sectionHeading}
+        <span className="block text-[0.7rem] font-geist-mono uppercase tracking-[0.3em] text-white/85">
+          {aboutConfig.sectionLabel}
+        </span>
+        <h2 className="mt-2 font-display uppercase text-white leading-[0.95] tracking-[-0.01em] text-[clamp(2rem,4.2vw,3.5rem)]">
+          {(() => {
+            // Mismo criterio que en Proyectos: primera palabra en blanco y el
+            // resto en rojo, partiendo el texto del config.
+            const [primera, ...resto] = aboutConfig.sectionHeading.split(' ');
+            return (
+              <>
+                {primera}
+                {resto.length > 0 && (
+                  <span className="text-exvia-red-text"> {resto.join(' ')}</span>
+                )}
+              </>
+            );
+          })()}
         </h2>
       </div>
 
