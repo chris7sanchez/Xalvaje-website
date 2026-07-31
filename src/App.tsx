@@ -26,8 +26,8 @@ function App() {
       <main>
         <Hero />
         <Portfolio />
-        <Services />
         <Photography />
+        <Services />
         <About />
         <Testimonials />
         <CTA />
