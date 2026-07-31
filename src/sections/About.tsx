@@ -41,12 +41,12 @@ function PersonBlock({ person, onOpenBio }: { person: AboutPerson; onOpenBio: ()
       )}
     >
       <div className="max-w-md">
-        <span className="block text-xl font-geist-mono text-exvia-red-text tracking-[0.2em]">
+        <span className="block text-lg font-geist-mono text-exvia-red-text tracking-[0.2em]">
           {person.number}
         </span>
-        <span aria-hidden className="block w-8 h-px bg-exvia-red/70 mt-3 mb-7" />
+        <span aria-hidden className="block w-8 h-px bg-exvia-red/70 mt-3 mb-5" />
 
-        <h3 className="font-display uppercase text-white leading-[0.95] tracking-[0.05em] text-[clamp(2.25rem,4.5vw,3.75rem)]">
+        <h3 className="font-display uppercase text-white leading-[0.95] tracking-[0.05em] text-[clamp(2rem,3.6vw,3rem)]">
           <span className="block">{person.firstName}</span>
           <span className="block">{person.lastName}</span>
         </h3>
@@ -55,18 +55,18 @@ function PersonBlock({ person, onOpenBio }: { person: AboutPerson; onOpenBio: ()
           {person.roles.join('  ·  ')}
         </p>
 
-        <blockquote className="mt-8 text-lg lg:text-xl text-white leading-snug">
+        <blockquote className="mt-6 text-lg lg:text-xl text-white leading-snug">
           &ldquo;{person.quote}&rdquo;
         </blockquote>
 
-        <span aria-hidden className="block w-10 h-px bg-exvia-red/70 mt-8 mb-6" />
+        <span aria-hidden className="block w-10 h-px bg-exvia-red/70 mt-6 mb-5" />
 
         <p className="text-sm leading-relaxed text-white/70">{person.intro}</p>
 
         <button
           type="button"
           onClick={onOpenBio}
-          className="group mt-10 inline-flex items-center gap-4 self-start border-b border-exvia-red/50 pb-1.5 text-xs font-geist-mono uppercase tracking-[0.22em] text-exvia-red-text hover:border-exvia-red hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-exvia-red focus-visible:ring-offset-4 focus-visible:ring-offset-black"
+          className="group mt-8 inline-flex items-center gap-4 self-start border-b border-exvia-red/50 pb-1.5 text-xs font-geist-mono uppercase tracking-[0.22em] text-exvia-red-text hover:border-exvia-red hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-exvia-red focus-visible:ring-offset-4 focus-visible:ring-offset-black"
         >
           Ver biografía
           <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">
@@ -145,7 +145,7 @@ function TeamBlock() {
       </div>
 
       <div
-        className="relative w-full lg:max-w-[80%] lg:mx-auto overflow-hidden bg-neutral-950"
+        className="relative w-full lg:max-w-[70%] lg:mx-auto overflow-hidden bg-neutral-950"
         style={{ aspectRatio: String(team.imageRatio) }}
       >
         <img
@@ -174,7 +174,7 @@ export function About() {
           </span>
           <span aria-hidden className="h-px w-12 bg-exvia-red/70" />
         </div>
-        <h2 className="font-display uppercase text-white leading-[0.9] tracking-[-0.02em] text-[clamp(2.75rem,14vw,6rem)]">
+        <h2 className="font-display uppercase text-white leading-[0.9] tracking-[-0.02em] text-[clamp(2.5rem,11vw,4.5rem)]">
           {aboutConfig.sectionHeading}
         </h2>
       </div>

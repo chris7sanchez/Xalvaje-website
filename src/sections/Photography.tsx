@@ -62,7 +62,7 @@ export function Photography() {
           {/* El nombre de la sección va primero y "Retratos" debajo, como
               subtítulo: antes estaba al revés y se leía la especialidad antes
               que la sección. */}
-          <h2 className="font-display text-[clamp(3rem,15vw,7rem)] leading-[0.9] uppercase tracking-[-0.02em] text-white mb-3">
+          <h2 className="font-display text-[clamp(2.75rem,12vw,5.5rem)] leading-[0.9] uppercase tracking-[-0.02em] text-white mb-3">
             Fotografía
           </h2>
           <div className="flex items-center gap-4 mb-5">
@@ -79,7 +79,7 @@ export function Photography() {
 
         {/* Rejilla — respeta la proporción real de cada foto */}
         <div
-          className="columns-2 lg:columns-3 gap-3 sm:gap-4 lg:gap-6"
+          className="columns-2 lg:columns-3 gap-3 sm:gap-4 lg:gap-5"
           onMouseLeave={() => setHovered(null)}
         >
           {PHOTOS.map((photo, i) => (
@@ -90,7 +90,7 @@ export function Photography() {
               onMouseEnter={() => setHovered(i)}
               aria-label={`Ampliar: ${photo.alt}`}
               className={cn(
-                'group block w-full mb-4 lg:mb-6 break-inside-avoid overflow-hidden',
+                'group block w-full mb-3 lg:mb-5 break-inside-avoid overflow-hidden',
                 'rounded-sm cursor-pointer',
                 'focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-4 focus-visible:ring-offset-neutral-900',
                 'transition-all duration-700 ease-out-quart',
