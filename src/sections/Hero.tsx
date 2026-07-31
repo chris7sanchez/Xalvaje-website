@@ -269,7 +269,7 @@ export function Hero() {
   // La portada entra limpia: solo el logotipo y el aviso de scroll. El titular
   // se materializa a mitad del recorrido, cuando la escena se oscurece, y los
   // tres accesos aparecen al final.
-  const showTitular = sinScrub || scrubProgress > 0.34;
+  const showTitular = sinScrub || scrubProgress > 0.19;
   const showZones = sinScrub || scrubProgress > 0.62;
   const showScrollCue = !sinScrub && progress < 0.08;
   // Tramo de portada: los fotogramas ya han terminado y la imagen final
@@ -500,7 +500,7 @@ export function Hero() {
             )}
           >
             {heroConfig.headlineLines[0] && (
-              <h1 className="font-display-serif font-light text-[clamp(2.75rem,8.5vw,6.5rem)] text-white tracking-[-0.015em] leading-[1.05] drop-shadow-2xl">
+              <h1 className="font-roustel text-[clamp(3rem,9.5vw,7.5rem)] text-white tracking-normal leading-[1.15] pb-[0.12em] [text-shadow:0_2px_18px_rgba(0,0,0,0.85),0_1px_4px_rgba(0,0,0,0.9)]">
                 {heroConfig.headlineLines[0]}
               </h1>
             )}
