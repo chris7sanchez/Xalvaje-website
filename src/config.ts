@@ -29,9 +29,10 @@ export interface NavigationConfig {
 export const navigationConfig: NavigationConfig = {
   logo: "XALVAJE",
   links: [
-    { label: "Nosotros", href: "#about" },
+    // Mismo orden en que aparecen al bajar
     { label: "Proyectos", href: "#portfolio" },
     { label: "Fotografía", href: "#photography" },
+    { label: "Nosotros", href: "#about" },
   ],
   contactLabel: "Contacto",
   contactHref: "#contact",
@@ -85,10 +86,9 @@ export const heroConfig: HeroConfig = {
   tagline: "Productora audiovisual — cortometrajes, largometrajes y contenido de marca",
   scrubFrameCount: 60,
   scrubFramePathPrefix: "/images/hero-scrub/f-",
-  // Variante de 800x450 para móvil: los de escritorio son 1600x900 y suman
-  // 3,36 MB, que en móvil saturaban la conexión y retrasaban las fotos.
   // Fotogramas VERTICALES para móvil, sacados del vídeo vertical: llenan la
-  // pantalla (se ve el 82 % del ancho) en vez del 26 % que dejaba el 16:9.
+  // pantalla (se ve el 82 % del ancho) en vez del 26 % que dejaba el 16:9 de
+  // escritorio, que además pesaba 3,36 MB.
   scrubFramePathPrefixSmall: "/images/hero-scrub-vert/f-",
   // Vacías: en móvil vuelve el scrub, ahora con fotogramas verticales.
   portadaMovil: "",

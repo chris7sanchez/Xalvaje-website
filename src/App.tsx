@@ -25,11 +25,11 @@ function App() {
       {/* Main Content */}
       <main>
         <Hero />
-        <About />
-        <Services />
         <Portfolio />
+        <Services />
         <Photography />
         <Testimonials />
+        <About />
         <CTA />
       </main>
       
