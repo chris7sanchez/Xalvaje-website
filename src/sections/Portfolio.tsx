@@ -243,7 +243,7 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
                 <span className="text-[0.65rem] font-geist-mono uppercase tracking-[0.25em] text-exvia-red-text">
                   {project.category} &middot; {project.year}
                 </span>
-                <h3 className="mt-2 font-display uppercase text-white leading-[0.95] tracking-[-0.01em] text-[clamp(1.75rem,4vw,3rem)]">
+                <h3 className="mt-2 font-display uppercase text-white leading-[0.95] tracking-[-0.01em] text-[clamp(1.75rem,4vw,3.75rem)]">
                   {project.title}
                 </h3>
 
@@ -332,7 +332,7 @@ export function Portfolio() {
           {portfolioConfig.heading && (
             <h2
               className={cn(
-                'font-display text-[clamp(2rem,4.2vw,3.5rem)] leading-[0.95] uppercase tracking-[-0.01em] text-white mt-2 reveal',
+                'font-display text-[clamp(2rem,4.2vw,4.5rem)] leading-[0.95] uppercase tracking-[-0.01em] text-white mt-2 reveal',
                 headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
               )}
               style={{ transitionDelay: '100ms' }}
@@ -381,13 +381,10 @@ export function Portfolio() {
             return (
               <div key={cat.slug} id={cat.slug} className="scroll-mt-32 mb-14 lg:mb-20">
                 <div className="flex items-baseline gap-4 mb-5">
-                  <h3 className="font-display uppercase text-white leading-none tracking-[0.02em] text-[clamp(1.25rem,2.4vw,2rem)]">
+                  <h3 className="font-display uppercase text-white leading-none tracking-[0.02em] text-[clamp(1.25rem,2.4vw,2.5rem)]">
                     {cat.titulo}
                   </h3>
                   <span aria-hidden className="flex-1 h-px bg-white/15" />
-                  <span className="text-[0.65rem] font-geist-mono text-white/40 tabular-nums">
-                    {String(deLaCategoria.length).padStart(2, '0')}
-                  </span>
                 </div>
 
                 {destacado ? (

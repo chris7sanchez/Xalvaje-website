@@ -25,7 +25,7 @@ export function Testimonials() {
             <span aria-hidden className="h-px w-12 bg-exvia-red/70" />
           </div>
 
-          <h2 className="font-display uppercase text-white leading-[0.95] tracking-[0.02em] text-[clamp(2rem,4vw,3.25rem)]">
+          <h2 className="font-display uppercase text-white leading-[0.95] tracking-[0.02em] text-[clamp(2rem,4vw,4.25rem)]">
             {testimonialsConfig.heading}
           </h2>
         </div>

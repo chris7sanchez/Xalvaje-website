@@ -6,7 +6,7 @@ import { useServiceParallax } from '@/hooks/useMouseParallax';
 import { useHoverCapaz } from '@/hooks/useHoverCapaz';
 import { servicesConfig, type ServiceItem } from '@/config';
 
-function ServiceRow({ service, index }: { service: ServiceItem; index: number }) {
+function ServiceRow({ service }: { service: ServiceItem }) {
   const [isHovered, setIsHovered] = useState(false);
   const hoverCapaz = useHoverCapaz();
   const [showBrands, setShowBrands] = useState(false);
@@ -29,10 +29,9 @@ function ServiceRow({ service, index }: { service: ServiceItem; index: number })
     >
       <div className="px-1 py-5 lg:py-[4.5rem]">
         <div className="flex flex-row items-baseline gap-3 lg:gap-10">
-          {/* Número, como en las fichas de Nosotros */}
-          <span className="shrink-0 text-xs lg:text-sm font-geist-mono tracking-[0.2em] text-exvia-red-text lg:w-16">
-            0{index + 1}
-          </span>
+          {/* Sin numeracion: se quito de las fichas de Nosotros y de los
+              encabezados de categoria de Proyectos, y aqui era el mismo
+              recurso repetido. */}
 
           <div className="flex-1 lg:max-w-xl">
             {/* En móvil la fila es un desplegable: solo el título ocupa sitio y
@@ -45,7 +44,7 @@ function ServiceRow({ service, index }: { service: ServiceItem; index: number })
               aria-expanded={abierto}
               className="w-full flex items-baseline justify-between gap-3 text-left lg:pointer-events-none"
             >
-              <h3 className="font-display uppercase text-white leading-[1.02] tracking-[0.04em] text-[clamp(1.25rem,2.6vw,2.25rem)]">
+              <h3 className="font-display uppercase text-white leading-[1.02] tracking-[0.04em] text-[clamp(1.25rem,2.6vw,2.9rem)]">
                 {service.title}
               </h3>
               <span
@@ -119,7 +118,7 @@ function ServiceRow({ service, index }: { service: ServiceItem; index: number })
       {/* Imagen que asoma al pasar el ratón, con paralaje suave */}
       <div
         className={cn(
-          'hidden lg:block absolute right-0 top-1/2 -translate-y-1/2 w-64 h-40 overflow-hidden pointer-events-none z-10',
+          'hidden lg:block absolute right-0 top-1/2 -translate-y-1/2 w-80 h-52 xl:w-[26rem] xl:h-64 overflow-hidden pointer-events-none z-10',
           'transition-opacity duration-300',
           isHovered ? 'opacity-100' : 'opacity-0'
         )}
@@ -164,7 +163,7 @@ export function Services() {
 
           <h2
             className={cn(
-              'font-display uppercase text-white leading-[0.95] tracking-[0.02em] text-[clamp(2rem,4vw,3.25rem)] reveal',
+              'font-display uppercase text-white leading-[0.95] tracking-[0.02em] text-[clamp(2rem,4vw,4.25rem)] reveal',
               headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
             )}
             style={{ transitionDelay: '100ms' }}
@@ -180,8 +179,8 @@ export function Services() {
             listVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           )}
         >
-          {servicesConfig.services.map((service, index) => (
-            <ServiceRow key={service.title} service={service} index={index} />
+          {servicesConfig.services.map((service) => (
+            <ServiceRow key={service.title} service={service} />
           ))}
         </div>
       </div>

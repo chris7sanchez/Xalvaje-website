@@ -359,11 +359,31 @@
     width: 100%;
   }
   
+  /* Un solo contenedor para TODAS las secciones. Estaba clavado en 80rem
+     (1280 px): en un iMac de 2000+ px el contenido quedaba como una columna
+     estrecha con cientos de px de negro a cada lado, y encima las fichas de
+     Quienes Somos iban a sangre completa por fuera de el. Dos sistemas de
+     ancho conviviendo = la sensacion de que nada casa.
+     Ahora crece por tramos. Los bloques de texto conservan su propia medida
+     (max-w-xl/2xl), asi que ensanchar el contenedor no alarga las lineas de
+     lectura: solo respiran las rejillas y las imagenes. */
   .container-large {
     width: 100%;
     max-width: 80rem;
     margin-left: auto;
     margin-right: auto;
+  }
+
+  @media (min-width: 1600px) {
+    .container-large { max-width: 90rem; }
+  }
+
+  @media (min-width: 1920px) {
+    .container-large { max-width: 102rem; }
+  }
+
+  @media (min-width: 2300px) {
+    .container-large { max-width: 118rem; }
   }
   
   .container-medium {

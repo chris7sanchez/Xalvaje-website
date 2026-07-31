@@ -40,20 +40,21 @@ function PersonBlock({ person, onOpenBio }: { person: AboutPerson; onOpenBio: ()
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
       )}
     >
-      <div className="max-w-md">
-        <span className="block text-lg font-geist-mono text-exvia-red-text tracking-[0.2em]">
-          {person.number}
-        </span>
-        <span aria-hidden className="block w-8 h-px bg-exvia-red/70 mt-3 mb-5" />
+      <div className="max-w-2xl">
+        {/* Sin numeracion: eran dos personas, no una lista ordenada.
+            Nombre en UNA linea y el rol pegado justo debajo. El flex-wrap
+            hace el resto: cuando la columna da de si, el rol sube a la
+            derecha del nombre; cuando no, cae debajo. Sin duplicar marcado
+            ni media queries a ojo. */}
+        <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1">
+          <h3 className="font-display uppercase text-white leading-[0.95] tracking-[0.05em] text-[clamp(2rem,3.6vw,3.6rem)] whitespace-nowrap">
+            {person.firstName} {person.lastName}
+          </h3>
 
-        <h3 className="font-display uppercase text-white leading-[0.95] tracking-[0.05em] text-[clamp(2rem,3.6vw,3rem)]">
-          <span className="block">{person.firstName}</span>
-          <span className="block">{person.lastName}</span>
-        </h3>
-
-        <p className="mt-4 text-xs font-geist-mono uppercase tracking-[0.22em] text-exvia-red-text">
-          {person.roles.join('  ·  ')}
-        </p>
+          <p className="text-xs font-geist-mono uppercase tracking-[0.22em] text-exvia-red-text">
+            {person.roles.join('  ·  ')}
+          </p>
+        </div>
 
         <blockquote className="mt-6 text-lg lg:text-xl text-white leading-snug">
           &ldquo;{person.quote}&rdquo;
@@ -118,7 +119,7 @@ function TeamBlock() {
             <span aria-hidden className="h-px w-12 bg-exvia-red/70" />
           </div>
 
-          <h2 className="font-display uppercase text-white leading-[0.95] tracking-[0.02em] text-[clamp(2rem,4vw,3.25rem)] mb-8">
+          <h2 className="font-display uppercase text-white leading-[0.95] tracking-[0.02em] text-[clamp(2rem,4vw,4.25rem)] mb-8">
             {team.headlineLines.map((line) => (
               <HeadlineLine key={line} text={line} />
             ))}
@@ -171,7 +172,7 @@ export function About() {
         <span className="block text-[0.7rem] font-geist-mono uppercase tracking-[0.3em] text-white/85">
           {aboutConfig.sectionLabel}
         </span>
-        <h2 className="mt-2 font-display uppercase text-white leading-[0.95] tracking-[-0.01em] text-[clamp(2rem,4.2vw,3.5rem)]">
+        <h2 className="mt-2 font-display uppercase text-white leading-[0.95] tracking-[-0.01em] text-[clamp(2rem,4.2vw,4.5rem)]">
           {(() => {
             // Mismo criterio que en Proyectos: primera palabra en blanco y el
             // resto en rojo, partiendo el texto del config.
@@ -188,11 +189,16 @@ export function About() {
         </h2>
       </div>
 
-      {aboutConfig.people.map((person) => (
-        <PersonBlock key={person.number} person={person} onOpenBio={() => setOpenBio(person)} />
-      ))}
+      {/* Dentro del mismo container-large que el encabezado y que el resto de
+          paginas. Antes iban a sangre completa y Quienes Somos se veia el
+          doble de grande que Proyectos en la misma pantalla. */}
+      <div className="container-large px-6 lg:px-12">
+        {aboutConfig.people.map((person) => (
+          <PersonBlock key={person.number} person={person} onOpenBio={() => setOpenBio(person)} />
+        ))}
 
-      <TeamBlock />
+        <TeamBlock />
+      </div>
 
       {/* Biografía completa */}
       <Dialog open={openBio !== null} onOpenChange={(v) => !v && setOpenBio(null)}>

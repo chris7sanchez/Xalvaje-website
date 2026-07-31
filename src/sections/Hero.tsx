@@ -408,12 +408,12 @@ export function Hero() {
                   navigate(zone.href);
                 }}
                 className="group relative flex items-center justify-center text-center
-                           w-[6.5rem] h-20 sm:w-44 sm:h-28 lg:w-56 lg:h-36
+                           w-[7.5rem] h-24 sm:w-56 sm:h-36 lg:w-72 lg:h-44 xl:w-80 xl:h-48
                            border border-white/45 bg-black/60 backdrop-blur-[2px]
                            hover:border-exvia-red hover:bg-black/75
-                           transition-[opacity,transform,color] duration-300 px-2"
+                           transition-[opacity,transform,color,background-color,border-color] duration-300 px-3"
               >
-                <span className="text-[0.6rem] sm:text-xs lg:text-sm font-geist-mono uppercase tracking-[0.18em] text-white group-hover:text-white transition-colors duration-300">
+                <span className="text-[0.65rem] sm:text-sm lg:text-base font-geist-mono uppercase tracking-[0.18em] text-white group-hover:text-white transition-colors duration-300">
                   {zone.label}
                 </span>
               </a>
@@ -517,15 +517,27 @@ export function Hero() {
             único que se ve al entrar además del logotipo. */}
         <div
           className={cn(
-            'absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 transition-opacity duration-700 flex flex-col items-center gap-3',
-            showScrollCue && revealReady ? 'opacity-80' : 'opacity-0 pointer-events-none'
+            'absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 transition-opacity duration-700 flex flex-col items-center gap-4',
+            showScrollCue && revealReady ? 'opacity-100' : 'opacity-0 pointer-events-none'
           )}
         >
-          <span className="text-[0.6rem] sm:text-xs font-geist-mono uppercase tracking-[0.35em] text-white drop-shadow-lg">
+          {/* Scrim propio: cae justo sobre la zona mas iluminada de la
+              persiana y el cruce de la X. En blanco a pelo, aun con
+              drop-shadow, se quedaba por debajo de 3:1. Al agrandar el texto
+              el problema se ve mas, no menos. */}
+          <span className="rounded-full bg-black/55 backdrop-blur-[2px] px-6 py-2.5 sm:px-8 sm:py-3
+                           text-xs sm:text-base lg:text-lg font-geist-mono uppercase
+                           tracking-[0.3em] sm:tracking-[0.35em] text-white">
             Scroll para explorar
           </span>
-          <span aria-hidden className="animate-bounce text-white text-xl leading-none drop-shadow-lg">
-            &darr;
+          {/* Flecha hacia ARRIBA: la persiana sube al avanzar la secuencia,
+              asi que el gesto que se pide apunta en esa direccion. */}
+          <span
+            aria-hidden
+            className="animate-bounce grid place-items-center w-11 h-11 sm:w-14 sm:h-14 rounded-full
+                       bg-black/55 backdrop-blur-[2px] text-white text-3xl sm:text-4xl leading-none"
+          >
+            &uarr;
           </span>
         </div>
 
