@@ -10,11 +10,11 @@ export function Testimonials() {
   if (!testimonialsConfig.testimonials.length) return null;
 
   return (
-    <section id="testimonials" className="w-full bg-black py-14 lg:py-32">
+    <section id="testimonials" className="w-full bg-black py-16 lg:py-64">
       <div ref={sectionRef} className="container-large px-6 lg:px-12">
         <div
           className={cn(
-            'max-w-2xl mb-8 lg:mb-16 transition-all duration-800 ease-out-quart',
+            'max-w-2xl mb-10 lg:mb-24 transition-all duration-800 ease-out-quart',
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           )}
         >
@@ -32,7 +32,7 @@ export function Testimonials() {
 
         {/* Sin avatares: las fotos que había eran de los propios socios puestas
             como si fueran clientes. Aquí la cita se sostiene sola. */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-16">
           {testimonialsConfig.testimonials.map((testimonial, index) => (
             <blockquote
               key={testimonial.author}
@@ -44,24 +44,24 @@ export function Testimonials() {
             >
               <span
                 aria-hidden
-                className="font-display text-exvia-red text-3xl lg:text-5xl leading-none mb-2 lg:mb-4 select-none"
+                className="font-display text-exvia-red text-3xl lg:text-6xl leading-none mb-2 lg:mb-6 select-none"
               >
                 &ldquo;
               </span>
 
               {/* Sin recortar: antes se truncaban a tres líneas y las citas
                   quedaban cortadas a mitad de frase. */}
-              <p className="text-[0.8125rem] lg:text-[0.9375rem] leading-relaxed text-white/80 flex-1">
+              <p className="text-[0.8125rem] lg:text-2xl lg:leading-relaxed leading-snug text-white/80 flex-1">
                 {testimonial.quote}
               </p>
 
-              <span aria-hidden className="block w-10 h-px bg-exvia-red/70 mt-4 lg:mt-7 mb-3 lg:mb-5" />
+              <span aria-hidden className="block w-10 h-px bg-exvia-red/70 mt-5 lg:mt-9 mb-3 lg:mb-6" />
 
               <footer>
-                <p className="font-display uppercase text-white tracking-[0.05em] text-lg leading-none">
+                <p className="font-display uppercase text-white tracking-[0.05em] text-lg lg:text-2xl leading-none">
                   {testimonial.author}
                 </p>
-                <p className="mt-2 text-[0.6875rem] font-geist-mono uppercase tracking-[0.2em] text-exvia-red-text">
+                <p className="mt-3 text-[0.6875rem] lg:text-xs font-geist-mono uppercase tracking-[0.2em] text-exvia-red-text">
                   {testimonial.role} &middot; {testimonial.company}
                 </p>
               </footer>

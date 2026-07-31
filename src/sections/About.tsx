@@ -20,7 +20,7 @@ function PersonBlock({ person, onOpenBio }: { person: AboutPerson; onOpenBio: ()
 
   const photo = (
     <div
-      className="relative w-full overflow-hidden bg-neutral-950"
+      className="relative w-full lg:max-w-[78%] lg:mx-auto overflow-hidden bg-neutral-950"
       style={{ aspectRatio: String(person.imageRatio) }}
     >
       <img
@@ -36,7 +36,7 @@ function PersonBlock({ person, onOpenBio }: { person: AboutPerson; onOpenBio: ()
   const content = (
     <div
       className={cn(
-        'flex flex-col justify-center px-8 py-12 lg:px-16 lg:py-20 transition-all duration-800 ease-out-quart',
+        'flex flex-col justify-center px-8 py-10 lg:px-16 lg:py-10 transition-all duration-800 ease-out-quart',
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
       )}
     >
@@ -106,7 +106,7 @@ function TeamBlock() {
     <div ref={ref} className="grid grid-cols-1 lg:grid-cols-2 items-center">
       <div
         className={cn(
-          'flex flex-col justify-center px-8 py-16 lg:px-16 lg:py-24 transition-all duration-800 ease-out-quart',
+          'flex flex-col justify-center px-8 py-12 lg:px-16 lg:py-12 transition-all duration-800 ease-out-quart',
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
         )}
       >
@@ -145,7 +145,7 @@ function TeamBlock() {
       </div>
 
       <div
-        className="relative w-full overflow-hidden bg-neutral-950"
+        className="relative w-full lg:max-w-[80%] lg:mx-auto overflow-hidden bg-neutral-950"
         style={{ aspectRatio: String(team.imageRatio) }}
       >
         <img
@@ -167,7 +167,7 @@ export function About() {
     <section id="about" className="w-full bg-black">
       {/* Encabezado de sección: al entrar por el menú aparecía directamente la
           foto del primer autor, sin decir dónde estabas. */}
-      <div className="container-large px-6 lg:px-12 pt-14 lg:pt-24 pb-8 lg:pb-14">
+      <div className="container-large px-6 lg:px-12 pt-14 lg:pt-16 pb-8 lg:pb-10">
         <div className="flex items-center gap-4 mb-4">
           <span className="text-xs font-geist-mono uppercase tracking-[0.25em] text-exvia-red-text">
             {aboutConfig.sectionLabel}

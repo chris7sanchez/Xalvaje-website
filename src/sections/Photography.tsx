@@ -47,7 +47,7 @@ export function Photography() {
   const open = openIndex !== null ? PHOTOS[openIndex] : null;
 
   return (
-    <section id="photography" className="w-full bg-neutral-900 pt-6 lg:pt-10 pb-24 lg:pb-32">
+    <section id="photography" className="w-full bg-neutral-900 pt-6 lg:pt-8 pb-20 lg:pb-20">
       {/* Mismo contenedor que Proyectos, Nosotros y Servicios: sin esto la
           rejilla se iba a 1304 px y las fotos salían un 10 % más grandes que
           las tarjetas de Proyectos, y las dos secciones no cuadraban. */}
@@ -55,7 +55,7 @@ export function Photography() {
         {/* Encabezado */}
         <div
           className={cn(
-            'max-w-2xl mb-8 lg:mb-16 transition-all duration-800 ease-out-quart',
+            'max-w-2xl mb-8 lg:mb-12 transition-all duration-800 ease-out-quart',
             sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
           )}
         >

@@ -22,7 +22,7 @@ function ServiceRow({ service, index }: { service: ServiceItem; index: number })
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="px-1 py-5 lg:py-12">
+      <div className="px-1 py-5 lg:py-[4.5rem]">
         <div className="flex flex-row items-baseline gap-3 lg:gap-10">
           {/* Número, como en las fichas de Nosotros */}
           <span className="shrink-0 text-xs lg:text-sm font-geist-mono tracking-[0.2em] text-exvia-red-text lg:w-16">
@@ -142,7 +142,7 @@ export function Services() {
   if (!servicesConfig.heading && servicesConfig.services.length === 0) return null;
 
   return (
-    <section id="services" className="w-full bg-black py-14 lg:py-32">
+    <section id="services" className="w-full bg-black py-14 lg:py-44">
       <div className="container-large px-6 lg:px-12">
         <div ref={headerRef} className="max-w-2xl mb-8 lg:mb-16">
           <div

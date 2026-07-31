@@ -28,8 +28,8 @@ function App() {
         <Portfolio />
         <Services />
         <Photography />
-        <Testimonials />
         <About />
+        <Testimonials />
         <CTA />
       </main>
       
