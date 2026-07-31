@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useScrollAnimation, useStaggerAnimation } from '@/hooks/useScrollAnimation';
 import { ArrowUpRight, ChevronLeft, ChevronRight, Play, X } from 'lucide-react';
-import { portfolioConfig } from '@/config';
+import { portfolioConfig, categoriasProyectos } from '@/config';
 
 interface Project {
   title: string;
@@ -308,66 +308,44 @@ export function Portfolio() {
           )}
         </div>
 
-        {/* PRISMA: cartel + carrusel, fuera del grid */}
-        {portfolioConfig.projects[0] && (
-          <div className="mb-6">
-            <FeaturedPrisma project={portfolioConfig.projects[0]} isVisible={visibleItems[0]} />
-          </div>
-        )}
+        {/* Por categorías: Largometrajes, Cortometrajes y Campañas. Fotografía
+            no sale aquí: es su propia sección, justo debajo en esta página. */}
+        {categoriasProyectos
+          .filter((c) => c.coincideCon.length > 0)
+          .map((cat) => {
+            const deLaCategoria = portfolioConfig.projects
+              .map((p, i) => ({ p, i }))
+              .filter(({ p }) => cat.coincideCon.includes(p.category));
 
-        {/* Resto de proyectos: 3 por fila en escritorio, siempre filas completas */}
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
-          {portfolioConfig.projects.slice(1).map((project, i) => (
-            <ProjectCard key={project.title} project={project} index={i + 1} isVisible={visibleItems[i + 1]} />
-          ))}
-        </div>
+            if (deLaCategoria.length === 0) return null;
+            const destacado = cat.slug === 'largometrajes';
 
-        {/* Banner CTA a todo el ancho, como remate de la sección */}
-        {portfolioConfig.cta.heading && (
-          <div
-            className={cn(
-              'relative overflow-hidden mt-6 transition-all duration-700 ease-out-quart',
-              visibleItems[portfolioConfig.projects.length] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            )}
-            style={{ transitionDelay: '300ms' }}
-          >
-            {/* Fondo de rodaje con oscurecido cinematográfico */}
-            <img
-              src="/images/cta-bg.webp"
-              alt=""
-              aria-hidden
-              loading="lazy"
-              decoding="async"
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-black/40" />
-
-            <div className="relative px-8 py-14 lg:px-16 lg:py-20 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
-              <div>
-                {portfolioConfig.cta.label && (
-                  <span className="inline-flex items-center gap-3 text-xs font-geist-mono uppercase tracking-[0.25em] text-exvia-red">
-                    {portfolioConfig.cta.label}
-                    <span className="inline-block w-10 h-px bg-exvia-red" />
+            return (
+              <div key={cat.slug} id={cat.slug} className="scroll-mt-32 mb-14 lg:mb-20">
+                <div className="flex items-baseline gap-4 mb-5">
+                  <h3 className="font-display uppercase text-white leading-none tracking-[0.02em] text-[clamp(1.25rem,2.4vw,2rem)]">
+                    {cat.titulo}
+                  </h3>
+                  <span aria-hidden className="flex-1 h-px bg-white/15" />
+                  <span className="text-[0.65rem] font-geist-mono text-white/40 tabular-nums">
+                    {String(deLaCategoria.length).padStart(2, '0')}
                   </span>
+                </div>
+
+                {destacado ? (
+                  deLaCategoria.map(({ p, i }) => (
+                    <FeaturedPrisma key={p.title} project={p} isVisible={visibleItems[i]} />
+                  ))
+                ) : (
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+                    {deLaCategoria.map(({ p, i }) => (
+                      <ProjectCard key={p.title} project={p} index={i} isVisible={visibleItems[i]} />
+                    ))}
+                  </div>
                 )}
-                <h3 className="mt-3 text-4xl lg:text-6xl font-display text-white uppercase tracking-[-0.02em] leading-[0.95] max-w-2xl">
-                  {portfolioConfig.cta.heading}
-                </h3>
               </div>
-              {portfolioConfig.cta.linkText && (
-                <a
-                  href={portfolioConfig.cta.linkHref || '#contact'}
-                  className="group inline-flex items-center gap-3 self-start lg:self-auto border border-white/40 hover:border-exvia-red hover:bg-exvia-red px-7 py-4 transition-colors"
-                >
-                  <span className="text-sm font-geist-mono uppercase tracking-[0.2em] text-white">
-                    {portfolioConfig.cta.linkText}
-                  </span>
-                  <ArrowUpRight className="w-4 h-4 text-white transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                </a>
-              )}
-            </div>
-          </div>
-        )}
+            );
+          })}
 
         {/* View All Button */}
         {portfolioConfig.viewAllLabel && (

@@ -1,11 +1,11 @@
 import { Services } from '@/sections/Services';
-import { CTA } from '@/sections/CTA';
+import { CtaBanner } from '@/components/CtaBanner';
 
 export function QueOfrecemos() {
   return (
     <>
       <Services />
-      <CTA />
+      <CtaBanner />
     </>
   );
 }

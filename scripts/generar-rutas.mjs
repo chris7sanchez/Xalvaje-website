@@ -5,7 +5,7 @@
 import { mkdirSync, copyFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-const RUTAS = ['proyectos', 'que-ofrecemos', 'quienes-somos'];
+const RUTAS = ['proyectos', 'que-ofrecemos', 'quienes-somos', 'contacto'];
 const dist = 'dist';
 const indice = join(dist, 'index.html');
 

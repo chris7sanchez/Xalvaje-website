@@ -1,14 +1,19 @@
+import { AccesosCategorias } from '@/components/AccesosCategorias';
 import { Portfolio } from '@/sections/Portfolio';
 import { Photography } from '@/sections/Photography';
-import { CTA } from '@/sections/CTA';
+import { CtaBanner } from '@/components/CtaBanner';
 
-/** Proyectos, con Fotografía dentro. Cierra con el bloque de contacto. */
+/**
+ * Proyectos por categorías: Largometrajes, Cortometrajes, Fotografía y
+ * Campañas creativas, con accesos directos arriba para saltar entre ellas.
+ */
 export function Proyectos() {
   return (
     <>
+      <AccesosCategorias />
       <Portfolio />
       <Photography />
-      <CTA />
+      <CtaBanner />
     </>
   );
 }

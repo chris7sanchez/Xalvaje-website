@@ -254,6 +254,23 @@ export const reelConfig: ReelConfig = {
   poster: "/videos/reel-poster.jpg",
 };
 
+
+// Categorías dentro de Proyectos, en el orden en que aparecen. El "slug" sirve
+// para el acceso directo desde los botones de arriba.
+export interface CategoriaProyectos {
+  slug: string;
+  titulo: string;
+  /** Coincide con `category` de cada proyecto; vacío = no se filtra por ahí */
+  coincideCon: string[];
+}
+
+export const categoriasProyectos: CategoriaProyectos[] = [
+  { slug: "largometrajes", titulo: "Largometrajes", coincideCon: ["Largometraje"] },
+  { slug: "cortometrajes", titulo: "Cortometrajes", coincideCon: ["Cortometraje", "Cortometraje premiado"] },
+  { slug: "fotografia", titulo: "Fotografía", coincideCon: [] },
+  { slug: "campanas", titulo: "Campañas creativas", coincideCon: ["Campaña"] },
+];
+
 // Sección SERVICIOS: lista de cuatro servicios con el mismo lenguaje que
 // NOSOTROS (fondo negro, número en rojo, título condensado, enlace subrayado).
 // Sin iconos de librería a propósito: eran lo que daba aire de plantilla.
