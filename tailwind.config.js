@@ -1,6 +1,13 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ["class"],
+  // Envuelve TODAS las variantes hover:/group-hover: en
+  // @media (hover: hover) and (pointer: fine). Sin esto, en tactil un toque
+  // dispara el hover y el estado se queda pegado: un cartel de Proyectos se
+  // quedaba con la imagen alternativa fijada hasta tocar otra cosa.
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
@@ -177,6 +184,10 @@ module.exports = {
         'out-quart': 'cubic-bezier(0.165, 0.840, 0.440, 1)',
         'out-circ': 'cubic-bezier(0.075, 0.820, 0.165, 1)',
         'in-out-quad': 'cubic-bezier(0.455, 0.030, 0.515, 0.955)',
+      },
+      transitionDuration: {
+        160: '160ms',
+        250: '250ms',
       },
     },
   },

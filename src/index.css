@@ -201,6 +201,17 @@
     animation: scaleIn 1.8s var(--ease-out-cubic) forwards;
   }
   
+  /* Revelado por scroll. Centraliza QUE se anima (nunca "all": el
+     transition-all interpolaba tambien background-image y backdrop-filter,
+     fuera de la GPU), con que curva y que pasa con movimiento reducido.
+     El desplazamiento y la opacidad los sigue poniendo cada componente con
+     sus clases condicionales. */
+  .reveal {
+    transition-property: opacity, transform;
+    transition-duration: 800ms;
+    transition-timing-function: var(--ease-out-quart);
+  }
+
   /* Initial hidden state for scroll animations */
   .anim-hidden {
     opacity: 0;
@@ -406,5 +417,24 @@
   
   .text-h3 {
     font-size: 1.75rem;
+  }
+}
+
+/* Movimiento reducido: MENOS movimiento y mas suave, no cero. Se conserva el
+   fundido (es lo que explica que ha aparecido algo nuevo) y se elimina el
+   desplazamiento.
+   El !important esta acotado a .reveal a proposito: las clases translate-y-*
+   de Tailwind tienen la misma especificidad y sin el no se anularian. NO
+   generalizar a [class*="translate-y"] — se llevaria por delante los
+   -translate-y-1/2 de centrado del Hero, que son maquetacion, no animacion. */
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    transition-property: opacity;
+    transition-duration: 300ms;
+    transform: none !important;
+  }
+
+  html {
+    scroll-behavior: auto;
   }
 }

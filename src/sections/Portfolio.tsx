@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useScrollAnimation, useStaggerAnimation } from '@/hooks/useScrollAnimation';
+import { useHoverCapaz } from '@/hooks/useHoverCapaz';
 import { ArrowUpRight, ChevronLeft, ChevronRight, Play, X } from 'lucide-react';
 import { portfolioConfig, categoriasProyectos } from '@/config';
 
@@ -27,7 +28,7 @@ function FeaturedPrisma({ project, isVisible }: { project: Project; isVisible: b
   return (
     <div
       className={cn(
-        'grid grid-cols-1 md:grid-cols-2 gap-6 transition-all duration-700 ease-out-quart',
+        'grid grid-cols-1 md:grid-cols-2 gap-6 reveal',
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
       )}
     >
@@ -105,7 +106,7 @@ function FeaturedPrisma({ project, isVisible }: { project: Project; isVisible: b
                   onClick={() => setCurrent(i)}
                   aria-label={`Ir a foto ${i + 1}`}
                   className={cn(
-                    'w-1.5 h-1.5 rounded-full transition-all',
+                    'w-1.5 h-1.5 rounded-full transition-[background-color,transform] duration-300',
                     i === current ? 'bg-white w-4' : 'bg-white/40'
                   )}
                 />
@@ -123,6 +124,7 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
   const [showVideo, setShowVideo] = useState(false);
   const [reproduciendo, setReproduciendo] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const hoverCapaz = useHoverCapaz();
 
   const handleClick = () => {
     if (project.youtubeUrl) {
@@ -146,12 +148,12 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
     <>
       <div
         className={cn(
-          'group cursor-pointer transition-all duration-700 ease-out-quart',
+          'group cursor-pointer reveal',
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
         )}
         style={{ transitionDelay: `${index * 100}ms` }}
         onClick={handleClick}
-        onMouseEnter={() => setIsHovered(true)}
+        onMouseEnter={() => hoverCapaz && setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         <div className="relative overflow-hidden bg-neutral-900 aspect-[3/4]">
@@ -160,7 +162,7 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
             src={project.image}
             alt={project.title}
             className={cn(
-              'absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-out-cubic',
+              'absolute inset-0 w-full h-full object-cover transition-[opacity,transform] duration-500 ease-out-cubic',
               hasHoverEffect && isHovered ? 'opacity-0' : 'opacity-100',
               isHovered && !hasHoverEffect && 'scale-105'
             )}
@@ -171,7 +173,7 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
               src={hoverImage}
               alt={`${project.title} - hover`}
               className={cn(
-                'absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-out-cubic',
+                'absolute inset-0 w-full h-full object-cover transition-[opacity,transform] duration-500 ease-out-cubic',
                 isHovered ? 'opacity-100 scale-105' : 'opacity-0 scale-100'
               )}
             />
@@ -281,7 +283,7 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
                       className="absolute inset-0 w-full h-full object-cover opacity-70 transition-opacity duration-300 group-hover:opacity-50"
                     />
                     <span className="absolute inset-0 grid place-items-center">
-                      <span className="grid place-items-center w-16 h-16 sm:w-20 sm:h-20 rounded-full border border-white/70 bg-black/55 backdrop-blur-sm transition-all duration-300 group-hover:bg-black/80 group-hover:scale-105">
+                      <span className="grid place-items-center w-16 h-16 sm:w-20 sm:h-20 rounded-full border border-white/70 bg-black/55 backdrop-blur-sm transition-[background-color,transform] duration-300 group-active:scale-[0.97] group-active:duration-160 group-hover:bg-black/80 group-hover:scale-105">
                         <span
                           aria-hidden
                           className="ml-1 block w-0 h-0 border-y-[10px] border-y-transparent border-l-[16px] border-l-white"
@@ -317,7 +319,7 @@ export function Portfolio() {
           {portfolioConfig.label && (
             <div
               className={cn(
-                'transition-all duration-800 ease-out-quart',
+                'reveal',
                 headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               )}
             >
@@ -330,7 +332,7 @@ export function Portfolio() {
           {portfolioConfig.heading && (
             <h2
               className={cn(
-                'font-display text-[clamp(2rem,4.2vw,3.5rem)] leading-[0.95] uppercase tracking-[-0.01em] text-white mt-2 transition-all duration-800 ease-out-quart',
+                'font-display text-[clamp(2rem,4.2vw,3.5rem)] leading-[0.95] uppercase tracking-[-0.01em] text-white mt-2 reveal',
                 headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
               )}
               style={{ transitionDelay: '100ms' }}
@@ -354,7 +356,7 @@ export function Portfolio() {
           {portfolioConfig.description && (
             <p
               className={cn(
-                'mt-4 text-base lg:text-lg text-white/60 leading-relaxed transition-all duration-800 ease-out-quart',
+                'mt-4 text-base lg:text-lg text-white/60 leading-relaxed reveal',
                 headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
               )}
               style={{ transitionDelay: '200ms' }}
@@ -407,7 +409,7 @@ export function Portfolio() {
         {portfolioConfig.viewAllLabel && (
           <div
             className={cn(
-              'mt-16 text-center transition-all duration-800 ease-out-quart',
+              'mt-16 text-center reveal',
               visibleItems[portfolioConfig.projects.length] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
             )}
             style={{ transitionDelay: '600ms' }}

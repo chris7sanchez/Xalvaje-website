@@ -39,7 +39,7 @@ export function PageNav() {
                 <span
                   aria-hidden
                   className={cn(
-                    'absolute left-0 -bottom-0.5 h-px bg-exvia-red transition-all duration-300',
+                    'absolute left-0 -bottom-0.5 h-px bg-exvia-red transition-[width,opacity] duration-300',
                     activa ? 'w-full' : 'w-0'
                   )}
                 />

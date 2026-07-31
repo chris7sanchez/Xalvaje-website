@@ -14,7 +14,7 @@ export function Testimonials() {
       <div ref={sectionRef} className="container-large px-6 lg:px-12">
         <div
           className={cn(
-            'max-w-2xl mb-10 lg:mb-24 transition-all duration-800 ease-out-quart',
+            'max-w-2xl mb-10 lg:mb-24 reveal',
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           )}
         >
@@ -37,7 +37,7 @@ export function Testimonials() {
             <blockquote
               key={testimonial.author}
               className={cn(
-                'flex flex-col transition-all duration-700 ease-out-quart',
+                'flex flex-col reveal',
                 isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
               )}
               style={{ transitionDelay: `${index * 120}ms` }}

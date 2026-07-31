@@ -390,7 +390,7 @@ export function Hero() {
         {heroConfig.zones.length > 0 && (
           <div
             className={cn(
-              'absolute inset-x-0 top-[52%] md:top-[38%] z-30 flex justify-center items-center gap-2 sm:gap-6 px-4 transition-all duration-700 ease-out',
+              'absolute inset-x-0 top-[52%] md:top-[38%] z-30 flex justify-center items-center gap-2 sm:gap-6 px-4 transition-[opacity,transform] duration-700 ease-out',
               showZones ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
             )}
           >
@@ -411,7 +411,7 @@ export function Hero() {
                            w-[6.5rem] h-20 sm:w-44 sm:h-28 lg:w-56 lg:h-36
                            border border-white/45 bg-black/60 backdrop-blur-[2px]
                            hover:border-exvia-red hover:bg-black/75
-                           transition-all duration-300 px-2"
+                           transition-[opacity,transform,color] duration-300 px-2"
               >
                 <span className="text-[0.6rem] sm:text-xs lg:text-sm font-geist-mono uppercase tracking-[0.18em] text-white group-hover:text-white transition-colors duration-300">
                   {zone.label}
@@ -431,7 +431,7 @@ export function Hero() {
         {reelConfig.src && (
           <div
             className={cn(
-              'absolute left-1/2 top-[22%] md:top-[20%] -translate-x-1/2 -translate-y-1/2 z-30 transition-all duration-700 ease-out',
+              'absolute left-1/2 top-[22%] md:top-[20%] -translate-x-1/2 -translate-y-1/2 z-30 transition-[opacity,transform] duration-700 ease-out',
               showZones ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
             )}
           >
@@ -441,7 +441,7 @@ export function Hero() {
               aria-label={`${reelConfig.label}: vídeo de 90 segundos`}
               className="group flex flex-col items-center gap-3 focus:outline-none"
             >
-              <span className="grid place-items-center w-16 h-16 sm:w-20 sm:h-20 rounded-full border border-white/70 bg-black/55 backdrop-blur-sm transition-all duration-300 group-hover:bg-black/80 group-hover:border-white group-hover:scale-105 group-focus-visible:ring-2 group-focus-visible:ring-white group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-black/50">
+              <span className="grid place-items-center w-16 h-16 sm:w-20 sm:h-20 rounded-full border border-white/70 bg-black/55 backdrop-blur-sm transition-[background-color,border-color,transform] duration-300 group-active:scale-[0.97] group-active:duration-160 group-hover:bg-black/80 group-hover:border-white group-hover:scale-105 group-focus-visible:ring-2 group-focus-visible:ring-white group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-black/50">
                 {/* Triángulo de play, ligeramente descentrado para que se vea óptico */}
                 <span
                   aria-hidden
@@ -459,7 +459,7 @@ export function Hero() {
         {heroConfig.roles[0] && (
           <div
             className={cn(
-              'hidden absolute left-8 lg:left-16 top-1/2 -translate-y-1/2 z-20 transition-all duration-1000 ease-out',
+              'hidden absolute left-8 lg:left-16 top-1/2 -translate-y-1/2 z-20 transition-[opacity,transform] duration-200 ease-out',
               revealReady ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
             )}
             style={{ transitionDelay: '1200ms' }}
@@ -472,7 +472,7 @@ export function Hero() {
         {heroConfig.roles[1] && (
           <div
             className={cn(
-              'hidden absolute right-8 lg:right-16 top-1/2 -translate-y-1/2 z-20 transition-all duration-1000 ease-out',
+              'hidden absolute right-8 lg:right-16 top-1/2 -translate-y-1/2 z-20 transition-[opacity,transform] duration-200 ease-out',
               revealReady ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'
             )}
             style={{ transitionDelay: '1400ms' }}
@@ -494,7 +494,7 @@ export function Hero() {
         <div className="absolute inset-x-0 top-[78%] md:top-[64%] -translate-y-1/2 z-20 flex flex-col items-center px-6 lg:px-12 pointer-events-none">
           <div
             className={cn(
-              'text-center transition-all ease-out',
+              'text-center transition-[opacity,transform,filter] ease-out',
               showTitular && revealReady
                 ? 'opacity-100 blur-0 translate-y-0 duration-[1400ms]'
                 : 'opacity-0 blur-[14px] translate-y-6 duration-700'

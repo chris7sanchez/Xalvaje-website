@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { useServiceParallax } from '@/hooks/useMouseParallax';
+import { useHoverCapaz } from '@/hooks/useHoverCapaz';
 import { servicesConfig, type ServiceItem } from '@/config';
 
 function ServiceRow({ service, index }: { service: ServiceItem; index: number }) {
   const [isHovered, setIsHovered] = useState(false);
+  const hoverCapaz = useHoverCapaz();
   const [showBrands, setShowBrands] = useState(false);
   // Desplegable de la fila (solo actua en movil)
   const [abierto, setAbierto] = useState(false);
@@ -22,7 +24,7 @@ function ServiceRow({ service, index }: { service: ServiceItem; index: number })
     <div
       ref={containerRef}
       className="relative border-t border-white/10 transition-colors duration-300 hover:bg-white/[0.03]"
-      onMouseEnter={() => setIsHovered(true)}
+      onMouseEnter={() => hoverCapaz && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="px-1 py-5 lg:py-[4.5rem]">
@@ -150,7 +152,7 @@ export function Services() {
         <div ref={headerRef} className="max-w-2xl mb-8 lg:mb-16">
           <div
             className={cn(
-              'flex items-center gap-4 mb-6 transition-all duration-800 ease-out-quart',
+              'flex items-center gap-4 mb-6 reveal',
               headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             )}
           >
@@ -162,7 +164,7 @@ export function Services() {
 
           <h2
             className={cn(
-              'font-display uppercase text-white leading-[0.95] tracking-[0.02em] text-[clamp(2rem,4vw,3.25rem)] transition-all duration-800 ease-out-quart',
+              'font-display uppercase text-white leading-[0.95] tracking-[0.02em] text-[clamp(2rem,4vw,3.25rem)] reveal',
               headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
             )}
             style={{ transitionDelay: '100ms' }}
@@ -174,7 +176,7 @@ export function Services() {
         <div
           ref={listRef}
           className={cn(
-            'border-b border-white/10 transition-all duration-800 ease-out-quart',
+            'border-b border-white/10 reveal',
             listVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           )}
         >

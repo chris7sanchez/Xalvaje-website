@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
+import { useHoverCapaz } from '@/hooks/useHoverCapaz';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 
 type Photo = {
@@ -26,6 +27,7 @@ const PHOTOS: Photo[] = [
 export function Photography() {
   const { ref: sectionRef, isVisible: sectionVisible } = useScrollAnimation({ threshold: 0.15 });
   const [hovered, setHovered] = useState<number | null>(null);
+  const hoverCapaz = useHoverCapaz();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const go = useCallback((step: number) => {
@@ -55,7 +57,7 @@ export function Photography() {
         {/* Encabezado */}
         <div
           className={cn(
-            'max-w-2xl mb-8 lg:mb-12 transition-all duration-800 ease-out-quart',
+            'max-w-2xl mb-8 lg:mb-12 reveal',
             sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
           )}
         >
@@ -87,13 +89,13 @@ export function Photography() {
               key={photo.slug}
               type="button"
               onClick={() => setOpenIndex(i)}
-              onMouseEnter={() => setHovered(i)}
+              onMouseEnter={() => hoverCapaz && setHovered(i)}
               aria-label={`Ampliar: ${photo.alt}`}
               className={cn(
                 'group block w-full mb-3 lg:mb-5 break-inside-avoid overflow-hidden',
                 'rounded-sm cursor-pointer',
                 'focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-4 focus-visible:ring-offset-neutral-900',
-                'transition-all duration-700 ease-out-quart',
+                'reveal',
                 sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8',
                 // Las hermanas se apartan; la señalada se queda nítida
                 hovered !== null && hovered !== i && 'opacity-40 blur-[2px]'
@@ -145,7 +147,7 @@ export function Photography() {
             type="button"
             onClick={() => setOpenIndex(null)}
             aria-label="Cerrar"
-            className="absolute top-6 right-6 z-10 px-4 py-2 rounded-full bg-black/70 backdrop-blur-sm text-sm font-geist-mono uppercase tracking-[0.2em] text-white hover:bg-black/90 transition-colors"
+            className="absolute top-6 right-6 z-10 px-4 py-2 rounded-full bg-black/70 backdrop-blur-sm text-sm font-geist-mono uppercase tracking-[0.2em] text-white hover:bg-black/90 transition-[background-color,transform] duration-300 active:scale-[0.97] active:duration-160"
           >
             Cerrar
           </button>
@@ -153,7 +155,7 @@ export function Photography() {
             type="button"
             onClick={() => go(-1)}
             aria-label="Foto anterior"
-            className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-10 w-12 h-12 grid place-items-center rounded-full bg-black/70 backdrop-blur-sm text-3xl leading-none text-white hover:bg-black/90 transition-colors"
+            className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-10 w-12 h-12 grid place-items-center rounded-full bg-black/70 backdrop-blur-sm text-3xl leading-none text-white hover:bg-black/90 transition-[background-color,transform] duration-300 active:scale-[0.97] active:duration-160"
           >
             ‹
           </button>
@@ -161,7 +163,7 @@ export function Photography() {
             type="button"
             onClick={() => go(1)}
             aria-label="Foto siguiente"
-            className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-10 w-12 h-12 grid place-items-center rounded-full bg-black/70 backdrop-blur-sm text-3xl leading-none text-white hover:bg-black/90 transition-colors"
+            className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-10 w-12 h-12 grid place-items-center rounded-full bg-black/70 backdrop-blur-sm text-3xl leading-none text-white hover:bg-black/90 transition-[background-color,transform] duration-300 active:scale-[0.97] active:duration-160"
           >
             ›
           </button>

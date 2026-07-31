@@ -21,7 +21,7 @@ export function CtaBanner() {
         <div
           ref={ref}
           className={cn(
-            'relative overflow-hidden transition-all duration-700 ease-out-quart',
+            'relative overflow-hidden reveal',
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           )}
         >

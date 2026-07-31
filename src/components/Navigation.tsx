@@ -34,7 +34,7 @@ export function Navigation() {
     <>
       <nav
         className={cn(
-          'fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out-circ',
+          'fixed top-0 left-0 right-0 z-50 transition-[opacity,transform] duration-500 ease-out-circ',
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4',
           // Sin fondo, el logo y los enlaces blancos caen sobre la zona más
           // iluminada del fotograma: medido 1,12:1, invisible. Este degradado
@@ -76,27 +76,29 @@ export function Navigation() {
             {navigationConfig.links.length > 0 && (
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="relative w-8 h-6 flex flex-col justify-between"
+                className="relative w-8 h-6 flex flex-col justify-between transition-transform duration-160 ease-out-quad active:scale-[0.97]"
                 aria-label={isMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
                 aria-expanded={isMenuOpen}
               >
                 <span
                   className={cn(
-                    'w-full h-0.5 transition-all duration-500 ease-out-quad origin-center',
+                    'w-full h-0.5 transition-[transform,opacity,background-color] duration-250 ease-out-quad origin-center',
                     isScrolled ? 'bg-exvia-black' : 'bg-white',
                     isMenuOpen && 'translate-y-[10px] rotate-[-45deg]'
                   )}
                 />
                 <span
                   className={cn(
-                    'w-full h-0.5 transition-all duration-300 ease-out-quad',
+                    'w-full h-0.5 transition-[transform,opacity,background-color] duration-250 ease-out-quad',
                     isScrolled ? 'bg-exvia-black' : 'bg-white',
-                    isMenuOpen && 'scale-0 opacity-0'
+                    // scale-x-90, no scale-0: nada en el mundo real se encoge
+                    // hasta la nada antes de desaparecer.
+                    isMenuOpen && 'scale-x-90 opacity-0'
                   )}
                 />
                 <span
                   className={cn(
-                    'w-full h-0.5 transition-all duration-500 ease-out-quad origin-center',
+                    'w-full h-0.5 transition-[transform,opacity,background-color] duration-250 ease-out-quad origin-center',
                     isScrolled ? 'bg-exvia-black' : 'bg-white',
                     isMenuOpen && '-translate-y-[10px] rotate-[45deg]'
                   )}
@@ -111,7 +113,7 @@ export function Navigation() {
       {navigationConfig.links.length > 0 && (
         <div
           className={cn(
-            'fixed inset-0 z-40 bg-white transition-all duration-500 ease-out-cubic',
+            'fixed inset-0 z-40 bg-white transition-opacity duration-500 ease-out-cubic',
             isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
           )}
         >
@@ -122,7 +124,7 @@ export function Navigation() {
                 to={link.ruta}
                 onClick={() => setIsMenuOpen(false)}
                 className={cn(
-                  'text-3xl font-semibold text-exvia-black transition-all duration-500 ease-out-quart',
+                  'text-3xl font-semibold text-exvia-black transition-[opacity,transform] duration-500 ease-out-quart',
                   isMenuOpen
                     ? 'opacity-100 translate-y-0'
                     : 'opacity-0 translate-y-8'
@@ -138,7 +140,7 @@ export function Navigation() {
                 variant="primary"
                 size="lg"
                 className={cn(
-                  'mt-4 transition-all duration-500 ease-out-quart',
+                  'mt-4 transition-[opacity,transform] duration-500 ease-out-quart',
                   isMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
                 )}
                 style={{ transitionDelay: isMenuOpen ? '400ms' : '0ms' }}

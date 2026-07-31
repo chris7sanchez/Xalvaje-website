@@ -22,7 +22,7 @@ export function Stills() {
         <div className="max-w-2xl">
           <div
             className={cn(
-              'transition-all duration-800 ease-out-quart',
+              'reveal',
               sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
             )}
           >

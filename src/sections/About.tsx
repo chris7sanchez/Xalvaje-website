@@ -36,7 +36,7 @@ function PersonBlock({ person, onOpenBio }: { person: AboutPerson; onOpenBio: ()
   const content = (
     <div
       className={cn(
-        'flex flex-col justify-center px-8 py-10 lg:px-16 lg:py-10 transition-all duration-800 ease-out-quart',
+        'flex flex-col justify-center px-8 py-10 lg:px-16 lg:py-10 reveal',
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
       )}
     >
@@ -106,7 +106,7 @@ function TeamBlock() {
     <div ref={ref} className="grid grid-cols-1 lg:grid-cols-2 items-center">
       <div
         className={cn(
-          'flex flex-col justify-center px-8 py-12 lg:px-16 lg:py-12 transition-all duration-800 ease-out-quart',
+          'flex flex-col justify-center px-8 py-12 lg:px-16 lg:py-12 reveal',
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
         )}
       >

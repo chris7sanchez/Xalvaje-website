@@ -1,5 +1,6 @@
 import { useState, type CSSProperties, type ReactNode } from 'react';
 import { cn } from '@/lib/utils';
+import { useHoverCapaz } from '@/hooks/useHoverCapaz';
 import { ArrowRight } from 'lucide-react';
 
 interface AnimatedButtonProps {
@@ -24,10 +25,11 @@ export function AnimatedButton({
   style,
 }: AnimatedButtonProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const hoverCapaz = useHoverCapaz();
 
   const baseStyles = cn(
     'relative overflow-hidden font-geist-mono inline-flex items-center justify-center gap-2',
-    'transition-all duration-300 ease-out-quad',
+    'transition-[background-color,border-color,color,transform] duration-300 ease-out-quad active:scale-[0.97] active:duration-160',
     {
       'bg-exvia-black text-white hover:bg-exvia-base-black': variant === 'primary',
       'bg-white text-exvia-black border border-exvia-border hover:border-exvia-black': variant === 'secondary',
@@ -77,7 +79,7 @@ export function AnimatedButton({
         href={href}
         className={baseStyles}
         style={style}
-        onMouseEnter={() => setIsHovered(true)}
+        onMouseEnter={() => hoverCapaz && setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         {content}
@@ -90,7 +92,7 @@ export function AnimatedButton({
       onClick={onClick}
       className={baseStyles}
       style={style}
-      onMouseEnter={() => setIsHovered(true)}
+      onMouseEnter={() => hoverCapaz && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {content}
