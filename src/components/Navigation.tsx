@@ -76,45 +76,17 @@ export function Navigation() {
               </a>
             )}
 
-            {/* Desktop Navigation - TÍTULOS MÁS GRANDES Y OSCUROS */}
-            {navigationConfig.links.length > 0 && (
-              <div className="hidden lg:flex items-center gap-12">
-                {navigationConfig.links.map((link) => (
-                  <a
-                    key={link.label}
-                    href={link.href}
-                    onClick={(e) => handleNavClick(e, link.href)}
-                    className={cn(
-                      "text-base lg:text-lg font-medium transition-colors duration-500 relative group",
-                      isScrolled ? "text-exvia-black hover:text-exvia-black" : "text-white hover:text-white"
-                    )}
-                  >
-                    {link.label}
-                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-exvia-red transition-all duration-300 group-hover:w-full" />
-                  </a>
-                ))}
-              </div>
-            )}
+            {/* La barra queda con el logotipo y el desplegable, nada mas: los
+                enlaces sueltos y el boton de Contacto se duplicaban con los tres
+                accesos de la portada. Todos siguen dentro del desplegable. */}
 
-            {/* Contact Button */}
-            {navigationConfig.contactLabel && (
-              <div className="hidden lg:block">
-                <AnimatedButton
-                  href={navigationConfig.contactHref || "#contact"}
-                  variant={isScrolled ? "primary" : "outline-white"}
-                  size="md"
-                >
-                  {navigationConfig.contactLabel}
-                </AnimatedButton>
-              </div>
-            )}
-
-            {/* Mobile Menu Button */}
+            {/* Desplegable, ahora en todas las pantallas */}
             {navigationConfig.links.length > 0 && (
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="lg:hidden relative w-8 h-6 flex flex-col justify-between"
-                aria-label="Toggle menu"
+                className="relative w-8 h-6 flex flex-col justify-between"
+                aria-label={isMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+                aria-expanded={isMenuOpen}
               >
                 <span
                   className={cn(
@@ -147,7 +119,7 @@ export function Navigation() {
       {navigationConfig.links.length > 0 && (
         <div
           className={cn(
-            'fixed inset-0 z-40 bg-white transition-all duration-500 ease-out-cubic lg:hidden',
+            'fixed inset-0 z-40 bg-white transition-all duration-500 ease-out-cubic',
             isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
           )}
         >

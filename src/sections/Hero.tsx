@@ -266,8 +266,12 @@ export function Hero() {
     ? frameCount - 1
     : Math.min(frameCount - 1, Math.floor(scrubProgress * frameCount));
 
-  const showZones = sinScrub || scrubProgress > 0.6;
-  const showScrollCue = !sinScrub && progress < 0.05;
+  // La portada entra limpia: solo el logotipo y el aviso de scroll. El titular
+  // se materializa a mitad del recorrido, cuando la escena se oscurece, y los
+  // tres accesos aparecen al final.
+  const showTitular = sinScrub || scrubProgress > 0.34;
+  const showZones = sinScrub || scrubProgress > 0.62;
+  const showScrollCue = !sinScrub && progress < 0.08;
   // Tramo de portada: los fotogramas ya han terminado y la imagen final
   // permanece fija en pantalla.
   const isFinalFrame = sinScrub || scrubProgress >= 1;
@@ -402,12 +406,15 @@ export function Hero() {
                 key={zone.href}
                 href={zone.href}
                 onClick={(e) => handleZoneClick(e, zone.href)}
-                className="group relative px-3 py-2 sm:px-5 sm:py-3 text-center"
+                className="group relative flex items-center justify-center text-center
+                           w-[6.5rem] h-20 sm:w-44 sm:h-28 lg:w-56 lg:h-36
+                           border border-white/45 bg-black/60 backdrop-blur-[2px]
+                           hover:border-exvia-red hover:bg-black/75
+                           transition-all duration-300 px-2"
               >
-                <span className="text-[0.65rem] sm:text-sm font-geist-mono uppercase tracking-[0.2em] text-white/90 group-hover:text-white transition-colors duration-300">
+                <span className="text-[0.6rem] sm:text-xs lg:text-sm font-geist-mono uppercase tracking-[0.18em] text-white group-hover:text-white transition-colors duration-300">
                   {zone.label}
                 </span>
-                <span className="absolute left-1/2 -bottom-0.5 h-px w-0 bg-exvia-red -translate-x-1/2 transition-all duration-300 group-hover:w-full" />
               </a>
             ))}
           </div>
@@ -423,22 +430,9 @@ export function Hero() {
         {reelConfig.src && (
           <div
             className={cn(
-              'absolute md:left-1/2 md:top-1/2 -translate-x-1/2 -translate-y-1/2 z-30 transition-all duration-700 ease-out',
+              'absolute left-1/2 top-[26%] md:top-[24%] -translate-x-1/2 -translate-y-1/2 z-30 transition-all duration-700 ease-out',
               showZones ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
             )}
-            style={
-              pequena
-                ? // La X está en distinto sitio en cada portada: al 47 %/45 % en
-                  // el vídeo de la nave, al 28 %/46 % en la foto del garaje.
-                  portadaVideo
-                  ? { left: '47%', top: '45%' }
-                  : heroConfig.portadaMovil
-                  ? { left: '28%', top: '46%' }
-                  : // Scrub vertical: la X queda al 42 % de la imagen, que con el
-                    // recorte de cover cae en el 40 % del viewport.
-                    { left: '40%', top: '45%' }
-                : undefined
-            }
           >
             <button
               type="button"
@@ -464,7 +458,7 @@ export function Hero() {
         {heroConfig.roles[0] && (
           <div
             className={cn(
-              'hidden md:block absolute left-8 lg:left-16 top-1/2 -translate-y-1/2 z-20 transition-all duration-1000 ease-out',
+              'hidden absolute left-8 lg:left-16 top-1/2 -translate-y-1/2 z-20 transition-all duration-1000 ease-out',
               revealReady ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
             )}
             style={{ transitionDelay: '1200ms' }}
@@ -477,7 +471,7 @@ export function Hero() {
         {heroConfig.roles[1] && (
           <div
             className={cn(
-              'hidden md:block absolute right-8 lg:right-16 top-1/2 -translate-y-1/2 z-20 transition-all duration-1000 ease-out',
+              'hidden absolute right-8 lg:right-16 top-1/2 -translate-y-1/2 z-20 transition-all duration-1000 ease-out',
               revealReady ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'
             )}
             style={{ transitionDelay: '1400ms' }}
@@ -492,23 +486,23 @@ export function Hero() {
         {/* pb-28 en móvil: el tagline ocupa tres líneas ahí y llegaba a 16 px del
             fondo, pisándose con el aviso de scroll ("Descubre XALVAJE" /
             "Scroll para explorar"), que va en bottom-6. Texto sobre texto. */}
-        <div className="relative z-20 flex flex-col items-center justify-end min-h-screen px-6 lg:px-12 pointer-events-none pb-28 md:pb-20">
+        {/* Titular. No está en la entrada: se materializa a mitad del recorrido,
+            cuando la escena se oscurece, con una disipación (desenfoque que se
+            va + leve ascenso) en lugar de un simple fundido. Queda a la altura
+            de la cámara, algo por debajo del centro. */}
+        <div className="absolute inset-x-0 top-[57%] -translate-y-1/2 z-20 flex flex-col items-center px-6 lg:px-12 pointer-events-none">
           <div
             className={cn(
-              'text-center transition-all duration-1000 ease-out',
-              revealReady ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
+              'text-center transition-all ease-out',
+              showTitular && revealReady
+                ? 'opacity-100 blur-0 translate-y-0 duration-[1400ms]'
+                : 'opacity-0 blur-[14px] translate-y-6 duration-700'
             )}
-            style={{ transitionDelay: '900ms' }}
           >
             {heroConfig.headlineLines[0] && (
               <h1 className="font-display-serif font-light text-[clamp(2.75rem,8.5vw,6.5rem)] text-white tracking-[-0.015em] leading-[1.05] drop-shadow-2xl">
                 {heroConfig.headlineLines[0]}
               </h1>
-            )}
-            {heroConfig.headlineLines[1] && (
-              <p className="mt-2 font-display-serif font-light italic text-[clamp(1.125rem,3.4vw,2.125rem)] text-white/90 tracking-[0.005em] leading-snug drop-shadow-xl">
-                {heroConfig.headlineLines[1]}
-              </p>
             )}
             {heroConfig.tagline && (
               <p className="mt-4 text-[0.6rem] sm:text-sm font-geist-mono uppercase tracking-[0.08em] sm:tracking-[0.2em] text-white/60 max-w-full break-words">
@@ -518,15 +512,19 @@ export function Hero() {
           </div>
         </div>
 
-        {/* Scroll cue inicial: invita a empezar el scrub */}
+        {/* Aviso de scroll: al centro de la portada y dando saltitos, que es lo
+            único que se ve al entrar además del logotipo. */}
         <div
           className={cn(
-            'absolute bottom-6 left-1/2 -translate-x-1/2 z-20 transition-opacity duration-700',
-            showScrollCue && revealReady ? 'opacity-70' : 'opacity-0'
+            'absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 transition-opacity duration-700 flex flex-col items-center gap-3',
+            showScrollCue && revealReady ? 'opacity-80' : 'opacity-0 pointer-events-none'
           )}
         >
-          <span className="text-[0.6rem] font-geist-mono uppercase tracking-[0.35em] text-white">
+          <span className="text-[0.6rem] sm:text-xs font-geist-mono uppercase tracking-[0.35em] text-white drop-shadow-lg">
             Scroll para explorar
+          </span>
+          <span aria-hidden className="animate-bounce text-white text-xl leading-none drop-shadow-lg">
+            &darr;
           </span>
         </div>
 
