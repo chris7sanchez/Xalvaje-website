@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { useServiceParallax } from '@/hooks/useMouseParallax';
@@ -10,9 +11,11 @@ function ServiceRow({ service, index }: { service: ServiceItem; index: number })
   // Desplegable de la fila (solo actua en movil)
   const [abierto, setAbierto] = useState(false);
   const { containerRef, getTransform } = useServiceParallax();
+  const navigate = useNavigate();
 
   const goTo = (href: string) => {
-    document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
+    // Ahora son páginas: los antiguos anclas se traducen a su ruta.
+    navigate(href);
   };
 
   return (

@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState, useCallback, type MouseEvent } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { heroConfig, reelConfig } from '@/config';
@@ -26,15 +27,6 @@ function frameUrl(index: number, pequena: boolean) {
     ? heroConfig.scrubFramePathPrefixSmall
     : heroConfig.scrubFramePathPrefix;
   return `${prefijo}${n}.webp`;
-}
-
-// El salto nativo del navegador a #ancla no es fiable en esta web (confirmado:
-// tampoco funciona en el nav principal sin este mismo workaround). Mismo
-// patrón que usa Navigation.tsx: conservamos el href real (SEO, teclado,
-// abrir en pestaña nueva) y forzamos el scroll manualmente.
-function handleZoneClick(e: MouseEvent<HTMLAnchorElement>, href: string) {
-  e.preventDefault();
-  document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
 }
 
 export function Hero() {
@@ -76,6 +68,7 @@ export function Hero() {
   // a re-crear el efecto. Si el efecto se re-ejecutase, su limpieza pondría
   // overflow:'' y descongelaría el hero justo al abrir el reel.
   const reelOpenRef = useRef(false);
+  const navigate = useNavigate();
 
   const frameCount = heroConfig.scrubFrameCount;
 
@@ -405,7 +398,15 @@ export function Hero() {
               <a
                 key={zone.href}
                 href={zone.href}
-                onClick={(e) => handleZoneClick(e, zone.href)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  // Soltar el bloqueo ANTES de navegar: si no, la página de
+                  // destino se abre con el scroll congelado.
+                  unlockedRef.current = true;
+                  lockedRef.current = false;
+                  document.body.style.overflow = '';
+                  navigate(zone.href);
+                }}
                 className="group relative flex items-center justify-center text-center
                            w-[6.5rem] h-20 sm:w-44 sm:h-28 lg:w-56 lg:h-36
                            border border-white/45 bg-black/60 backdrop-blur-[2px]

@@ -1,8 +1,9 @@
-import { useState, useEffect, type MouseEvent } from 'react';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/Logo';
 import { AnimatedButton } from './AnimatedButton';
-import { navigationConfig } from '@/config';
+import { navigationConfig, paginasConfig } from '@/config';
 
 export function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -29,15 +30,6 @@ export function Navigation() {
 
   if (!navigationConfig.logo && navigationConfig.links.length === 0) return null;
 
-  const handleNavClick = (e: MouseEvent<HTMLAnchorElement>, href: string) => {
-    e.preventDefault();
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-      setIsMenuOpen(false);
-    }
-  };
-
   return (
     <>
       <nav
@@ -59,8 +51,8 @@ export function Navigation() {
                 La X es la primera letra de la marca; alt="X" hace que,
                 si la imagen fallara, se siga leyendo "XALVAJE". */}
             {navigationConfig.logo && (
-              <a
-                href="#"
+              <Link
+                to="/"
                 className="flex items-center group"
                 aria-label={`${navigationConfig.logo} — Inicio`}
               >
@@ -73,7 +65,7 @@ export function Navigation() {
                   claro={!isScrolled}
                   className="transition-transform duration-500 ease-out-quart group-hover:scale-105"
                 />
-              </a>
+              </Link>
             )}
 
             {/* La barra queda con el logotipo y el desplegable, nada mas: los
@@ -124,11 +116,11 @@ export function Navigation() {
           )}
         >
           <div className="flex flex-col items-center justify-center h-full gap-8">
-            {navigationConfig.links.map((link, index) => (
-              <a
-                key={link.label}
-                href={link.href}
-                onClick={(e) => handleNavClick(e, link.href)}
+            {paginasConfig.map((link, index) => (
+              <Link
+                key={link.ruta}
+                to={link.ruta}
+                onClick={() => setIsMenuOpen(false)}
                 className={cn(
                   'text-3xl font-semibold text-exvia-black transition-all duration-500 ease-out-quart',
                   isMenuOpen
@@ -137,8 +129,8 @@ export function Navigation() {
                 )}
                 style={{ transitionDelay: isMenuOpen ? `${index * 100}ms` : '0ms' }}
               >
-                {link.label}
-              </a>
+                {link.etiquetaCorta}
+              </Link>
             ))}
             {navigationConfig.contactLabel && (
               <AnimatedButton

@@ -38,6 +38,22 @@ export const navigationConfig: NavigationConfig = {
   contactHref: "#contact",
 };
 
+
+// Páginas del sitio. La portada queda fuera: es la entrada, con su propia barra.
+export interface PaginaConfig {
+  ruta: string;
+  /** Como aparece en la barra de las páginas interiores */
+  etiquetaCorta: string;
+  /** Como aparece en los recuadros de la portada */
+  etiquetaPortada: string;
+}
+
+export const paginasConfig: PaginaConfig[] = [
+  { ruta: "/proyectos", etiquetaCorta: "Proyectos", etiquetaPortada: "Proyectos" },
+  { ruta: "/que-ofrecemos", etiquetaCorta: "Qué ofrecemos", etiquetaPortada: "¿Qué ofrecemos?" },
+  { ruta: "/quienes-somos", etiquetaCorta: "Quiénes somos", etiquetaPortada: "¿Quiénes somos?" },
+];
+
 // Hero section configuration
 export interface HeroZone {
   label: string;
@@ -95,10 +111,11 @@ export const heroConfig: HeroConfig = {
   portadaMovil: "",
   portadaMovilVideo: "",
   portadaMovilVideoPoster: "/videos/portada-movil-poster.jpg",
+  // Apuntan a rutas, no a anclas: cada una es una página.
   zones: [
-    { label: "Proyectos", href: "#portfolio" },
-    { label: "¿Qué ofrecemos?", href: "#services" },
-    { label: "¿Quiénes somos?", href: "#about" },
+    { label: "Proyectos", href: "/proyectos" },
+    { label: "¿Qué ofrecemos?", href: "/que-ofrecemos" },
+    { label: "¿Quiénes somos?", href: "/quienes-somos" },
   ],
 };
 
@@ -268,14 +285,14 @@ export const servicesConfig: ServicesConfig = {
       title: "Producción Audiovisual",
       description: "Desde la idea hasta la pantalla. Cortometrajes, largometrajes, series y contenido digital con visión cinematográfica.",
       image: "/images/prisma-3.webp",
-      link: "#portfolio",
+      link: "/proyectos",
       linkLabel: "Ver proyectos",
     },
     {
       title: "Fotografía",
       description: "Book artístico, fotografía de moda, retratos y cobertura de eventos con visión cinematográfica y atención al detalle.",
       image: "/images/service-2.webp",
-      link: "#photography",
+      link: "/proyectos",
       linkLabel: "Ver fotografías",
     },
     {
