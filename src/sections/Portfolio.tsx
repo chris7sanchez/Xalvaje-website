@@ -13,6 +13,8 @@ interface Project {
   featured?: boolean;
   youtubeUrl?: string;
   carouselImages?: string[];
+  /** Sinopsis que se lee sobre el vídeo, en la ventana del proyecto */
+  sinopsis?: string[];
 }
 
 function FeaturedPrisma({ project, isVisible }: { project: Project; isVisible: boolean }) {
@@ -119,6 +121,7 @@ function FeaturedPrisma({ project, isVisible }: { project: Project; isVisible: b
 
 function ProjectCard({ project, index, isVisible }: { project: Project; index: number; isVisible: boolean }) {
   const [showVideo, setShowVideo] = useState(false);
+  const [reproduciendo, setReproduciendo] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
   const handleClick = () => {
@@ -132,7 +135,7 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const match = url.match(regExp);
     const videoId = match && match[2].length === 11 ? match[2] : null;
-    return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1` : url;
+    return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0` : url;
   };
 
   // Si no hay hoverImage, usamos la misma imagen
@@ -210,32 +213,85 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
         </div>
       </div>
 
-      {/* YouTube Video Modal */}
+      {/* Ventana del proyecto: ficha con la sinopsis arriba y el vídeo debajo,
+          en vez de saltar directo a YouTube. */}
       {showVideo && project.youtubeUrl && (
-        <div 
-          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+        <div
+          className="fixed inset-0 z-[100] bg-black/95 overflow-y-auto"
+          role="dialog"
+          aria-modal="true"
+          aria-label={project.title}
           onClick={() => setShowVideo(false)}
         >
-          {/* Close Button */}
           <button
-            onClick={() => setShowVideo(false)}
-            className="absolute top-6 right-6 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors z-10"
+            type="button"
+            onClick={() => { setShowVideo(false); setReproduciendo(false); }}
+            aria-label="Cerrar"
+            className="fixed top-5 right-5 z-10 w-11 h-11 rounded-full bg-black/70 backdrop-blur-sm border border-white/25 hover:bg-black/90 flex items-center justify-center transition-colors"
           >
-            <X className="w-6 h-6 text-white" />
+            <X className="w-5 h-5 text-white" />
           </button>
 
-          {/* Video Container */}
-          <div 
-            className="w-full max-w-5xl aspect-video"
+          <div
+            className="min-h-full flex items-center justify-center p-4 py-16"
             onClick={(e) => e.stopPropagation()}
           >
-            <iframe
-              src={getYoutubeEmbedUrl(project.youtubeUrl)}
-              title={project.title}
-              className="w-full h-full rounded-lg"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
+            <div className="w-full max-w-4xl">
+              <div className="mb-6">
+                <span className="text-[0.65rem] font-geist-mono uppercase tracking-[0.25em] text-exvia-red-text">
+                  {project.category} &middot; {project.year}
+                </span>
+                <h3 className="mt-2 font-display uppercase text-white leading-[0.95] tracking-[-0.01em] text-[clamp(1.75rem,4vw,3rem)]">
+                  {project.title}
+                </h3>
+
+                {project.sinopsis && project.sinopsis.length > 0 && (
+                  <div className="mt-5 space-y-3 max-w-2xl">
+                    {project.sinopsis.map((parrafo) => (
+                      <p key={parrafo.slice(0, 24)} className="text-sm lg:text-[0.9375rem] leading-relaxed text-white/75">
+                        {parrafo}
+                      </p>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* El vídeo no arranca solo: se carga al pulsar play, así da tiempo
+                  a leer la sinopsis y no se descarga si no se va a ver. */}
+              <div className="relative w-full aspect-video bg-neutral-950 overflow-hidden">
+                {reproduciendo ? (
+                  <iframe
+                    src={getYoutubeEmbedUrl(project.youtubeUrl)}
+                    title={project.title}
+                    className="absolute inset-0 w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setReproduciendo(true)}
+                    aria-label={`Reproducir ${project.title}`}
+                    className="group absolute inset-0 w-full h-full"
+                  >
+                    <img
+                      src={project.image}
+                      alt=""
+                      aria-hidden
+                      className="absolute inset-0 w-full h-full object-cover opacity-70 transition-opacity duration-300 group-hover:opacity-50"
+                    />
+                    <span className="absolute inset-0 grid place-items-center">
+                      <span className="grid place-items-center w-16 h-16 sm:w-20 sm:h-20 rounded-full border border-white/70 bg-black/55 backdrop-blur-sm transition-all duration-300 group-hover:bg-black/80 group-hover:scale-105">
+                        <span
+                          aria-hidden
+                          className="ml-1 block w-0 h-0 border-y-[10px] border-y-transparent border-l-[16px] border-l-white"
+                        />
+                      </span>
+                    </span>
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}

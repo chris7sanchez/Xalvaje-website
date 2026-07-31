@@ -335,6 +335,8 @@ export interface ProjectItem {
   hoverImage?: string;
   featured?: boolean;
   youtubeUrl?: string;
+  /** Sinopsis que se lee sobre el vídeo, en la ventana del proyecto */
+  sinopsis?: string[];
   /** Carrusel de fotos propio (solo para el proyecto destacado, ej. PRISMA) */
   carouselImages?: string[];
 }
@@ -383,6 +385,10 @@ export const portfolioConfig: PortfolioConfig = {
       image: "/images/viaje-1a.webp",
       hoverImage: "/images/viaje-1b.webp",
       youtubeUrl: "https://www.youtube.com/watch?v=KE3xAOQLitA",
+      sinopsis: [
+        "Cris viaja en tren de Madrid al pueblo. Ha terminado su primer curso en la universidad y ahora es tiempo de regresar con la familia y los amigos de toda la vida para las vacaciones.",
+        "En el tren se encuentra con su profesora Julia, que, al apreciar en Cris una apariencia y una actitud tan distintas a las que la tiene acostumbrada en clase, le ofrece ir a tomar algo para compartir un rato de charla en la cafetería.",
+      ],
     },
     {
       title: "Pantera Rosa",
