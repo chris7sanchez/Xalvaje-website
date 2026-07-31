@@ -31,7 +31,7 @@
   ],
   "rewrites": [
     {
-      "source": "/((?!assets/|images/|videos/|fonts/|favicon|apple-touch-icon|og-image|.*\\..*).*)",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ]
