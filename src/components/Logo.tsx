@@ -31,6 +31,12 @@ type Props = {
    * del logo obligarían a una letra de 3 px.
    */
   produccionesDebajo?: boolean;
+  /**
+   * Solo la X, sin "ALVAJE". Para la barra de las páginas interiores en móvil:
+   * con cuatro secciones, el logotipo completo se comía el ancho y la última
+   * entrada del menú se salía de la pantalla.
+   */
+  soloMarca?: boolean;
   /** false = letras negras (fondo claro) */
   claro?: boolean;
   /** Relieve como en el logo original */
@@ -42,6 +48,7 @@ export function Logo({
   size = 44,
   conProducciones = false,
   produccionesDebajo = false,
+  soloMarca = false,
   claro = true,
   sombra = true,
   className,
@@ -72,6 +79,7 @@ export function Logo({
         }}
       />
 
+      {!soloMarca && (
       <span className="inline-flex flex-col">
         <span
           className={cn('font-logo font-light leading-none', claro ? 'text-white' : 'text-exvia-black')}
@@ -101,8 +109,9 @@ export function Logo({
           </span>
         )}
       </span>
+      )}
 
-      {conProducciones && (
+      {conProducciones && !soloMarca && (
         <span
           className={cn(
             'font-logo font-normal leading-none whitespace-nowrap',

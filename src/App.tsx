@@ -8,6 +8,7 @@ import { Portada } from '@/pages/Portada';
 import { Proyectos } from '@/pages/Proyectos';
 import { QueOfrecemos } from '@/pages/QueOfrecemos';
 import { QuienesSomos } from '@/pages/QuienesSomos';
+import { Vision } from '@/pages/Vision';
 import { Contacto } from '@/pages/Contacto';
 import { usePageLoad } from '@/hooks/usePageLoad';
 
@@ -40,6 +41,7 @@ function Contenido() {
           <Route path="/proyectos" element={<Proyectos />} />
           <Route path="/que-ofrecemos" element={<QueOfrecemos />} />
           <Route path="/quienes-somos" element={<QuienesSomos />} />
+          <Route path="/nuestra-vision" element={<Vision />} />
           <Route path="/contacto" element={<Contacto />} />
           {/* Cualquier otra URL cae en la portada, no en una pantalla vacía */}
           <Route path="*" element={<Portada />} />

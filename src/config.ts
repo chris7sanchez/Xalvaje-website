@@ -52,6 +52,7 @@ export const paginasConfig: PaginaConfig[] = [
   { ruta: "/proyectos", etiquetaCorta: "Proyectos", etiquetaPortada: "Proyectos" },
   { ruta: "/que-ofrecemos", etiquetaCorta: "Qué ofrecemos", etiquetaPortada: "¿Qué ofrecemos?" },
   { ruta: "/quienes-somos", etiquetaCorta: "Quiénes somos", etiquetaPortada: "¿Quiénes somos?" },
+  { ruta: "/nuestra-vision", etiquetaCorta: "Nuestra visión", etiquetaPortada: "Nuestra visión" },
 ];
 
 // Hero section configuration

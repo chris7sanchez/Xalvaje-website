@@ -19,10 +19,13 @@ export function PageNav() {
           className="flex items-center group shrink-0"
           aria-label="XALVAJE Producciones — Volver a la portada"
         >
-          <Logo size={38} produccionesDebajo claro={false} />
+          {/* En móvil solo la X: con cuatro secciones el logotipo entero dejaba
+              la última fuera de pantalla. */}
+          <Logo size={30} soloMarca claro={false} className="sm:hidden" />
+          <Logo size={38} produccionesDebajo claro={false} className="hidden sm:inline-flex" />
         </Link>
 
-        <nav className="flex items-center gap-4 sm:gap-8" aria-label="Secciones">
+        <nav className="flex items-center gap-3 sm:gap-6 lg:gap-8" aria-label="Secciones">
           {paginasConfig.map((p) => {
             const activa = pathname === p.ruta;
             return (
