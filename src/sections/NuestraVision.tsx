@@ -1,192 +1,67 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { cn } from '@/lib/utils';
 
 /**
- * NUESTRA VISIÓN — página propia (/nuestra-vision).
+ * NUESTRA VISIÓN — el manifiesto como cartel.
  *
- * Dos filas de ventanas, una arriba y otra abajo, y entre ellas una BANDA
- * horizontal con el mensaje. Las tres piezas NO se separan: la banda es una
- * ventana más de la misma tira, y la tira entera sube o baja según el scroll.
- * Lo que se mueve es la tira dentro de un marco fijo, como quien pasa una
- * pieza de película por delante de una ventanilla.
+ * No es una sección con un texto dentro: es una composición. Cada frase del
+ * manifiesto lleva SU tipografía y SU sitio, y las ventanas de vídeo caen entre
+ * medias como si se hubieran dejado ahí. El desorden es aparente: todo se apoya
+ * en una retícula de porcentajes y en un ritmo de escenas, así que se lee de
+ * arriba abajo sin esfuerzo aunque nada esté alineado con nada.
  *
- * (Antes las filas se abrían en direcciones opuestas para descubrir el texto.
- * Se cambió a propósito: la separación rompía la tira en dos objetos sueltos,
- * y la gracia es que se lea como UNA sola cosa que se desplaza.)
+ * Las cuatro voces tipográficas (a propósito, mezcladas incluso dentro de una
+ * misma frase):
+ *   · Anton               — el grito. Mayúsculas enormes.
+ *   · Cormorant italic    — la voz que confiesa. Minúsculas, cursiva, ligera.
+ *   · Jost 200/300        — la voz que explica. Geométrica de trazo fino.
+ *   · GeistMono           — las acotaciones, como notas al margen de un guion.
  *
- * CLAVE: hay UN vídeo por fila, no uno por ventana. Va a lo ancho de la fila
- * entera y se recorta con una máscara de tres rectángulos, así que cada
- * ventana enseña un TROZO DISTINTO del mismo fotograma. No es el mismo clip
- * repetido seis veces: es una imagen cortada.
+ * LAS VENTANAS: hay UN vídeo por grupo, no uno por ventana. El clip va a lo
+ * ancho del grupo entero y se recorta con una máscara de rectángulos, así que
+ * cada ventana enseña un TROZO DISTINTO del mismo fotograma — puntos de vista
+ * sobre una misma escena, que es justo la idea. Tres grupos = tres elementos
+ * <video> y dos descargas (el clip de arriba se usa dos veces).
  *
- * La máscara se calcula una vez por medida y no en cada fotograma: las
- * ventanas nunca se mueven unas respecto a otras, se mueve la tira completa.
- *
- * Los anchos y proporciones salen de medir purecinema.tv, y las dos filas son
- * distintas entre sí a propósito: la simetría es lo que delata una plantilla.
+ * Los grupos se mueven con el scroll a velocidades distintas. Eso es lo que
+ * hace que la composición no parezca pegada: al bajar, las ventanas se
+ * descolocan unas de otras.
  */
 
-/** El manifiesto. Va partido en párrafos cortos: es texto para respirar. */
-const MANIFIESTO = [
-  'En Xalvaje creemos que toda marca tiene un alma. Una historia que existe mucho antes de que alguien la cuente. Nuestro trabajo no consiste en inventarla, sino en descubrirla.',
-  'Nos adentramos en su origen, en aquello que la mueve cuando nadie la observa. Despojamos cada proyecto de lo superficial hasta encontrar esa verdad silenciosa que lo hace irrepetible. Porque solo cuando una marca conoce quién es, puede emocionar sin artificios.',
-  'Después hacemos lo que mejor sabemos hacer: convertir esa esencia en cine.',
-  'Imágenes que respiran. Silencios que hablan. Luz que revela. Historias que no buscan vender, sino permanecer.',
-  'Porque las personas olvidan lo que ven. Pero nunca olvidan lo que sienten.',
-];
-
-/** Última línea, aparte: es el remate y va con el rojo de marca. */
-const CIERRE = 'Y ahí es donde comienza nuestra película.';
-
-/** Fila de arriba (sube). Medidas de la referencia: 41 / 27 / 27 %. */
-const ARRIBA = [
-  { ancho: '41%', ratio: 2.06 },
-  { ancho: '27%', ratio: 1.55 },
-  { ancho: '27%', ratio: 1.15 },
-];
-
-/**
- * Un clip DISTINTO por fila. Antes las dos filas tiraban del mismo archivo y,
- * aunque cada ventana enseñaba un trozo distinto del fotograma, se veía que
- * arriba y abajo pasaba lo mismo a la vez.
- *
- * Son 20 s cada uno, sacados de tramos separados del máster
- * (~/Mirror/CHRISS_REEL.mov): 24,5-44,5 s el de arriba y 72-92 s el de abajo.
- * Los cortes no son a ojo: se eligieron midiendo el brillo medio segundo a
- * segundo y arrancando en un corte de plano detectado, para que no empiecen en
- * un tramo oscuro ni a mitad de un movimiento.
- *
- * El de abajo va recortado a 1280x640: en el máster ese tramo lleva bandas
- * negras de cine, y aquí las ventanas son la única imagen — una franja negra
- * dentro de una ventana parece un fallo de carga.
- */
 const CLIPS = [
   { video: '/videos/vision-arriba.mp4', poster: '/videos/vision-arriba-poster.jpg' },
   { video: '/videos/vision-abajo.mp4', poster: '/videos/vision-abajo-poster.jpg' },
 ];
 
-/** Fila de abajo (baja). Otra proporción distinta: 24 / 48 / 24 %. */
-const ABAJO = [
-  { ancho: '24%', ratio: 0.6 },
-  { ancho: '48%', ratio: 2.0 },
-  { ancho: '24%', ratio: 0.6 },
-];
+/** Blanco hueso, el mismo del sello. Sobre negro es menos frío que el 255. */
+const HUESO = '#FBF7F5';
+
+function menosMovimiento() {
+  return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
 
 /**
- * Recorrido EXTRA de la tira, además de lo que ya sobresale del marco.
- * En px de alto de marco: 0.14 = un 14 % de la ventana.
- *
- * Sin este extra, una tira que cupiera justa en el marco no se movería nada y
- * la sección parecería estropeada. Con él siempre hay desplazamiento, y cuando
- * la tira es más alta que el marco (lo normal) se suma a lo que ya hay que
- * recorrer para enseñarla entera.
+ * Desplazamiento por scroll. Mide en el elemento de fuera y mueve el de dentro:
+ * si midiera el mismo que muevo, la medida incluiría el desplazamiento anterior
+ * y se realimentaría hasta irse de la pantalla.
  */
-const PARALAJE = 0.14;
-
-/**
- * Píxeles de scroll por cada píxel que se mueve la tira. Marca el ritmo de
- * lectura: cuanto más alto, más despacio pasa el manifiesto.
- *
- * De aquí sale el alto de la pista, y no al revés. Con una altura fija en vh
- * (antes eran 240) el texto pasaría volando justo donde más largo se pone —
- * pantallas estrechas, donde el manifiesto ocupa el doble de líneas.
- */
-const RITMO = 2.4;
-
-/** Alto de la barra fija de las páginas interiores (main lleva pt-[4.5rem]) */
-const BARRA = '4.5rem';
-
-export function NuestraVision() {
-  const pista = useRef<HTMLDivElement>(null);
-  const marco = useRef<HTMLDivElement>(null);
-  const tira = useRef<HTMLDivElement>(null);
-  const lienzos = useRef<(HTMLDivElement | null)[]>([]);
-  const huecos = useRef<(HTMLDivElement | null)[][]>([[], []]);
-  const [mascaras, setMascaras] = useState<{ image: string; position: string; size: string }[]>([]);
-  const [cargar, setCargar] = useState(false);
-  const [menosMovimiento] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  );
-
-  /**
-   * Lo que la tira tiene que recorrer: lo que sobresale del marco más el extra
-   * de paralaje. Lo usan el pintado y el cálculo del alto de la pista, y tiene
-   * que ser EL MISMO número en los dos o el final del texto se queda fuera.
-   */
-  const sobraDe = (m: HTMLDivElement, t: HTMLDivElement) =>
-    Math.max(0, t.offsetHeight - m.clientHeight) + m.clientHeight * PARALAJE;
-
-  const medir = () => {
-    const nuevas = [0, 1].map((f) => {
-      const base = lienzos.current[f];
-      if (!base) return { image: '', position: '', size: '' };
-      const rb = base.getBoundingClientRect();
-      const capas: string[] = [], pos: string[] = [], tam: string[] = [];
-      for (const h of huecos.current[f] || []) {
-        if (!h) continue;
-        const r = h.getBoundingClientRect();
-        capas.push('linear-gradient(#000,#000)');
-        pos.push(`${Math.round(r.left - rb.left)}px ${Math.round(r.top - rb.top)}px`);
-        tam.push(`${Math.round(r.width)}px ${Math.round(r.height)}px`);
-      }
-      return { image: capas.join(','), position: pos.join(','), size: tam.join(',') };
-    });
-    setMascaras(nuevas);
-  };
-
-  useLayoutEffect(() => {
-    // Medir YA, sin setTimeout. El <video> no se monta hasta que hay máscara,
-    // así que cada milisegundo de espera aquí es un milisegundo que la descarga
-    // del clip no ha empezado: con los 150 ms de antes, el navegador no pedía
-    // los vídeos hasta pasado casi medio segundo desde que abrías la página.
-    // Se puede medir aquí porque las ventanas no dependen de las fuentes: van
-    // por porcentaje y aspect-ratio, y en useLayoutEffect ya están colocadas.
-    medir();
-    // Segunda pasada en el siguiente fotograma, por si algo movió el layout.
-    const r = requestAnimationFrame(medir);
-    const al = () => medir();
-    window.addEventListener('resize', al);
-    return () => { cancelAnimationFrame(r); window.removeEventListener('resize', al); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cargar]);
-
-  // El alto de la pista sale del contenido, no de un vh fijo: manda el ritmo de
-  // lectura del manifiesto, que en pantallas estrechas ocupa el doble de alto.
-  useLayoutEffect(() => {
-    const ajustar = () => {
-      const p = pista.current, m = marco.current, t = tira.current;
-      if (!p || !m || !t) return;
-      p.style.height = `${Math.round(m.clientHeight + sobraDe(m, t) * RITMO)}px`;
-    };
-    ajustar();
-    // Segunda pasada: las fuentes tardan en llegar y el texto cambia de alto.
-    const r = requestAnimationFrame(ajustar);
-    document.fonts?.ready.then(ajustar);
-    window.addEventListener('resize', ajustar);
-    return () => { cancelAnimationFrame(r); window.removeEventListener('resize', ajustar); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cargar]);
+function useParalaje(factor: number) {
+  const fuera = useRef<HTMLDivElement>(null);
+  const dentro = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (menosMovimiento) return;
+    if (menosMovimiento()) return;
     let pendiente = false;
     const pintar = () => {
       pendiente = false;
-      const p = pista.current;
-      const m = marco.current;
-      const t = tira.current;
-      if (!p || !m) return;
-
-      // Cuánto se ha recorrido de la pista, de 0 a 1. La pista es más alta que
-      // el marco a propósito: esa diferencia es todo el scroll disponible
-      // mientras el marco está pegado arriba.
-      const recorrido = p.offsetHeight - m.clientHeight;
-      const hecho = recorrido > 0 ? Math.min(1, Math.max(0, -p.getBoundingClientRect().top / recorrido)) : 0;
-
-      if (!t) return;
-      // El desplazamiento se reparte a partes iguales arriba y abajo: a mitad
-      // de recorrido la tira está centrada. Va por estilo directo, sin estado
-      // de React: durante el scroll este componente no se vuelve a pintar.
-      t.style.transform = `translate3d(0, ${(0.5 - hecho) * sobraDe(m, t)}px, 0)`;
+      const f = fuera.current, d = dentro.current;
+      if (!f || !d) return;
+      const r = f.getBoundingClientRect();
+      // Distancia del centro del bloque al centro de la pantalla: 0 justo al
+      // pasar por el medio, así que ahí ningún bloque está desplazado y la
+      // composición se ve tal cual se diseñó.
+      const centro = r.top + r.height / 2 - window.innerHeight / 2;
+      d.style.transform = `translate3d(0, ${(-centro * factor).toFixed(1)}px, 0)`;
     };
     const alScroll = () => { if (!pendiente) { pendiente = true; requestAnimationFrame(pintar); } };
     document.body.addEventListener('scroll', alScroll, { passive: true });
@@ -198,10 +73,76 @@ export function NuestraVision() {
       window.removeEventListener('scroll', alScroll);
       window.removeEventListener('resize', alScroll);
     };
-  }, [menosMovimiento]);
+  }, [factor]);
+
+  return { fuera, dentro };
+}
+
+type Hueco = {
+  /** Posición dentro del grupo, en % del propio grupo. Todo en clases Tailwind. */
+  sitio: string;
+  /** Ancho/alto de la ventana */
+  ratio: number;
+};
+
+/**
+ * Un grupo de ventanas sobre un mismo clip.
+ *
+ * OJO con el orden: la máscara se mide DESPUÉS de que las ventanas estén
+ * colocadas, y el <video> no se monta hasta que hay máscara. Por eso se mide en
+ * useLayoutEffect y no dentro de un setTimeout: cada milisegundo de espera aquí
+ * retrasa la descarga del clip.
+ */
+function Grupo({
+  clip,
+  huecos,
+  className,
+  paralaje,
+}: {
+  clip: 0 | 1;
+  huecos: Hueco[];
+  className?: string;
+  paralaje: number;
+}) {
+  const lienzo = useRef<HTMLDivElement>(null);
+  const marcos = useRef<(HTMLDivElement | null)[]>([]);
+  const [mascara, setMascara] = useState<React.CSSProperties | null>(null);
+  const [cargar, setCargar] = useState(false);
+  const [quieto] = useState(menosMovimiento);
+  const { fuera, dentro } = useParalaje(paralaje);
+
+  const medir = () => {
+    const base = lienzo.current;
+    if (!base) return;
+    const rb = base.getBoundingClientRect();
+    const capas: string[] = [], pos: string[] = [], tam: string[] = [];
+    for (const m of marcos.current) {
+      if (!m) continue;
+      const r = m.getBoundingClientRect();
+      capas.push('linear-gradient(#000,#000)');
+      pos.push(`${Math.round(r.left - rb.left)}px ${Math.round(r.top - rb.top)}px`);
+      tam.push(`${Math.round(r.width)}px ${Math.round(r.height)}px`);
+    }
+    if (!capas.length) return;
+    setMascara({
+      WebkitMaskImage: capas.join(','), maskImage: capas.join(','),
+      WebkitMaskPosition: pos.join(','), maskPosition: pos.join(','),
+      WebkitMaskSize: tam.join(','), maskSize: tam.join(','),
+      WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat',
+    } as React.CSSProperties);
+  };
+
+  useLayoutEffect(() => {
+    medir();
+    const r = requestAnimationFrame(medir);
+    const al = () => medir();
+    window.addEventListener('resize', al);
+    return () => { cancelAnimationFrame(r); window.removeEventListener('resize', al); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
-    const el = pista.current;
+    const el = fuera.current;
     if (!el) return;
     const obs = new IntersectionObserver(
       (e) => { if (e.some((x) => x.isIntersecting)) { setCargar(true); obs.disconnect(); } },
@@ -209,107 +150,250 @@ export function NuestraVision() {
     );
     obs.observe(el);
     return () => obs.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const estiloMascara = (f: number) => {
-    const m = mascaras[f];
-    if (!m) return {};
-    return {
-      WebkitMaskImage: m.image, maskImage: m.image,
-      WebkitMaskPosition: m.position, maskPosition: m.position,
-      WebkitMaskSize: m.size, maskSize: m.size,
-      WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat',
-    } as React.CSSProperties;
-  };
-
-  /**
-   * OJO: esto es una FUNCIÓN que devuelve JSX, no un componente que se escriba
-   * como <Fila />. Y tiene que seguir siéndolo.
-   *
-   * Siendo componente estaba definido aquí dentro, así que en cada render era
-   * una función NUEVA: para React eso es otro tipo de componente, tira el
-   * anterior y monta uno nuevo. Como `avance` se actualiza en cada fotograma
-   * del scroll, el <video> se destruía y se volvía a crear sin parar y no
-   * llegaba nunca a arrancar. Medido al cargar: tres peticiones del mismo mp4
-   * en 5 ms. Llamándola como función no hay frontera de componente y el vídeo
-   * se queda donde está.
-   */
-  const fila = (f: number, ventanas: typeof ARRIBA, alinear: string) => (
-    <div key={f}>
-      <div className="container-large px-6 lg:px-12">
-        <div ref={(el) => { lienzos.current[f] = el; }} className="relative">
-          {/* UN vídeo para toda la fila: cada ventana enseña un trozo distinto */}
-          {cargar && mascaras[f] && (
-            menosMovimiento ? (
-              <img src={CLIPS[f].poster} alt="" aria-hidden
-                className="absolute inset-0 w-full h-full object-cover" style={estiloMascara(f)} />
+  return (
+    <div ref={fuera} className={cn('pointer-events-none', className)}>
+      {/* h-full en toda la cadena: el alto lo pone la clase del grupo, y si el
+          envoltorio no lo hereda el lienzo mide 0 y la máscara sale a cero. */}
+      <div ref={dentro} className="will-change-transform h-full">
+        <div ref={lienzo} className="relative w-full h-full">
+          {cargar && mascara && (
+            quieto ? (
+              <img
+                src={CLIPS[clip].poster} alt="" aria-hidden
+                className="absolute inset-0 w-full h-full object-cover"
+                style={mascara}
+              />
             ) : (
-              <video src={CLIPS[f].video} poster={CLIPS[f].poster}
+              <video
+                src={CLIPS[clip].video} poster={CLIPS[clip].poster}
                 autoPlay loop muted playsInline preload="auto" aria-hidden
-                className="absolute inset-0 w-full h-full object-cover" style={estiloMascara(f)} />
+                className="absolute inset-0 w-full h-full object-cover"
+                style={mascara}
+              />
             )
           )}
 
-          {/* Los huecos solo dan el filo y sirven para medir */}
-          <div className={`relative flex ${alinear} justify-between gap-[2.5%]`}>
-            {ventanas.map((v, i) => (
-              <div
-                key={i}
-                ref={(el) => { huecos.current[f][i] = el; }}
-                aria-hidden
-                className="ring-1 ring-white/15 shrink-0"
-                style={{ width: v.ancho, aspectRatio: String(v.ratio) }}
-              />
-            ))}
-          </div>
+          {/* Los huecos solo dan el filo y sirven de regla para medir */}
+          {huecos.map((h, i) => (
+            <div
+              key={i}
+              ref={(el) => { marcos.current[i] = el; }}
+              aria-hidden
+              className={cn('absolute ring-1 ring-white/15', h.sitio)}
+              style={{ aspectRatio: String(h.ratio) }}
+            />
+          ))}
         </div>
       </div>
     </div>
   );
+}
+
+/** Cada escena entra sola al asomar. Componente aparte: si viviera dentro de
+ *  NuestraVision, React lo daría por un componente nuevo en cada render y
+ *  tiraría el <video> de dentro para volver a crearlo. */
+function Escena({ children, className }: { children: React.ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      (e) => { if (e.some((x) => x.isIntersecting)) { setVisible(true); obs.disconnect(); } },
+      { rootMargin: '0px 0px -12% 0px' }
+    );
+    obs.observe(el);
+    // Red de seguridad: una escena más alta que la pantalla puede no disparar.
+    const rescate = setTimeout(() => setVisible(true), 1200);
+    return () => { clearTimeout(rescate); obs.disconnect(); };
+  }, []);
 
   return (
-    <section id="vision" className="w-full bg-black">
-      <div ref={pista} style={{ height: '240vh' }} className="relative">
-        {/* EL MARCO: se queda quieto pegado bajo la barra mientras dura la
-            pista. Su alto descuenta la barra fija, si no la tira pasaría por
-            debajo del blanco y el mensaje se perdería ahí. */}
-        <div
-          ref={marco}
-          className="sticky overflow-hidden flex flex-col justify-center"
-          style={{ top: BARRA, height: `calc(100vh - ${BARRA})` }}
-        >
-          {/* LA TIRA: las dos filas y la banda como un solo bloque. Es esto lo
-              único que se mueve, y en una sola pieza. */}
-          <div ref={tira} className="will-change-transform">
+    <div
+      ref={ref}
+      className={cn(
+        'relative reveal',
+        visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6',
+        className
+      )}
+    >
+      {children}
+    </div>
+  );
+}
 
-            {fila(0, ARRIBA, 'items-end')}
+export function NuestraVision() {
+  return (
+    <section
+      id="vision"
+      className="relative w-full bg-black overflow-x-clip py-24 lg:py-40"
+    >
+      <div className="container-large px-6 lg:px-12">
 
-            {/* LA BANDA: una ventana más de la tira, la que lleva el mensaje.
-                Sin desvanecidos atados al scroll: es un texto largo, y un
-                texto que hay que leer no se pone a media opacidad [L0]. */}
-            <div className="relative z-10 py-12 lg:py-20">
-              <div className="container-large px-6 lg:px-12">
-                <div className="max-w-[46rem]">
-                  <span className="block font-deco font-light uppercase text-[0.7rem] sm:text-[0.78rem] tracking-[0.42em] text-white/60 mb-8 lg:mb-12">
-                    Nuestra visión
-                  </span>
+        {/* ─────────────── 1. EL ALMA ─────────────── */}
+        <Escena className="min-h-[92vh]">
+          <span className="block font-geist-mono uppercase text-[0.62rem] tracking-[0.4em] text-white/40">
+            Nuestra visión
+          </span>
 
-                  <div className="font-deco font-light text-white/90 text-[clamp(1.02rem,1.45vw,1.45rem)] leading-[1.9] tracking-[0.012em] space-y-6 lg:space-y-8">
-                    {MANIFIESTO.map((p) => (
-                      <p key={p}>{p}</p>
-                    ))}
-                  </div>
+          <p className="mt-14 lg:mt-24 font-deco font-light text-white/70 text-[clamp(1rem,1.6vw,1.4rem)] tracking-[0.02em]">
+            En Xalvaje creemos que
+          </p>
 
-                  <p className="font-deco font-light text-exvia-red-text mt-10 lg:mt-14 text-[clamp(1.2rem,1.9vw,1.95rem)] leading-[1.5] tracking-[0.02em]">
-                    {CIERRE}
-                  </p>
-                </div>
-              </div>
-            </div>
+          {/* El grito. Sale un poco por la izquierda: el bloque pesa tanto que
+              alineado con el resto parecía centrado sin querer. */}
+          <h2
+            className="font-display uppercase leading-[0.84] tracking-[-0.015em] text-[clamp(2.6rem,9.4vw,8.6rem)] -ml-[0.06em] mt-2"
+            style={{ color: HUESO }}
+          >
+            <span className="block">toda marca</span>
+            <span className="block">tiene un</span>
+            <span className="block text-exvia-red-text">alma</span>
+          </h2>
 
-            {fila(1, ABAJO, 'items-start')}
-          </div>
-        </div>
+          {/* Ventanas a la derecha, pisando el aire que deja el titular */}
+          <Grupo
+            clip={0}
+            paralaje={0.05}
+            className="relative lg:absolute lg:right-0 lg:top-[24%] w-full lg:w-[40%] h-[42vh] lg:h-[62vh] mt-10 lg:mt-0"
+            huecos={[
+              { sitio: 'left-0 top-0 w-[62%]', ratio: 1.6 },
+              { sitio: 'right-0 top-[34%] w-[34%]', ratio: 0.72 },
+            ]}
+          />
+
+          <p className="mt-12 lg:mt-20 lg:ml-[38%] max-w-[30rem] font-display-serif italic font-light text-white/85 text-[clamp(1.35rem,2.6vw,2.5rem)] leading-[1.35]">
+            Una historia que existe mucho antes de que alguien la cuente.
+          </p>
+        </Escena>
+
+        {/* ─────────────── 2. DESCUBRIRLA ─────────────── */}
+        <Escena className="mt-28 lg:mt-56">
+          <p className="lg:ml-[46%] max-w-[26rem] font-deco font-light text-white/70 text-[clamp(1rem,1.5vw,1.35rem)] leading-[1.7]">
+            Nuestro trabajo no consiste en inventarla,
+          </p>
+
+          {/* Ladeada y saliéndose por la derecha: es la frase que rompe */}
+          <h3
+            className="mt-4 font-display uppercase text-exvia-red-text leading-[0.86] tracking-[-0.02em] text-[clamp(2.2rem,9vw,8rem)] origin-left"
+            style={{ transform: 'rotate(-1.6deg)' }}
+          >
+            sino en<br />descubrirla
+          </h3>
+
+          <p className="mt-16 lg:mt-24 max-w-[34rem] font-display-serif italic font-light text-white/85 text-[clamp(1.2rem,2.2vw,2.1rem)] leading-[1.4]">
+            Nos adentramos en su origen, en aquello que la mueve cuando nadie la observa.
+          </p>
+        </Escena>
+
+        {/* ─────────────── 3. LOS PUNTOS DE VISTA ─────────────── */}
+        <Escena className="mt-20 lg:mt-32">
+          <span className="block font-geist-mono uppercase text-[0.58rem] tracking-[0.34em] text-white/35 lg:ml-[52%]">
+            [ puntos de vista ]
+          </span>
+
+          <Grupo
+            clip={1}
+            paralaje={-0.035}
+            className="mt-6 w-full h-[58vh] lg:h-[82vh]"
+            huecos={[
+              { sitio: 'left-0 top-[6%] w-[27%]', ratio: 0.66 },
+              { sitio: 'left-[31%] top-0 w-[31%]', ratio: 1.9 },
+              { sitio: 'right-[2%] top-[22%] w-[36%]', ratio: 1.35 },
+              { sitio: 'left-[24%] bottom-0 w-[22%]', ratio: 1.1 },
+            ]}
+          />
+
+          <p className="mt-24 lg:mt-32 lg:ml-[8%] max-w-[38rem] font-deco font-light text-white/80 text-[clamp(1rem,1.55vw,1.42rem)] leading-[1.85] tracking-[0.012em]">
+            Despojamos cada proyecto de lo superficial hasta encontrar esa verdad silenciosa
+            que lo hace irrepetible.
+          </p>
+
+          <p className="mt-12 lg:mt-16 lg:ml-[34%] max-w-[32rem] font-display-serif italic font-light text-white/85 text-[clamp(1.25rem,2.3vw,2.2rem)] leading-[1.4]">
+            Porque solo cuando una marca conoce quién es, puede emocionar sin artificios.
+          </p>
+        </Escena>
+
+        {/* ─────────────── 4. CINE ─────────────── */}
+        <Escena className="mt-28 lg:mt-52">
+          <span className="block font-geist-mono uppercase text-[0.58rem] tracking-[0.34em] text-white/40">
+            Después hacemos lo que mejor sabemos hacer
+          </span>
+
+          <p className="mt-8 font-deco font-extralight text-white/75 text-[clamp(1.2rem,2.4vw,2.3rem)] tracking-[0.06em]">
+            convertir esa esencia en
+          </p>
+
+          {/* La palabra ocupa el ancho entero. Es el centro del cartel. */}
+          <h3
+            /* Los márgenes van en em, no en px: con una interlínea de 0,75 los
+               trazos de Anton se salen de su caja por arriba y por abajo, y ese
+               desbordamiento crece con el cuerpo de letra. En em, la holgura
+               crece con él y la palabra no se come lo que tiene al lado en
+               ninguna pantalla. */
+            className="font-display uppercase leading-[0.75] tracking-[-0.045em] text-[clamp(4rem,62vw,46rem)] -ml-[0.055em] mt-[0.17em] mb-[0.07em]"
+            style={{ color: HUESO }}
+          >
+            cine
+          </h3>
+
+          <Grupo
+            clip={0}
+            paralaje={0.06}
+            className="w-full h-[34vh] lg:h-[46vh] mt-10 lg:mt-14"
+            huecos={[
+              { sitio: 'right-[6%] top-0 w-[44%]', ratio: 2.3 },
+              { sitio: 'left-[8%] top-[16%] w-[19%]', ratio: 0.85 },
+            ]}
+          />
+        </Escena>
+
+        {/* ─────────────── 5. LA LETANÍA ─────────────── */}
+        <Escena className="mt-24 lg:mt-40">
+          <p className="font-display-serif italic font-light text-white text-[clamp(1.6rem,4.6vw,4rem)] leading-[1.15]">
+            Imágenes que respiran.
+          </p>
+          <p
+            className="ml-[10%] lg:ml-[18%] mt-3 font-display uppercase text-[clamp(1.7rem,5.4vw,4.6rem)] leading-[1] tracking-[-0.01em]"
+            style={{ color: HUESO }}
+          >
+            Silencios que hablan.
+          </p>
+          <p className="ml-[22%] lg:ml-[38%] mt-5 font-deco font-extralight uppercase text-white/85 text-[clamp(1.05rem,2.6vw,2.2rem)] tracking-[0.24em]">
+            Luz que revela.
+          </p>
+          <p className="ml-[30%] lg:ml-[52%] mt-8 max-w-[26rem] font-deco font-light text-white/65 text-[clamp(0.95rem,1.4vw,1.25rem)] leading-[1.8]">
+            Historias que no buscan vender, sino permanecer.
+          </p>
+        </Escena>
+
+        {/* ─────────────── 6. EL REMATE ─────────────── */}
+        <Escena className="mt-28 lg:mt-48">
+          <p className="font-deco font-light text-white/60 text-[clamp(1rem,1.6vw,1.4rem)] tracking-[0.02em]">
+            Porque las personas olvidan lo que ven.
+          </p>
+
+          {/* Dos familias dentro de la misma frase: aquí es donde el desorden
+              tiene que verse a propósito y no por descuido. */}
+          <p className="mt-4 font-display-serif italic font-light text-white text-[clamp(1.7rem,5.6vw,5rem)] leading-[1.1] max-w-[22ch]">
+            Pero nunca olvidan lo que{' '}
+            <span
+              className="font-display not-italic uppercase text-exvia-red-text tracking-[-0.01em]"
+              style={{ fontSize: '1.12em' }}
+            >
+              sienten
+            </span>
+          </p>
+
+          <p className="mt-20 lg:mt-32 lg:text-right font-geist-mono uppercase text-[0.6rem] sm:text-[0.68rem] tracking-[0.34em] text-white/45">
+            Y ahí es donde comienza nuestra película
+          </p>
+        </Escena>
+
       </div>
     </section>
   );
