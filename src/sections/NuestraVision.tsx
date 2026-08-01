@@ -25,8 +25,17 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
  * distintas entre sí a propósito: la simetría es lo que delata una plantilla.
  */
 
-/** Texto provisional — pendiente del definitivo. */
-const LINEAS = ['Contamos lo que otros', 'no se atreven a mirar'];
+/** El manifiesto. Va partido en párrafos cortos: es texto para respirar. */
+const MANIFIESTO = [
+  'En Xalvaje creemos que toda marca tiene un alma. Una historia que existe mucho antes de que alguien la cuente. Nuestro trabajo no consiste en inventarla, sino en descubrirla.',
+  'Nos adentramos en su origen, en aquello que la mueve cuando nadie la observa. Despojamos cada proyecto de lo superficial hasta encontrar esa verdad silenciosa que lo hace irrepetible. Porque solo cuando una marca conoce quién es, puede emocionar sin artificios.',
+  'Después hacemos lo que mejor sabemos hacer: convertir esa esencia en cine.',
+  'Imágenes que respiran. Silencios que hablan. Luz que revela. Historias que no buscan vender, sino permanecer.',
+  'Porque las personas olvidan lo que ven. Pero nunca olvidan lo que sienten.',
+];
+
+/** Última línea, aparte: es el remate y va con el rojo de marca. */
+const CIERRE = 'Y ahí es donde comienza nuestra película.';
 
 /** Fila de arriba (sube). Medidas de la referencia: 41 / 27 / 27 %. */
 const ARRIBA = [
@@ -73,6 +82,16 @@ const ABAJO = [
  */
 const PARALAJE = 0.14;
 
+/**
+ * Píxeles de scroll por cada píxel que se mueve la tira. Marca el ritmo de
+ * lectura: cuanto más alto, más despacio pasa el manifiesto.
+ *
+ * De aquí sale el alto de la pista, y no al revés. Con una altura fija en vh
+ * (antes eran 240) el texto pasaría volando justo donde más largo se pone —
+ * pantallas estrechas, donde el manifiesto ocupa el doble de líneas.
+ */
+const RITMO = 2.4;
+
 /** Alto de la barra fija de las páginas interiores (main lleva pt-[4.5rem]) */
 const BARRA = '4.5rem';
 
@@ -84,10 +103,17 @@ export function NuestraVision() {
   const huecos = useRef<(HTMLDivElement | null)[][]>([[], []]);
   const [mascaras, setMascaras] = useState<{ image: string; position: string; size: string }[]>([]);
   const [cargar, setCargar] = useState(false);
-  const [avance, setAvance] = useState(0);
   const [menosMovimiento] = useState(
     () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
   );
+
+  /**
+   * Lo que la tira tiene que recorrer: lo que sobresale del marco más el extra
+   * de paralaje. Lo usan el pintado y el cálculo del alto de la pista, y tiene
+   * que ser EL MISMO número en los dos o el final del texto se queda fuera.
+   */
+  const sobraDe = (m: HTMLDivElement, t: HTMLDivElement) =>
+    Math.max(0, t.offsetHeight - m.clientHeight) + m.clientHeight * PARALAJE;
 
   const medir = () => {
     const nuevas = [0, 1].map((f) => {
@@ -123,8 +149,25 @@ export function NuestraVision() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cargar]);
 
+  // El alto de la pista sale del contenido, no de un vh fijo: manda el ritmo de
+  // lectura del manifiesto, que en pantallas estrechas ocupa el doble de alto.
+  useLayoutEffect(() => {
+    const ajustar = () => {
+      const p = pista.current, m = marco.current, t = tira.current;
+      if (!p || !m || !t) return;
+      p.style.height = `${Math.round(m.clientHeight + sobraDe(m, t) * RITMO)}px`;
+    };
+    ajustar();
+    // Segunda pasada: las fuentes tardan en llegar y el texto cambia de alto.
+    const r = requestAnimationFrame(ajustar);
+    document.fonts?.ready.then(ajustar);
+    window.addEventListener('resize', ajustar);
+    return () => { cancelAnimationFrame(r); window.removeEventListener('resize', ajustar); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cargar]);
+
   useEffect(() => {
-    if (menosMovimiento) { setAvance(1); return; }
+    if (menosMovimiento) return;
     let pendiente = false;
     const pintar = () => {
       pendiente = false;
@@ -138,18 +181,12 @@ export function NuestraVision() {
       // mientras el marco está pegado arriba.
       const recorrido = p.offsetHeight - m.clientHeight;
       const hecho = recorrido > 0 ? Math.min(1, Math.max(0, -p.getBoundingClientRect().top / recorrido)) : 0;
-      // Redondeado a centésimas: el desplazamiento de la tira va por estilo
-      // directo y no necesita render, y el texto no distingue 0,731 de 0,73.
-      // Así el componente se pinta como mucho 100 veces en todo el recorrido y
-      // no 60 por segundo.
-      setAvance(Math.round(hecho * 100) / 100);
 
       if (!t) return;
-      // Lo que sobresale de la tira por fuera del marco, más el extra de
-      // paralaje. Se reparte a partes iguales arriba y abajo: a mitad de
-      // recorrido la tira está centrada.
-      const sobra = Math.max(0, t.offsetHeight - m.clientHeight) + m.clientHeight * PARALAJE;
-      t.style.transform = `translate3d(0, ${(0.5 - hecho) * sobra}px, 0)`;
+      // El desplazamiento se reparte a partes iguales arriba y abajo: a mitad
+      // de recorrido la tira está centrada. Va por estilo directo, sin estado
+      // de React: durante el scroll este componente no se vuelve a pintar.
+      t.style.transform = `translate3d(0, ${(0.5 - hecho) * sobraDe(m, t)}px, 0)`;
     };
     const alScroll = () => { if (!pendiente) { pendiente = true; requestAnimationFrame(pintar); } };
     document.body.addEventListener('scroll', alScroll, { passive: true });
@@ -247,25 +284,26 @@ export function NuestraVision() {
 
             {fila(0, ARRIBA, 'items-end')}
 
-            {/* LA BANDA: una ventana más de la tira, la que lleva el mensaje */}
-            <div className="relative z-10 py-7 lg:py-12">
+            {/* LA BANDA: una ventana más de la tira, la que lleva el mensaje.
+                Sin desvanecidos atados al scroll: es un texto largo, y un
+                texto que hay que leer no se pone a media opacidad [L0]. */}
+            <div className="relative z-10 py-12 lg:py-20">
               <div className="container-large px-6 lg:px-12">
-                <span
-                  className="block text-[0.7rem] font-geist-mono uppercase tracking-[0.3em] text-white/50 mb-3"
-                  style={{ opacity: Math.min(1, avance * 4) }}
-                >
-                  Nuestra visión
-                </span>
-                <h2 className="font-display uppercase text-white leading-[0.9] tracking-[-0.01em] text-[clamp(1.75rem,4.6vw,4.5rem)]">
-                  {LINEAS.map((l, i) => {
-                    const v = Math.min(1, Math.max(0, (avance - i * 0.14) * 3.5));
-                    return (
-                      <span key={l} className="block" style={{ opacity: v, transform: `translateY(${(1 - v) * 14}px)` }}>
-                        {i === LINEAS.length - 1 ? <span className="text-exvia-red-text">{l}</span> : l}
-                      </span>
-                    );
-                  })}
-                </h2>
+                <div className="max-w-[46rem]">
+                  <span className="block font-deco font-light uppercase text-[0.7rem] sm:text-[0.78rem] tracking-[0.42em] text-white/60 mb-8 lg:mb-12">
+                    Nuestra visión
+                  </span>
+
+                  <div className="font-deco font-light text-white/90 text-[clamp(1.02rem,1.45vw,1.45rem)] leading-[1.9] tracking-[0.012em] space-y-6 lg:space-y-8">
+                    {MANIFIESTO.map((p) => (
+                      <p key={p}>{p}</p>
+                    ))}
+                  </div>
+
+                  <p className="font-deco font-light text-exvia-red-text mt-10 lg:mt-14 text-[clamp(1.2rem,1.9vw,1.95rem)] leading-[1.5] tracking-[0.02em]">
+                    {CIERRE}
+                  </p>
+                </div>
               </div>
             </div>
 

@@ -80,6 +80,11 @@ module.exports = {
            logo original. Jost es la versión libre de Futura. Solo para el
            logotipo, no para interfaz. */
         logo: ['Jost', 'Century Gothic', 'Futura', 'sans-serif'],
+        /* Manifiesto de Nuestra Visión: el mismo Jost, pero en peso ligero y
+           con mucho espaciado. Es la geométrica art déco de trazo fino que
+           pidió la referencia, y ya estaba cargada: no hace falta una cuarta
+           familia. Solo para textos largos de voz de marca. */
+        deco: ['Jost', 'Century Gothic', 'Futura', 'sans-serif'],
         /* Titular de la portada */
         roustel: ['Roustel', 'Cormorant Garamond', 'Georgia', 'serif'],
       },
