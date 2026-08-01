@@ -138,7 +138,11 @@ export function NuestraVision() {
       // mientras el marco está pegado arriba.
       const recorrido = p.offsetHeight - m.clientHeight;
       const hecho = recorrido > 0 ? Math.min(1, Math.max(0, -p.getBoundingClientRect().top / recorrido)) : 0;
-      setAvance(hecho);
+      // Redondeado a centésimas: el desplazamiento de la tira va por estilo
+      // directo y no necesita render, y el texto no distingue 0,731 de 0,73.
+      // Así el componente se pinta como mucho 100 veces en todo el recorrido y
+      // no 60 por segundo.
+      setAvance(Math.round(hecho * 100) / 100);
 
       if (!t) return;
       // Lo que sobresale de la tira por fuera del marco, más el extra de
@@ -181,8 +185,20 @@ export function NuestraVision() {
     } as React.CSSProperties;
   };
 
-  const Fila = ({ f, ventanas, alinear }: { f: number; ventanas: typeof ARRIBA; alinear: string }) => (
-    <div>
+  /**
+   * OJO: esto es una FUNCIÓN que devuelve JSX, no un componente que se escriba
+   * como <Fila />. Y tiene que seguir siéndolo.
+   *
+   * Siendo componente estaba definido aquí dentro, así que en cada render era
+   * una función NUEVA: para React eso es otro tipo de componente, tira el
+   * anterior y monta uno nuevo. Como `avance` se actualiza en cada fotograma
+   * del scroll, el <video> se destruía y se volvía a crear sin parar y no
+   * llegaba nunca a arrancar. Medido al cargar: tres peticiones del mismo mp4
+   * en 5 ms. Llamándola como función no hay frontera de componente y el vídeo
+   * se queda donde está.
+   */
+  const fila = (f: number, ventanas: typeof ARRIBA, alinear: string) => (
+    <div key={f}>
       <div className="container-large px-6 lg:px-12">
         <div ref={(el) => { lienzos.current[f] = el; }} className="relative">
           {/* UN vídeo para toda la fila: cada ventana enseña un trozo distinto */}
@@ -229,7 +245,7 @@ export function NuestraVision() {
               único que se mueve, y en una sola pieza. */}
           <div ref={tira} className="will-change-transform">
 
-            <Fila f={0} ventanas={ARRIBA} alinear="items-end" />
+            {fila(0, ARRIBA, 'items-end')}
 
             {/* LA BANDA: una ventana más de la tira, la que lleva el mensaje */}
             <div className="relative z-10 py-7 lg:py-12">
@@ -253,7 +269,7 @@ export function NuestraVision() {
               </div>
             </div>
 
-            <Fila f={1} ventanas={ABAJO} alinear="items-start" />
+            {fila(1, ABAJO, 'items-start')}
           </div>
         </div>
       </div>
