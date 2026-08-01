@@ -481,11 +481,11 @@ export const portfolioConfig: PortfolioConfig = {
       videoSrc: "/videos/campanas/usu-cosmetics-blue-knight-cream-2022.mp4",
     },
     {
-      title: "Origin Gunk",
+      title: "Origin Gunn",
       category: "Campaña",
       year: "2025",
-      image: "/images/campanas/origin-gunk-tazas.webp",
-      videoSrc: "/videos/campanas/origin-gunk-tazas-2025.mp4",
+      image: "/images/campanas/origin-gunn-tazas.webp",
+      videoSrc: "/videos/campanas/origin-gunn-tazas-2025.mp4",
     },
     {
       title: "VIVAPOP Festival",
