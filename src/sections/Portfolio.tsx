@@ -218,8 +218,12 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
               Sale de la propia categoría: no hace falta un campo en el config. */}
           {project.category.includes('premiado') && (
             <SelloPremiado
-              className="absolute top-2 left-2 sm:top-3 sm:left-3 w-12 sm:w-14 lg:w-16 drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]"
-              style={{ transform: 'rotate(-30deg)' }}
+              /* Más grande y menos ladeado que antes (era 48 px y -30°): a ese
+                 tamaño "CORTOMETRAJE" salía a 5 px y no se leía, y la
+                 inclinación fuerte remataba la faena. Sigue torcido, para que
+                 parezca estampado a mano, pero se lee. */
+              className="absolute top-2 left-2 sm:top-3 sm:left-3 w-[4.5rem] sm:w-24 lg:w-28 drop-shadow-[0_2px_10px_rgba(0,0,0,0.6)]"
+              style={{ transform: 'rotate(-12deg)' }}
             />
           )}
 

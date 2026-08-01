@@ -28,9 +28,12 @@ export function SelloPremiado({
   return (
     <svg viewBox="0 0 200 200" className={className} style={style} role="img" aria-label="Cortometraje premiado">
       <defs>
-        {/* Arco para el texto de arriba. Radio 62: deja las letras dentro de
-            los aros sin tocarlos. */}
-        <path id="sello-arco" d="M 38 100 A 62 62 0 0 1 162 100" fill="none" />
+        {/* Arco del texto de arriba. Radio 46, no 62: las letras de un textPath
+            se apoyan HACIA FUERA del trazado, y no por su altura de mayúscula
+            sino por el ascendente de la fuente, que en Anton es bastante más.
+            Con 62 (y hasta con 54) las puntas de las letras cruzaban el aro,
+            que está en 74. Comprobado a 288 px. */}
+        <path id="sello-arco" d="M 54 100 A 46 46 0 0 1 146 100" fill="none" />
       </defs>
 
       {/* Filo claro, para que el sello despegue sobre carteles oscuros */}
@@ -41,25 +44,32 @@ export function SelloPremiado({
         transform="translate(100 100) scale(0.955) translate(-100 -100)"
       />
 
+      {/* UN solo aro, no dos. El segundo iba en 68 y era justo el que cortaba
+          PREMIADO: dentro de él solo caben 126 unidades de ancho y la palabra
+          mide 131. Con el aro de 74, la cuerda a la altura de la palabra da
+          139 y entra holgada. Un adorno menos, la palabra más grande. */}
       <circle cx="100" cy="100" r="74" fill="none" stroke="#FBF7F5" strokeWidth="2.4" />
-      <circle cx="100" cy="100" r="68" fill="none" stroke="#FBF7F5" strokeWidth="1.2" opacity="0.75" />
 
+      {/* El reparto del espacio manda sobre el adorno: PREMIADO es la palabra
+          que tiene que leerse de lejos, así que se lleva el centro entero y el
+          cuerpo más grande que cabe dentro del aro. Antes ocupaba ese sitio un
+          garabato de visto bueno que no decía nada y dejaba la palabra en la
+          mitad de tamaño. */}
       <g fill="#FBF7F5" fontFamily="Anton, 'Arial Narrow', sans-serif" textAnchor="middle">
-        <text fontSize="17" letterSpacing="1.1">
+        <text fontSize="21" letterSpacing="0.8">
           <textPath href="#sello-arco" startOffset="50%">CORTOMETRAJE</textPath>
         </text>
-        <text x="100" y="116" fontSize="23" letterSpacing="0.6">PREMIADO</text>
+        {/* 34 y no más: a la altura de su base la cuerda del aro mide 139 y la
+            palabra ocupa 131. Con más cuerpo se saldría del círculo. */}
+        <text x="100" y="126" fontSize="34" letterSpacing="0.2">PREMIADO</text>
       </g>
 
-      <path d="M 52 126 Q 100 120 148 126" fill="none" stroke="#FBF7F5" strokeWidth="1.6" opacity="0.8" />
-      <path
-        d="M 74 145 L 91 162 Q 110 138 130 126"
-        fill="none"
-        stroke="#FBF7F5"
-        strokeWidth="7"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      {/* Tres estrellas abajo, para que el aro no quede cojo */}
+      <g fill="#FBF7F5" opacity="0.85">
+        <circle cx="84" cy="148" r="3.2" />
+        <circle cx="100" cy="151" r="3.8" />
+        <circle cx="116" cy="148" r="3.2" />
+      </g>
     </svg>
   );
 }
