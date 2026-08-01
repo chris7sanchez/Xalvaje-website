@@ -11,6 +11,8 @@ interface Project {
   category: string;
   year: string;
   image: string;
+  /** Ancho/alto real del cartel; ver ProjectItem.aspecto en config.ts */
+  aspecto?: number;
   hoverImage?: string;
   featured?: boolean;
   youtubeUrl?: string;
@@ -38,7 +40,12 @@ function FeaturedPrisma({ project, isVisible }: { project: Project; isVisible: b
       )}
     >
       {/* Cartel con el nombre dentro, igual que el resto de proyectos */}
-      <div className="relative overflow-hidden bg-neutral-900 aspect-[4/3] md:aspect-auto">
+      {/* También con su formato: el cartel de PRISMA es apaisado (1600x894) y
+          antes se estiraba al alto de la fila, que lo recortaba por los lados. */}
+      <div
+        className="relative overflow-hidden bg-neutral-900 ring-1 ring-white/10"
+        style={{ aspectRatio: String(project.aspecto ?? 4 / 3) }}
+      >
         <img
           src={project.image}
           alt={project.title}
@@ -163,7 +170,15 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
         onMouseEnter={() => hoverCapaz && setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div className="relative overflow-hidden bg-neutral-900 aspect-[3/4]">
+        {/* La ficha toma la FORMA DEL CARTEL, no al revés. Antes iban todas
+            clavadas a 3/4 y los carteles de 2:3 perdían un 11 % por arriba y
+            por abajo. Cada uno con su formato es lo que hace que la rejilla
+            parezca una cartelera y no una plantilla. El filo claro y la sombra
+            los despegan del fondo, como piezas montadas en una vitrina. */}
+        <div
+          className="relative overflow-hidden bg-neutral-900 ring-1 ring-white/10 shadow-[0_18px_40px_-24px_rgba(0,0,0,0.9)]"
+          style={{ aspectRatio: String(project.aspecto ?? 3 / 4) }}
+        >
           {/* Imagen base (cartel) a sangre completa */}
           <img loading="lazy" decoding="async"
             src={project.image}
@@ -425,7 +440,11 @@ export function Portfolio() {
                     <FeaturedPrisma key={p.title} project={p} isVisible={visibleItems[i]} />
                   ))
                 ) : (
-                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+                  /* items-end: como cada cartel tiene su alto, se apoyan todos
+                     en la misma línea de abajo, igual que en una vitrina. Y así
+                     los títulos, que van dentro del cartel abajo, quedan
+                     alineados entre sí en vez de bailar. */
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 items-end">
                     {deLaCategoria.map(({ p, i }) => (
                       <ProjectCard key={p.title} project={p} index={i} isVisible={visibleItems[i]} />
                     ))}

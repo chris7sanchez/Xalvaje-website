@@ -338,6 +338,19 @@ export interface ProjectItem {
   category: string;
   year: string;
   image: string;
+  /**
+   * Ancho/alto REAL del cartel, para que se vea entero y con su formato.
+   *
+   * Antes todas las fichas iban clavadas a 3/4 con object-cover y el cartel se
+   * recortaba: los de 2:3 perdían un 11 % por arriba y por abajo. Aquí la ficha
+   * toma la forma del cartel, no al revés — que es lo que hace que la rejilla
+   * parezca una cartelera y no una plantilla.
+   *
+   * OJO: si se cambia el archivo de un cartel, hay que actualizar este número.
+   * Sale de `sips -g pixelWidth -g pixelHeight public/images/<archivo>`.
+   * Sin él se usa 3/4, que es el formato de las piezas de campaña.
+   */
+  aspecto?: number;
   hoverImage?: string;
   featured?: boolean;
   youtubeUrl?: string;
@@ -377,6 +390,7 @@ export const portfolioConfig: PortfolioConfig = {
       category: "Largometraje",
       year: "2021",
       image: "/images/prisma-carousel/prisma-cartel.webp",
+      aspecto: 1600 / 894,
       featured: true,
       carouselImages: [
         "/images/prisma-carousel/prisma-c1.webp",
@@ -393,6 +407,7 @@ export const portfolioConfig: PortfolioConfig = {
       category: "Cortometraje premiado",
       year: "2024",
       image: "/images/pantera-2a.webp",
+      aspecto: 939 / 1400,
       hoverImage: "/images/pantera-2b.webp",
       youtubeUrl: "https://www.youtube.com/watch?v=XBYdj9WHbXI",
     },
@@ -401,6 +416,7 @@ export const portfolioConfig: PortfolioConfig = {
       category: "Cortometraje premiado",
       year: "2023",
       image: "/images/regalo-3a.webp",
+      aspecto: 832 / 1248,
       hoverImage: "/images/regalo-3b.webp",
       youtubeUrl: "https://www.youtube.com/watch?v=UObXpwbo0RQ",
     },
@@ -409,6 +425,7 @@ export const portfolioConfig: PortfolioConfig = {
       category: "Cortometraje premiado",
       year: "2022",
       image: "/images/viaje-1a.webp",
+      aspecto: 933 / 1400,
       hoverImage: "/images/viaje-1b.webp",
       youtubeUrl: "https://www.youtube.com/watch?v=KE3xAOQLitA",
       sinopsis: [
@@ -421,6 +438,7 @@ export const portfolioConfig: PortfolioConfig = {
       category: "Cortometraje",
       year: "2020",
       image: "/images/papa-4a.webp",
+      aspecto: 933 / 1400,
       hoverImage: "/images/papa-4b.webp",
       youtubeUrl: "https://youtu.be/54oR1p9xxM8",
     },
@@ -429,6 +447,7 @@ export const portfolioConfig: PortfolioConfig = {
       category: "Cortometraje",
       year: "2020",
       image: "/images/vamos-5a.webp",
+      aspecto: 788 / 1400,
       hoverImage: "/images/vamos-5b.webp",
       youtubeUrl: "https://www.youtube.com/watch?v=uzKOL_YLpF8",
     },
@@ -437,6 +456,7 @@ export const portfolioConfig: PortfolioConfig = {
       category: "Cortometraje",
       year: "En producción",
       image: "/images/anadas-cartel.webp",
+      aspecto: 1024 / 1536,
       hoverImage: "/images/reserva-6b.webp",
       youtubeUrl: "https://www.youtube.com/watch?v=JwBHxL6ZHUI",
     },
