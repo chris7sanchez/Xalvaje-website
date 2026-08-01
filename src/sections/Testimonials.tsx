@@ -10,7 +10,7 @@ export function Testimonials() {
   if (!testimonialsConfig.testimonials.length) return null;
 
   return (
-    <section id="testimonials" className="w-full bg-black py-16 lg:py-64">
+    <section id="testimonials" className="w-full bg-black py-16 lg:py-64 fondo-xalvaje">
       <div ref={sectionRef} className="container-large px-6 lg:px-12">
         <div
           className={cn(

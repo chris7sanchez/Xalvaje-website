@@ -201,6 +201,45 @@
     animation: scaleIn 1.8s var(--ease-out-cubic) forwards;
   }
   
+  /* Textura de fondo: la misma persiana del hero, en capa fija y a muy baja
+     opacidad, para que las secciones negras dejen de ser un negro plano.
+     Va en ::before y no como background del propio elemento para poder
+     controlar la opacidad SIN tocar la del contenido.
+     background-attachment: fixed hace que la textura se quede quieta mientras
+     el contenido pasa por encima: de ahi la sensacion de capas.
+     La opacidad es 0.09 por una razon medible, no estetica: el punto mas
+     iluminado de la textura queda en L=153; a 0.09 sobre negro son 14 de 255,
+     y el texto blanco conserva 18:1 de contraste. Ver [L0]. */
+  .fondo-xalvaje {
+    position: relative;
+  }
+
+  .fondo-xalvaje::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url('/images/fondo-textura.webp');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    opacity: 0.09;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .fondo-xalvaje > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* En movil, background-attachment: fixed lo ignora iOS y ademas obliga a
+     repintar en cada scroll. Se queda anclada al elemento. */
+  @media (max-width: 767px) {
+    .fondo-xalvaje::before {
+      background-attachment: scroll;
+    }
+  }
+
   /* Revelado por scroll. Centraliza QUE se anima (nunca "all": el
      transition-all interpolaba tambien background-image y backdrop-filter,
      fuera de la GPU), con que curva y que pasa con movimiento reducido.

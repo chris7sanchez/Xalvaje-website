@@ -308,7 +308,7 @@ export function Portfolio() {
   if (!portfolioConfig.heading && portfolioConfig.projects.length === 0) return null;
 
   return (
-    <section id="portfolio" className="w-full py-14 lg:py-32 bg-neutral-900">
+    <section id="portfolio" className="w-full py-14 lg:py-32 bg-neutral-900 fondo-xalvaje">
       {/* El observador va en el contenedor que envuelve TODO, no en el grid de
           abajo: visibleItems gobierna también PRISMA (que está encima del grid)
           y el banner. Con el ref en el grid, al entrar por el enlace del menú

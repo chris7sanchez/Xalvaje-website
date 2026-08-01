@@ -184,7 +184,7 @@ export const aboutConfig: AboutConfig = {
       ],
       image: "/images/nosotros/christian.webp",
       imageAlt: "Christian Sánchez, director de XALVAJE",
-      imageRatio: 993 / 989,
+      imageRatio: 668 / 1000,
       mirrored: false,
     },
     {
@@ -206,7 +206,7 @@ export const aboutConfig: AboutConfig = {
       ],
       image: "/images/nosotros/angel.webp",
       imageAlt: "Ángel Lara, director artístico de XALVAJE",
-      imageRatio: 1160 / 925,
+      imageRatio: 814 / 1235,
       mirrored: true,
     },
   ],

@@ -165,7 +165,7 @@ export function About() {
   const [openBio, setOpenBio] = useState<AboutPerson | null>(null);
 
   return (
-    <section id="about" className="w-full bg-black">
+    <section id="about" className="w-full bg-black fondo-xalvaje">
       {/* Encabezado de sección: al entrar por el menú aparecía directamente la
           foto del primer autor, sin decir dónde estabas. */}
       <div className="container-large px-6 lg:px-12 pt-14 lg:pt-16 pb-8 lg:pb-10">

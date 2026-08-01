@@ -146,7 +146,7 @@ export function Services() {
   if (!servicesConfig.heading && servicesConfig.services.length === 0) return null;
 
   return (
-    <section id="services" className="w-full bg-black py-14 lg:py-44">
+    <section id="services" className="w-full bg-black py-14 lg:py-44 fondo-xalvaje">
       <div className="container-large px-6 lg:px-12">
         <div ref={headerRef} className="max-w-2xl mb-8 lg:mb-16">
           <div

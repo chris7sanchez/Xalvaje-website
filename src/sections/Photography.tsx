@@ -49,7 +49,7 @@ export function Photography() {
   const open = openIndex !== null ? PHOTOS[openIndex] : null;
 
   return (
-    <section id="fotografia" className="w-full bg-neutral-900 pt-6 lg:pt-8 pb-20 lg:pb-20">
+    <section id="fotografia" className="w-full bg-neutral-900 pt-6 lg:pt-8 pb-20 lg:pb-20 fondo-xalvaje">
       {/* Mismo contenedor que Proyectos, Nosotros y Servicios: sin esto la
           rejilla se iba a 1304 px y las fotos salían un 10 % más grandes que
           las tarjetas de Proyectos, y las dos secciones no cuadraban. */}
