@@ -472,12 +472,14 @@ export const portfolioConfig: PortfolioConfig = {
       category: "Campaña",
       year: "2021",
       image: "/images/campanas/adidas-stan-smith.webp",
+      aspecto: 1400 / 946,
     },
     {
       title: "Belif — Aqua Bomb",
       category: "Campaña",
       year: "2022",
       image: "/images/campanas/belif-aqua-bomb-vitamina-c.webp",
+      aspecto: 1080 / 1080,
       videoSrc: "/videos/campanas/belif-vita-cenital-2022.mp4",
     },
     {
@@ -485,6 +487,7 @@ export const portfolioConfig: PortfolioConfig = {
       category: "Campaña",
       year: "2022",
       image: "/images/campanas/belif-aloe-bomb.webp",
+      aspecto: 1400 / 788,
       videoSrc: "/videos/campanas/belif-aloe-bomb-6s-2022.mp4",
     },
     {
@@ -492,6 +495,7 @@ export const portfolioConfig: PortfolioConfig = {
       category: "Campaña",
       year: "2021",
       image: "/images/campanas/belif-moisturizing-bomb.webp",
+      aspecto: 1400 / 934,
       videoSrc: "/videos/campanas/belif-moisturizing-bomb-2021.mp4",
     },
     {
@@ -499,6 +503,7 @@ export const portfolioConfig: PortfolioConfig = {
       category: "Campaña",
       year: "2022",
       image: "/images/campanas/usu-blue-knight-cream.webp",
+      aspecto: 1400 / 788,
       videoSrc: "/videos/campanas/usu-cosmetics-blue-knight-cream-2022.mp4",
     },
     {
@@ -506,6 +511,7 @@ export const portfolioConfig: PortfolioConfig = {
       category: "Campaña",
       year: "2025",
       image: "/images/campanas/origin-gunn-tazas.webp",
+      aspecto: 1400 / 788,
       videoSrc: "/videos/campanas/origin-gunn-tazas-2025.mp4",
     },
     {
@@ -513,6 +519,7 @@ export const portfolioConfig: PortfolioConfig = {
       category: "Campaña",
       year: "2024",
       image: "/images/campanas/vivapop-festival.webp",
+      aspecto: 1400 / 788,
       videoSrc: "/videos/campanas/vivapop-festival-aftermovie-2024.mp4",
     },
     {
@@ -520,6 +527,7 @@ export const portfolioConfig: PortfolioConfig = {
       category: "Campaña",
       year: "2024",
       image: "/images/campanas/vivapop-lecoco-magui.webp",
+      aspecto: 1400 / 788,
       videoSrc: "/videos/campanas/vivapop-lecoco-magui-2024.mp4",
     },
     {
@@ -527,6 +535,7 @@ export const portfolioConfig: PortfolioConfig = {
       category: "Campaña",
       year: "2020",
       image: "/images/campanas/inhouse-navidad.webp",
+      aspecto: 1400 / 788,
       youtubeUrl: "https://www.youtube.com/watch?v=zOyRiJ_weF0",
     },
   ],
