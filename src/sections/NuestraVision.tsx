@@ -98,11 +98,23 @@ function Grupo({
   huecos,
   className,
   paralaje,
+  aspecto,
 }: {
   clip: 0 | 1;
   huecos: Hueco[];
   className?: string;
   paralaje: number;
+  /**
+   * Ancho/alto del grupo entero.
+   *
+   * El alto va por PROPORCIÓN y no en vh a propósito. Las ventanas sacan su
+   * alto del ancho (llevan aspect-ratio), así que si el grupo midiera en vh los
+   * dos crecerían por caminos distintos: en una pantalla baja las ventanas se
+   * salían del grupo, y lo que sobresale queda fuera del vídeo — se veía media
+   * ventana vacía. Con proporción, grupo y ventanas escalan a la vez y la
+   * composición es la misma en cualquier pantalla.
+   */
+  aspecto: number;
 }) {
   const lienzo = useRef<HTMLDivElement>(null);
   const marcos = useRef<(HTMLDivElement | null)[]>([]);
@@ -154,10 +166,13 @@ function Grupo({
   }, []);
 
   return (
-    <div ref={fuera} className={cn('pointer-events-none', className)}>
-      {/* h-full en toda la cadena: el alto lo pone la clase del grupo, y si el
-          envoltorio no lo hereda el lienzo mide 0 y la máscara sale a cero. */}
-      <div ref={dentro} className="will-change-transform h-full">
+    <div ref={fuera} className={cn('pointer-events-none', className)} style={{ aspectRatio: String(aspecto) }}>
+      {/* h-full en toda la cadena: el alto lo pone la proporción del grupo, y si
+          el envoltorio no lo hereda, el lienzo mide 0 y la máscara sale a cero.
+          Sin will-change: el translate3d ya promociona la capa cuando hace
+          falta, y dejar el aviso puesto para siempre mantiene vivas cuatro
+          capas de vídeo que ni siquiera están siempre en pantalla. */}
+      <div ref={dentro} className="h-full">
         <div ref={lienzo} className="relative w-full h-full">
           {cargar && mascara && (
             quieto ? (
@@ -230,168 +245,191 @@ export function NuestraVision() {
   return (
     <section
       id="vision"
-      className="relative w-full bg-black overflow-x-clip py-24 lg:py-40"
+      className="relative w-full bg-black overflow-x-clip py-16 lg:py-24"
     >
       <div className="container-large px-6 lg:px-12">
 
-        {/* ─────────────── 1. EL ALMA ─────────────── */}
-        <Escena className="min-h-[92vh]">
-          <span className="block font-geist-mono uppercase text-[0.62rem] tracking-[0.4em] text-white/40">
-            Nuestra visión
-          </span>
+        {/* ─────────────── 1. EL ALMA ───────────────
+            Titular, entradilla y frase larga comparten columna: tres cuerpos
+            de letra distintos apilados sin aire de sobra entre ellos. La
+            ventana ocupa la columna de al lado ENTERA, a toda altura. */}
+        <Escena className="grid grid-cols-1 lg:grid-cols-12 gap-x-8 gap-y-10 items-start">
+          <div className="lg:col-span-7">
+            <span className="block font-geist-mono uppercase text-[0.62rem] tracking-[0.4em] text-white/40">
+              Nuestra visión
+            </span>
 
-          <p className="mt-14 lg:mt-24 font-deco font-light text-white/70 text-[clamp(1rem,1.6vw,1.4rem)] tracking-[0.02em]">
-            En Xalvaje creemos que
-          </p>
+            <p className="mt-8 lg:mt-10 font-deco font-light text-white/70 text-[clamp(1rem,1.5vw,1.35rem)] tracking-[0.02em]">
+              En Xalvaje creemos que
+            </p>
 
-          {/* El grito. Sale un poco por la izquierda: el bloque pesa tanto que
-              alineado con el resto parecía centrado sin querer. */}
-          <h2
-            className="font-display uppercase leading-[0.84] tracking-[-0.015em] text-[clamp(2.6rem,9.4vw,8.6rem)] -ml-[0.06em] mt-2"
-            style={{ color: HUESO }}
-          >
-            <span className="block">toda marca</span>
-            <span className="block">tiene un</span>
-            <span className="block text-exvia-red-text">alma</span>
-          </h2>
+            <h2
+              className="font-display uppercase leading-[0.84] tracking-[-0.015em] text-[clamp(2.5rem,7.4vw,6.6rem)] -ml-[0.06em] mt-[0.06em]"
+              style={{ color: HUESO }}
+            >
+              <span className="block">toda marca</span>
+              <span className="block">tiene un</span>
+              <span className="block text-exvia-red-text">alma</span>
+            </h2>
 
-          {/* Ventanas a la derecha, pisando el aire que deja el titular */}
+            <p className="mt-7 lg:mt-9 max-w-[30rem] font-display-serif italic font-light text-white/85 text-[clamp(1.25rem,2.1vw,2.05rem)] leading-[1.35]">
+              Una historia que existe mucho antes de que alguien la cuente.
+            </p>
+          </div>
+
           <Grupo
             clip={0}
             paralaje={0.05}
-            className="relative lg:absolute lg:right-0 lg:top-[24%] w-full lg:w-[40%] h-[42vh] lg:h-[62vh] mt-10 lg:mt-0"
+            className="lg:col-span-5 w-full"
+            aspecto={0.85}
             huecos={[
-              { sitio: 'left-0 top-0 w-[62%]', ratio: 1.6 },
-              { sitio: 'right-0 top-[34%] w-[34%]', ratio: 0.72 },
+              { sitio: 'left-0 top-0 w-full', ratio: 1.45 },
+              { sitio: 'right-0 bottom-0 w-[60%]', ratio: 1.7 },
             ]}
           />
-
-          <p className="mt-12 lg:mt-20 lg:ml-[38%] max-w-[30rem] font-display-serif italic font-light text-white/85 text-[clamp(1.35rem,2.6vw,2.5rem)] leading-[1.35]">
-            Una historia que existe mucho antes de que alguien la cuente.
-          </p>
         </Escena>
 
-        {/* ─────────────── 2. DESCUBRIRLA ─────────────── */}
-        <Escena className="mt-28 lg:mt-56">
-          <p className="lg:ml-[46%] max-w-[26rem] font-deco font-light text-white/70 text-[clamp(1rem,1.5vw,1.35rem)] leading-[1.7]">
-            Nuestro trabajo no consiste en inventarla,
-          </p>
-
-          {/* Ladeada y saliéndose por la derecha: es la frase que rompe */}
-          <h3
-            className="mt-4 font-display uppercase text-exvia-red-text leading-[0.86] tracking-[-0.02em] text-[clamp(2.2rem,9vw,8rem)] origin-left"
-            style={{ transform: 'rotate(-1.6deg)' }}
-          >
-            sino en<br />descubrirla
-          </h3>
-
-          <p className="mt-16 lg:mt-24 max-w-[34rem] font-display-serif italic font-light text-white/85 text-[clamp(1.2rem,2.2vw,2.1rem)] leading-[1.4]">
-            Nos adentramos en su origen, en aquello que la mueve cuando nadie la observa.
-          </p>
-        </Escena>
-
-        {/* ─────────────── 3. LOS PUNTOS DE VISTA ─────────────── */}
-        <Escena className="mt-20 lg:mt-32">
-          <span className="block font-geist-mono uppercase text-[0.58rem] tracking-[0.34em] text-white/35 lg:ml-[52%]">
+        {/* ─────────────── 2. DESCUBRIRLA ───────────────
+            Primero las ventanas, a lo ancho y a lo grande. Debajo, dos bloques
+            de texto en la MISMA franja: el grito a la izquierda, la letra
+            pequeña a la derecha, alineada abajo. */}
+        <Escena className="mt-16 lg:mt-28">
+          <span className="block font-geist-mono uppercase text-[0.58rem] tracking-[0.34em] text-white/35 lg:ml-[56%] mb-5">
             [ puntos de vista ]
           </span>
 
           <Grupo
             clip={1}
             paralaje={-0.035}
-            className="mt-6 w-full h-[58vh] lg:h-[82vh]"
+            className="w-full"
+            aspecto={1.55}
             huecos={[
-              { sitio: 'left-0 top-[6%] w-[27%]', ratio: 0.66 },
-              { sitio: 'left-[31%] top-0 w-[31%]', ratio: 1.9 },
-              { sitio: 'right-[2%] top-[22%] w-[36%]', ratio: 1.35 },
-              { sitio: 'left-[24%] bottom-0 w-[22%]', ratio: 1.1 },
+              { sitio: 'left-0 top-0 w-[56%]', ratio: 1.5 },
+              { sitio: 'right-0 top-[22%] w-[40%]', ratio: 0.82 },
+              { sitio: 'left-[18%] bottom-0 w-[34%]', ratio: 2.1 },
             ]}
           />
 
-          <p className="mt-24 lg:mt-32 lg:ml-[8%] max-w-[38rem] font-deco font-light text-white/80 text-[clamp(1rem,1.55vw,1.42rem)] leading-[1.85] tracking-[0.012em]">
-            Despojamos cada proyecto de lo superficial hasta encontrar esa verdad silenciosa
-            que lo hace irrepetible.
-          </p>
+          <div className="mt-12 lg:mt-16 grid grid-cols-1 lg:grid-cols-12 gap-x-8 gap-y-8 items-end">
+            <div className="lg:col-span-7">
+              <p className="max-w-[24rem] font-deco font-light text-white/70 text-[clamp(0.98rem,1.4vw,1.28rem)] leading-[1.7]">
+                Nuestro trabajo no consiste en inventarla,
+              </p>
+              <h3
+                className="mt-2 font-display uppercase text-exvia-red-text leading-[0.86] tracking-[-0.02em] text-[clamp(2.1rem,6.6vw,5.8rem)] origin-left"
+                style={{ transform: 'rotate(-1.6deg)' }}
+              >
+                sino en<br />descubrirla
+              </h3>
+            </div>
 
-          <p className="mt-12 lg:mt-16 lg:ml-[34%] max-w-[32rem] font-display-serif italic font-light text-white/85 text-[clamp(1.25rem,2.3vw,2.2rem)] leading-[1.4]">
-            Porque solo cuando una marca conoce quién es, puede emocionar sin artificios.
-          </p>
+            <div className="lg:col-span-5">
+              <p className="font-display-serif italic font-light text-white/85 text-[clamp(1.2rem,1.9vw,1.85rem)] leading-[1.4]">
+                Nos adentramos en su origen, en aquello que la mueve cuando nadie la observa.
+              </p>
+              <p className="mt-5 font-deco font-light text-white/70 text-[clamp(0.95rem,1.3vw,1.18rem)] leading-[1.8]">
+                Despojamos cada proyecto de lo superficial hasta encontrar esa verdad silenciosa
+                que lo hace irrepetible.
+              </p>
+            </div>
+          </div>
         </Escena>
 
-        {/* ─────────────── 4. CINE ─────────────── */}
-        <Escena className="mt-28 lg:mt-52">
-          <span className="block font-geist-mono uppercase text-[0.58rem] tracking-[0.34em] text-white/40">
-            Después hacemos lo que mejor sabemos hacer
-          </span>
+        {/* ─────────────── 3. CINE ───────────────
+            La palabra enorme y la letra menuda comparten renglón, alineadas
+            por abajo. Es el sitio donde más se nota la diferencia de cuerpo,
+            y por eso van juntas y no una encima de otra. */}
+        <Escena className="mt-16 lg:mt-28">
+          <div className="flex flex-col lg:flex-row lg:items-end gap-x-10 gap-y-6">
+            <h3
+              /* Los márgenes en em, no en px: con interlínea de 0,78 los trazos
+                 de Anton se salen de su caja, y ese desbordamiento crece con el
+                 cuerpo de letra. En em la holgura crece con él. */
+              className="font-display uppercase leading-[0.78] tracking-[-0.045em] text-[clamp(4.5rem,31vw,20rem)] -ml-[0.055em] mt-[0.14em] shrink-0"
+              style={{ color: HUESO }}
+            >
+              cine
+            </h3>
 
-          <p className="mt-8 font-deco font-extralight text-white/75 text-[clamp(1.2rem,2.4vw,2.3rem)] tracking-[0.06em]">
-            convertir esa esencia en
-          </p>
-
-          {/* La palabra ocupa el ancho entero. Es el centro del cartel. */}
-          <h3
-            /* Los márgenes van en em, no en px: con una interlínea de 0,75 los
-               trazos de Anton se salen de su caja por arriba y por abajo, y ese
-               desbordamiento crece con el cuerpo de letra. En em, la holgura
-               crece con él y la palabra no se come lo que tiene al lado en
-               ninguna pantalla. */
-            className="font-display uppercase leading-[0.75] tracking-[-0.045em] text-[clamp(4rem,62vw,46rem)] -ml-[0.055em] mt-[0.17em] mb-[0.07em]"
-            style={{ color: HUESO }}
-          >
-            cine
-          </h3>
+            <div className="lg:pb-[1.6vw] max-w-[26rem]">
+              <span className="block font-geist-mono uppercase text-[0.58rem] tracking-[0.34em] text-white/40">
+                Después hacemos lo que mejor sabemos hacer
+              </span>
+              <p className="mt-4 font-deco font-extralight text-white/75 text-[clamp(1.15rem,2vw,2rem)] tracking-[0.06em]">
+                convertir esa esencia en
+              </p>
+              <p className="mt-6 font-display-serif italic font-light text-white/85 text-[clamp(1.1rem,1.65vw,1.6rem)] leading-[1.4]">
+                Porque solo cuando una marca conoce quién es, puede emocionar sin artificios.
+              </p>
+            </div>
+          </div>
 
           <Grupo
             clip={0}
             paralaje={0.06}
-            className="w-full h-[34vh] lg:h-[46vh] mt-10 lg:mt-14"
+            /* mt más generoso en móvil: ahí la columna de texto se apila encima
+               en vez de ir al lado, y la última línea quedaba a 3 px de la
+               ventana. */
+            className="w-full mt-14 lg:mt-20"
+            aspecto={2.6}
             huecos={[
-              { sitio: 'right-[6%] top-0 w-[44%]', ratio: 2.3 },
-              { sitio: 'left-[8%] top-[16%] w-[19%]', ratio: 0.85 },
+              { sitio: 'right-0 top-0 w-[58%]', ratio: 2.1 },
+              { sitio: 'left-0 bottom-[8%] w-[30%]', ratio: 1.15 },
             ]}
           />
         </Escena>
 
-        {/* ─────────────── 5. LA LETANÍA ─────────────── */}
-        <Escena className="mt-24 lg:mt-40">
-          <p className="font-display-serif italic font-light text-white text-[clamp(1.6rem,4.6vw,4rem)] leading-[1.15]">
-            Imágenes que respiran.
-          </p>
-          <p
-            className="ml-[10%] lg:ml-[18%] mt-3 font-display uppercase text-[clamp(1.7rem,5.4vw,4.6rem)] leading-[1] tracking-[-0.01em]"
-            style={{ color: HUESO }}
-          >
-            Silencios que hablan.
-          </p>
-          <p className="ml-[22%] lg:ml-[38%] mt-5 font-deco font-extralight uppercase text-white/85 text-[clamp(1.05rem,2.6vw,2.2rem)] tracking-[0.24em]">
-            Luz que revela.
-          </p>
-          <p className="ml-[30%] lg:ml-[52%] mt-8 max-w-[26rem] font-deco font-light text-white/65 text-[clamp(0.95rem,1.4vw,1.25rem)] leading-[1.8]">
-            Historias que no buscan vender, sino permanecer.
-          </p>
-        </Escena>
-
-        {/* ─────────────── 6. EL REMATE ─────────────── */}
-        <Escena className="mt-28 lg:mt-48">
-          <p className="font-deco font-light text-white/60 text-[clamp(1rem,1.6vw,1.4rem)] tracking-[0.02em]">
-            Porque las personas olvidan lo que ven.
-          </p>
-
-          {/* Dos familias dentro de la misma frase: aquí es donde el desorden
-              tiene que verse a propósito y no por descuido. */}
-          <p className="mt-4 font-display-serif italic font-light text-white text-[clamp(1.7rem,5.6vw,5rem)] leading-[1.1] max-w-[22ch]">
-            Pero nunca olvidan lo que{' '}
-            <span
-              className="font-display not-italic uppercase text-exvia-red-text tracking-[-0.01em]"
-              style={{ fontSize: '1.12em' }}
+        {/* ─────────────── 4. LA LETANÍA Y EL REMATE ───────────────
+            Cuatro cuerpos de letra bajando en escalera, y el remate en la misma
+            escena: se cierra sin tener que bajar otra pantalla más. */}
+        <Escena className="mt-16 lg:mt-28 grid grid-cols-1 lg:grid-cols-12 gap-x-8 gap-y-12 items-start">
+          <div className="lg:col-span-7">
+            <p className="font-display-serif italic font-light text-white text-[clamp(1.55rem,3.9vw,3.4rem)] leading-[1.15]">
+              Imágenes que respiran.
+            </p>
+            <p
+              className="ml-[8%] lg:ml-[14%] mt-2 font-display uppercase text-[clamp(1.6rem,4.5vw,3.9rem)] leading-[1] tracking-[-0.01em]"
+              style={{ color: HUESO }}
             >
-              sienten
-            </span>
-          </p>
+              Silencios que hablan.
+            </p>
+            <p className="ml-[18%] lg:ml-[30%] mt-4 font-deco font-extralight uppercase text-white/85 text-[clamp(1rem,2.2vw,1.9rem)] tracking-[0.24em]">
+              Luz que revela.
+            </p>
+            <p className="ml-[24%] lg:ml-[40%] mt-5 max-w-[24rem] font-deco font-light text-white/65 text-[clamp(0.92rem,1.3vw,1.18rem)] leading-[1.75]">
+              Historias que no buscan vender, sino permanecer.
+            </p>
+          </div>
 
-          <p className="mt-20 lg:mt-32 lg:text-right font-geist-mono uppercase text-[0.6rem] sm:text-[0.68rem] tracking-[0.34em] text-white/45">
-            Y ahí es donde comienza nuestra película
-          </p>
+          <Grupo
+            clip={1}
+            paralaje={0.04}
+            className="lg:col-span-5 w-full"
+            aspecto={1.28}
+            huecos={[{ sitio: 'left-0 top-0 w-full', ratio: 1.28 }]}
+          />
+
+          <div className="lg:col-span-12">
+            <p className="font-deco font-light text-white/60 text-[clamp(0.98rem,1.5vw,1.32rem)] tracking-[0.02em]">
+              Porque las personas olvidan lo que ven.
+            </p>
+
+            {/* Dos familias dentro de la misma frase: aquí es donde el desorden
+                tiene que verse a propósito y no por descuido. */}
+            <p className="mt-3 font-display-serif italic font-light text-white text-[clamp(1.65rem,5vw,4.4rem)] leading-[1.1] max-w-[22ch]">
+              Pero nunca olvidan lo que{' '}
+              <span
+                className="font-display not-italic uppercase text-exvia-red-text tracking-[-0.01em]"
+                style={{ fontSize: '1.12em' }}
+              >
+                sienten
+              </span>
+            </p>
+
+            <p className="mt-12 lg:mt-16 lg:text-right font-geist-mono uppercase text-[0.6rem] sm:text-[0.68rem] tracking-[0.34em] text-white/45">
+              Y ahí es donde comienza nuestra película
+            </p>
+          </div>
         </Escena>
 
       </div>
