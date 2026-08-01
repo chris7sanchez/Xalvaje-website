@@ -35,6 +35,26 @@ const ARRIBA = [
   { ancho: '27%', ratio: 1.15 },
 ];
 
+/**
+ * Un clip DISTINTO por fila. Antes las dos filas tiraban del mismo archivo y,
+ * aunque cada ventana enseñaba un trozo distinto del fotograma, se veía que
+ * arriba y abajo pasaba lo mismo a la vez.
+ *
+ * Son 20 s cada uno, sacados de tramos separados del máster
+ * (~/Mirror/CHRISS_REEL.mov): 24,5-44,5 s el de arriba y 72-92 s el de abajo.
+ * Los cortes no son a ojo: se eligieron midiendo el brillo medio segundo a
+ * segundo y arrancando en un corte de plano detectado, para que no empiecen en
+ * un tramo oscuro ni a mitad de un movimiento.
+ *
+ * El de abajo va recortado a 1280x640: en el máster ese tramo lleva bandas
+ * negras de cine, y aquí las ventanas son la única imagen — una franja negra
+ * dentro de una ventana parece un fallo de carga.
+ */
+const CLIPS = [
+  { video: '/videos/vision-arriba.mp4', poster: '/videos/vision-arriba-poster.jpg' },
+  { video: '/videos/vision-abajo.mp4', poster: '/videos/vision-abajo-poster.jpg' },
+];
+
 /** Fila de abajo (baja). Otra proporción distinta: 24 / 48 / 24 %. */
 const ABAJO = [
   { ancho: '24%', ratio: 0.6 },
@@ -160,10 +180,10 @@ export function NuestraVision() {
           {/* UN vídeo para toda la fila: cada ventana enseña un trozo distinto */}
           {cargar && mascaras[f] && (
             menosMovimiento ? (
-              <img src="/videos/reel-bucle-poster.jpg" alt="" aria-hidden
+              <img src={CLIPS[f].poster} alt="" aria-hidden
                 className="absolute inset-0 w-full h-full object-cover" style={estiloMascara(f)} />
             ) : (
-              <video src="/videos/reel-bucle.mp4" poster="/videos/reel-bucle-poster.jpg"
+              <video src={CLIPS[f].video} poster={CLIPS[f].poster}
                 autoPlay loop muted playsInline aria-hidden
                 className="absolute inset-0 w-full h-full object-cover" style={estiloMascara(f)} />
             )
