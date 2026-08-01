@@ -217,80 +217,6 @@
     animation: scaleIn 1.8s var(--ease-out-cubic) forwards;
   }
   
-  /* Textura de fondo: la misma persiana del hero, a muy baja opacidad, para
-     que las secciones negras dejen de ser un negro plano.
-     Va en ::before y no como background del propio elemento para poder
-     controlar la opacidad SIN tocar la del contenido.
-
-     SIN background-attachment: fixed. Lo llevaba, y era la causa del
-     emborronado al bajar: con la capa fija el navegador promociona la seccion
-     ENTERA a su propia capa compuesta y la reescala en cada fotograma, asi que
-     las fotos y el texto que van encima se resamplean y pierden nitidez. El
-     efecto de paralaje no compensa perder definicion en las imagenes.
-
-     La textura solo asoma por los LATERALES: la columna de contenido se queda
-     en negro puro. No con un corte, sino con un degradado que arranca del
-     negro total en el centro y va destapando la textura hacia los bordes.
-     Se hace enmascarando la propia capa, no superponiendo otra encima: asi no
-     hay una segunda capa que componer.
-
-     La opacidad es 0.09 por una razon medible, no estetica: el punto mas
-     iluminado de la textura queda en L=153; a 0.09 sobre negro son 14 de 255,
-     y el texto blanco conserva 18:1 de contraste. Ver [L0]. */
-  .fondo-xalvaje {
-    position: relative;
-  }
-
-  .fondo-xalvaje::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: url('/images/fondo-textura.webp');
-    background-size: cover;
-    background-position: center;
-    opacity: 0.09;
-    pointer-events: none;
-    z-index: 0;
-    /* Opaco en los bordes (textura visible), transparente en la columna de
-       contenido (negro puro). El ancho de la columna es la misma variable que
-       usa .container-large, asi que la ventana negra sigue exactamente al
-       contenido en cada tramo de pantalla.
-       En pantallas donde el contenido ocupa todo el ancho, los topes quedan
-       fuera de orden, CSS los recorta y la textura desaparece del todo: es el
-       comportamiento deseado, alli no hay margen lateral que decorar. */
-    -webkit-mask-image: linear-gradient(
-      to right,
-      rgba(0, 0, 0, 1) 0,
-      rgba(0, 0, 0, 0) calc(50% - var(--ancho-contenido) / 2),
-      rgba(0, 0, 0, 0) calc(50% + var(--ancho-contenido) / 2),
-      rgba(0, 0, 0, 1) 100%
-    );
-    mask-image: linear-gradient(
-      to right,
-      rgba(0, 0, 0, 1) 0,
-      rgba(0, 0, 0, 0) calc(50% - var(--ancho-contenido) / 2),
-      rgba(0, 0, 0, 0) calc(50% + var(--ancho-contenido) / 2),
-      rgba(0, 0, 0, 1) 100%
-    );
-  }
-
-  .fondo-xalvaje > * {
-    position: relative;
-    z-index: 1;
-  }
-
-
-  /* Revelado por scroll. Centraliza QUE se anima (nunca "all": el
-     transition-all interpolaba tambien background-image y backdrop-filter,
-     fuera de la GPU), con que curva y que pasa con movimiento reducido.
-     El desplazamiento y la opacidad los sigue poniendo cada componente con
-     sus clases condicionales. */
-  .reveal {
-    transition-property: opacity, transform;
-    transition-duration: 800ms;
-    transition-timing-function: var(--ease-out-quart);
-  }
-
   /* Initial hidden state for scroll animations */
   .anim-hidden {
     opacity: 0;
@@ -446,9 +372,8 @@
      Ahora crece por tramos. Los bloques de texto conservan su propia medida
      (max-w-xl/2xl), asi que ensanchar el contenedor no alarga las lineas de
      lectura: solo respiran las rejillas y las imagenes. */
-  /* Un unico sitio donde vive el ancho de la columna. Lo consumen
-     .container-large y la mascara de .fondo-xalvaje, para que la ventana negra
-     del fondo coincida siempre con el contenido y no puedan desincronizarse. */
+  /* Un unico sitio donde vive el ancho de la columna, para que no se
+     desincronice entre lo que la usa. */
   .container-large {
     width: 100%;
     max-width: var(--ancho-contenido);

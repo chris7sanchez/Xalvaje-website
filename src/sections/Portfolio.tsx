@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useScrollAnimation, useStaggerAnimation } from '@/hooks/useScrollAnimation';
 import { useHoverCapaz } from '@/hooks/useHoverCapaz';
+import { SelloPremiado } from '@/components/SelloPremiado';
 import { ArrowUpRight, ChevronLeft, ChevronRight, Play, X } from 'lucide-react';
 import { portfolioConfig, categoriasProyectos } from '@/config';
 
@@ -189,10 +190,23 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/40 transition-opacity duration-500" />
 
           {/* Categoría en rojo, arriba a la izquierda. Va con el rojo aclarado:
-              a 9,6 px sobre imagen, el de marca se queda en 3,9:1 (AA pide 4,5). */}
-          <span className="absolute top-3 left-3 sm:top-4 sm:left-4 text-[0.55rem] sm:text-[0.6rem] font-geist-mono uppercase tracking-[0.2em] sm:tracking-[0.25em] text-exvia-red-text">
-            {project.category}
-          </span>
+              a 9,6 px sobre imagen, el de marca se queda en 3,9:1 (AA pide 4,5).
+              En los premiados se calla: lo dice el sello, y repetirlo al lado
+              era decir dos veces lo mismo en el mismo rincón. */}
+          {!project.category.includes('premiado') && (
+            <span className="absolute top-3 left-3 sm:top-4 sm:left-4 text-[0.55rem] sm:text-[0.6rem] font-geist-mono uppercase tracking-[0.2em] sm:tracking-[0.25em] text-exvia-red-text">
+              {project.category}
+            </span>
+          )}
+
+          {/* Sello, arriba a la IZQUIERDA y ladeado, como estampado a mano.
+              Sale de la propia categoría: no hace falta un campo en el config. */}
+          {project.category.includes('premiado') && (
+            <SelloPremiado
+              className="absolute top-2 left-2 sm:top-3 sm:left-3 w-12 sm:w-14 lg:w-16 drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]"
+              style={{ transform: 'rotate(-30deg)' }}
+            />
+          )}
 
           {/* Título grande superpuesto */}
           <h3 className="absolute left-3 right-3 sm:left-4 sm:right-4 bottom-10 sm:bottom-14 text-base sm:text-2xl lg:text-3xl font-display text-white uppercase tracking-[-0.02em] leading-[0.95] drop-shadow-lg">
@@ -327,7 +341,7 @@ export function Portfolio() {
   if (!portfolioConfig.heading && portfolioConfig.projects.length === 0) return null;
 
   return (
-    <section id="portfolio" className="w-full py-14 lg:py-32 bg-neutral-900 fondo-xalvaje">
+    <section id="portfolio" className="w-full py-14 lg:py-32 bg-neutral-900">
       {/* El observador va en el contenedor que envuelve TODO, no en el grid de
           abajo: visibleItems gobierna también PRISMA (que está encima del grid)
           y el banner. Con el ref en el grid, al entrar por el enlace del menú
