@@ -108,10 +108,18 @@ export function NuestraVision() {
   };
 
   useLayoutEffect(() => {
-    const t = setTimeout(medir, 150);
+    // Medir YA, sin setTimeout. El <video> no se monta hasta que hay máscara,
+    // así que cada milisegundo de espera aquí es un milisegundo que la descarga
+    // del clip no ha empezado: con los 150 ms de antes, el navegador no pedía
+    // los vídeos hasta pasado casi medio segundo desde que abrías la página.
+    // Se puede medir aquí porque las ventanas no dependen de las fuentes: van
+    // por porcentaje y aspect-ratio, y en useLayoutEffect ya están colocadas.
+    medir();
+    // Segunda pasada en el siguiente fotograma, por si algo movió el layout.
+    const r = requestAnimationFrame(medir);
     const al = () => medir();
     window.addEventListener('resize', al);
-    return () => { clearTimeout(t); window.removeEventListener('resize', al); };
+    return () => { cancelAnimationFrame(r); window.removeEventListener('resize', al); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cargar]);
 
@@ -156,7 +164,7 @@ export function NuestraVision() {
     if (!el) return;
     const obs = new IntersectionObserver(
       (e) => { if (e.some((x) => x.isIntersecting)) { setCargar(true); obs.disconnect(); } },
-      { rootMargin: '800px 0px' }
+      { rootMargin: '1400px 0px' }
     );
     obs.observe(el);
     return () => obs.disconnect();
@@ -184,7 +192,7 @@ export function NuestraVision() {
                 className="absolute inset-0 w-full h-full object-cover" style={estiloMascara(f)} />
             ) : (
               <video src={CLIPS[f].video} poster={CLIPS[f].poster}
-                autoPlay loop muted playsInline aria-hidden
+                autoPlay loop muted playsInline preload="auto" aria-hidden
                 className="absolute inset-0 w-full h-full object-cover" style={estiloMascara(f)} />
             )
           )}
