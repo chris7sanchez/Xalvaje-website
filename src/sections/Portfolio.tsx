@@ -13,6 +13,10 @@ interface Project {
   hoverImage?: string;
   featured?: boolean;
   youtubeUrl?: string;
+  /** Vídeo servido desde la propia web (/videos/...). Alternativa a youtubeUrl
+   *  para las piezas cortas: sin marco ajeno, sin rastreadores y a pantalla
+   *  completa. Si están los dos, manda este. */
+  videoSrc?: string;
   carouselImages?: string[];
   /** Sinopsis que se lee sobre el vídeo, en la ventana del proyecto */
   sinopsis?: string[];
@@ -126,8 +130,10 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
   const [isHovered, setIsHovered] = useState(false);
   const hoverCapaz = useHoverCapaz();
 
+  const tieneVideo = Boolean(project.videoSrc || project.youtubeUrl);
+
   const handleClick = () => {
-    if (project.youtubeUrl) {
+    if (tieneVideo) {
       setShowVideo(true);
     }
   };
@@ -200,7 +206,7 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
 
           {/* Ver proyecto, abajo a la derecha */}
           <span className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 inline-flex items-center gap-1 sm:gap-1.5 text-[0.55rem] sm:text-[0.65rem] font-geist-mono uppercase tracking-[0.12em] sm:tracking-[0.15em] text-white/80 group-hover:text-white transition-colors">
-            {project.youtubeUrl ? (
+            {tieneVideo ? (
               <>
                 Ver proyecto
                 <Play className="w-3 h-3 transition-transform duration-300 group-hover:translate-x-0.5" fill="currentColor" />
@@ -217,7 +223,7 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
 
       {/* Ventana del proyecto: ficha con la sinopsis arriba y el vídeo debajo,
           en vez de saltar directo a YouTube. */}
-      {showVideo && project.youtubeUrl && (
+      {showVideo && tieneVideo && (
         <div
           className="fixed inset-0 z-[100] bg-black/95 overflow-y-auto"
           role="dialog"
@@ -262,13 +268,26 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
                   a leer la sinopsis y no se descarga si no se va a ver. */}
               <div className="relative w-full aspect-video bg-neutral-950 overflow-hidden">
                 {reproduciendo ? (
-                  <iframe
-                    src={getYoutubeEmbedUrl(project.youtubeUrl)}
-                    title={project.title}
-                    className="absolute inset-0 w-full h-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
+                  project.videoSrc ? (
+                    // object-contain y no cover: hay piezas cuadradas (1:1) y
+                    // recortarlas para llenar el 16:9 se comeria el producto.
+                    <video
+                      src={project.videoSrc}
+                      title={project.title}
+                      className="absolute inset-0 w-full h-full object-contain bg-black"
+                      controls
+                      autoPlay
+                      playsInline
+                    />
+                  ) : (
+                    <iframe
+                      src={getYoutubeEmbedUrl(project.youtubeUrl!)}
+                      title={project.title}
+                      className="absolute inset-0 w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  )
                 ) : (
                   <button
                     type="button"

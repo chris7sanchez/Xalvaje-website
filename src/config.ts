@@ -265,10 +265,15 @@ export interface CategoriaProyectos {
 }
 
 export const categoriasProyectos: CategoriaProyectos[] = [
+  // El orden de este array manda DOS cosas a la vez: los chips de arriba y el
+  // orden de los bloques dentro de Portfolio. Fotografia va la ultima porque
+  // no se pinta dentro de Portfolio (coincideCon vacio) sino como seccion
+  // propia despues de el: ponerla antes dejaba los chips diciendo un orden y
+  // la pagina otro.
   { slug: "largometrajes", titulo: "Largometrajes", coincideCon: ["Largometraje"] },
   { slug: "cortometrajes", titulo: "Cortometrajes", coincideCon: ["Cortometraje", "Cortometraje premiado"] },
-  { slug: "fotografia", titulo: "Fotografía", coincideCon: [] },
   { slug: "campanas", titulo: "Campañas creativas", coincideCon: ["Campaña"] },
+  { slug: "fotografia", titulo: "Fotografía", coincideCon: [] },
 ];
 
 // Sección SERVICIOS: lista de cuatro servicios con el mismo lenguaje que
@@ -335,6 +340,10 @@ export interface ProjectItem {
   hoverImage?: string;
   featured?: boolean;
   youtubeUrl?: string;
+  /** Vídeo servido desde la propia web (/videos/...). Para las piezas cortas
+   *  de campañas: sin marco ajeno, sin rastreadores, y no se descarga hasta
+   *  que se pulsa play. Si están los dos, manda este. */
+  videoSrc?: string;
   /** Sinopsis que se lee sobre el vídeo, en la ventana del proyecto */
   sinopsis?: string[];
   /** Carrusel de fotos propio (solo para el proyecto destacado, ej. PRISMA) */
@@ -429,6 +438,75 @@ export const portfolioConfig: PortfolioConfig = {
       image: "/images/anadas-cartel.webp",
       hoverImage: "/images/reserva-6b.webp",
       youtubeUrl: "https://www.youtube.com/watch?v=JwBHxL6ZHUI",
+    },
+
+    // CAMPAÑAS CREATIVAS
+    // Los masters sin comprimir estan en recursos/campanas/ (ignorado por git):
+    // 511 MB que NO deben entrar en public/, porque el build los copiaria a
+    // dist/ y este repo versiona dist/.
+    // OJO: los anos salen de la fecha de los archivos y NO son fiables. El de
+    // INHOUSE se comprobo contra YouTube y era 2020, no 2023. Revisar el resto.
+    {
+      title: "Adidas — Stan Smith Forever",
+      category: "Campaña",
+      year: "2021",
+      image: "/images/campanas/adidas-stan-smith.webp",
+    },
+    {
+      title: "Belif — Aqua Bomb",
+      category: "Campaña",
+      year: "2022",
+      image: "/images/campanas/belif-aqua-bomb-vitamina-c.webp",
+      videoSrc: "/videos/campanas/belif-vita-cenital-2022.mp4",
+    },
+    {
+      title: "Belif — Aloe Bomb",
+      category: "Campaña",
+      year: "2022",
+      image: "/images/campanas/belif-aloe-bomb.webp",
+      videoSrc: "/videos/campanas/belif-aloe-bomb-6s-2022.mp4",
+    },
+    {
+      title: "Belif — Moisturizing Bomb",
+      category: "Campaña",
+      year: "2021",
+      image: "/images/campanas/belif-moisturizing-bomb.webp",
+      videoSrc: "/videos/campanas/belif-moisturizing-bomb-2021.mp4",
+    },
+    {
+      title: "USU Cosmetics — Blue K-Night",
+      category: "Campaña",
+      year: "2022",
+      image: "/images/campanas/usu-blue-knight-cream.webp",
+      videoSrc: "/videos/campanas/usu-cosmetics-blue-knight-cream-2022.mp4",
+    },
+    {
+      title: "Origin Gunk",
+      category: "Campaña",
+      year: "2025",
+      image: "/images/campanas/origin-gunk-tazas.webp",
+      videoSrc: "/videos/campanas/origin-gunk-tazas-2025.mp4",
+    },
+    {
+      title: "VIVAPOP Festival",
+      category: "Campaña",
+      year: "2024",
+      image: "/images/campanas/vivapop-festival.webp",
+      videoSrc: "/videos/campanas/vivapop-festival-aftermovie-2024.mp4",
+    },
+    {
+      title: "VIVAPOP — LeCoco & Magui",
+      category: "Campaña",
+      year: "2024",
+      image: "/images/campanas/vivapop-lecoco-magui.webp",
+      videoSrc: "/videos/campanas/vivapop-lecoco-magui-2024.mp4",
+    },
+    {
+      title: "INHOUSE Smart Communication",
+      category: "Campaña",
+      year: "2020",
+      image: "/images/campanas/inhouse-navidad.webp",
+      youtubeUrl: "https://www.youtube.com/watch?v=zOyRiJ_weF0",
     },
   ],
   cta: {
