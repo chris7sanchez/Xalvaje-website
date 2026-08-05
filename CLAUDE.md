@@ -99,3 +99,28 @@ ffprobe -v error -show_entries stream=codec_type,channels -of csv=p=0 public/vid
 ```
 
 Tiene que salir una línea `audio` con 2 canales. Si solo sale `video`, está mudo.
+
+## La portada de MÓVIL va con fotogramas VERTICALES. No se toca.
+
+El recorrido de la portada en móvil se hace con **60 fotogramas verticales de
+720×1280** en `public/images/hero-scrub-vert/`, apuntados desde
+`heroConfig.scrubFramePathPrefixSmall`. Son material rodado en vertical para el
+móvil, **no** un recorte de los de escritorio (que son 1600×900).
+
+**Nunca sustituir ese recorrido por un vídeo, una imagen fija ni los fotogramas
+de escritorio.** En concreto:
+
+- `heroConfig.portadaMovil` y `heroConfig.portadaMovilVideo` tienen que quedarse
+  **vacíos**. Existe `public/videos/portada-movil.mp4`, pero está ahí de una
+  versión anterior y no debe activarse.
+- La trampa: poner `portadaMovilVideo` parece inofensivo y no lo es. El hero
+  pinta el vídeo **en lugar de** los fotogramas, pero `sinScrub` no depende de
+  ese campo sino de `portadaMovil`, así que la sección sigue midiendo 3,5
+  pantallas. El visitante baja tres pantallas y media y la imagen no cambia,
+  porque lo que ve es un bucle. Los 60 verticales no se ven nunca.
+  Pasó el 05/08/2026.
+
+Si alguien pide "el vídeo vertical de la app", preguntar antes de tocar: casi
+seguro se refiere a que el recorrido se vea **en vertical**, y eso ya lo hacen
+los fotogramas. Comprobarlo midiendo — `sips -g pixelWidth -g pixelHeight` sobre
+`public/images/hero-scrub-vert/f-001.webp` — antes de cambiar nada.

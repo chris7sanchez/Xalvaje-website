@@ -117,14 +117,18 @@ export const heroConfig: HeroConfig = {
   // pantalla (se ve el 82 % del ancho) en vez del 26 % que dejaba el 16:9 de
   // escritorio, que además pesaba 3,36 MB.
   scrubFramePathPrefixSmall: "/images/hero-scrub-vert/f-",
-  // El móvil vuelve a su VÍDEO vertical propio (503 KB), que es material
-  // rodado para eso. Se había desactivado el 30/07/2026 en 70ab02e para poner
-  // en su lugar los 60 fotogramas verticales; se recupera a petición.
-  // OJO con lo que arrastra: con vídeo, `sinScrub` es cierto en móvil, así que
-  // allí no hay recorrido de fotogramas y el titular y las persianas se ven
-  // desde el primer momento.
+  // AMBAS VACÍAS A PROPÓSITO. En móvil manda el scrub con los 60 fotogramas
+  // VERTICALES de /images/hero-scrub-vert (720x1280), que es el material
+  // rodado para el móvil.
+  //
+  // NO poner aquí `portadaMovilVideo`. Parece inofensivo y no lo es: el hero
+  // pinta el vídeo EN LUGAR de los fotogramas, pero `sinScrub` no depende de
+  // este campo sino de `portadaMovil`, así que la sección sigue midiendo 3,5
+  // pantallas de recorrido. Resultado: el visitante baja tres pantallas y medio
+  // y la imagen no cambia, porque lo que ve es un bucle. Los 60 fotogramas
+  // verticales no llegan a verse nunca. Comprobado el 05/08/2026.
   portadaMovil: "",
-  portadaMovilVideo: "/videos/portada-movil.mp4",
+  portadaMovilVideo: "",
   portadaMovilVideoPoster: "/videos/portada-movil-poster.jpg",
   // Apuntan a rutas, no a anclas: cada una es una página.
   zones: [
