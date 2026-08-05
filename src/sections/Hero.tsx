@@ -264,6 +264,8 @@ export function Hero() {
   // tres accesos aparecen al final.
   const showTitular = sinScrub || scrubProgress > 0.19;
   const showZones = sinScrub || scrubProgress > 0.62;
+  /** Qué lama de los accesos está abierta. null = las cuatro por igual. */
+  const [lamaAbierta, setLamaAbierta] = useState<number | null>(null);
   const showScrollCue = !sinScrub && progress < 0.08;
   // Tramo de portada: los fotogramas ya han terminado y la imagen final
   // permanece fija en pantalla.
@@ -385,42 +387,109 @@ export function Hero() {
           />
         </div>
 
-        {/* Zonas interactivas: aparecen sobre el fotograma final, etiquetas
-            siempre visibles (no dependen de :hover, funcionan en móvil) */}
+        {/* LAS PERSIANAS. Aparecen sobre el fotograma final: cuatro lamas del
+            mismo ancho con el rótulo en vertical, y la que se señala se abre en
+            ventana mientras las otras tres se estrechan.
+
+            El reparto va por `flex-grow` desde el estado y no por :hover a
+            secas: hace falta que las NO señaladas también reaccionen, y eso el
+            CSS suelto no lo puede expresar.
+
+            Cerrada enseña un fotograma fijo; el <video> solo se monta en la que
+            está abierta. La portada ya carga 60 fotogramas del scrub y cuatro
+            clips a la vez encima de eso era pedirle demasiado. */}
         {heroConfig.zones.length > 0 && (
           <div
             className={cn(
-              // Rejilla, no fila: con la cuarta zona, cuatro cajas seguidas se
-              // salían de la pantalla en móvil (4 x 7,5rem = 480 px sobre 375).
-              // En móvil van 2 x 2 y a partir de md vuelven a la fila de cuatro.
-              'absolute inset-x-0 top-[52%] md:top-[38%] z-30 grid grid-cols-2 md:grid-cols-4 justify-center justify-items-center items-center gap-2 sm:gap-4 lg:gap-5 px-4 mx-auto w-fit transition-[opacity,transform] duration-700 ease-out',
-              showZones ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+              'absolute inset-x-0 top-[50%] md:top-[42%] -translate-y-1/2 z-30 px-4 sm:px-8 transition-[opacity,transform] duration-700 ease-out',
+              showZones ? 'opacity-100 translate-y-[-50%]' : 'opacity-0 translate-y-[-40%] pointer-events-none'
             )}
           >
-            {heroConfig.zones.map((zone) => (
-              <a
-                key={zone.href}
-                href={zone.href}
-                onClick={(e) => {
-                  e.preventDefault();
-                  // Soltar el bloqueo ANTES de navegar: si no, la página de
-                  // destino se abre con el scroll congelado.
-                  unlockedRef.current = true;
-                  lockedRef.current = false;
-                  document.body.style.overflow = '';
-                  navigate(zone.href);
-                }}
-                className="group relative flex items-center justify-center text-center
-                           w-[7.5rem] h-24 sm:w-44 sm:h-28 md:w-40 md:h-28 lg:w-52 lg:h-36 xl:w-60 xl:h-40
-                           border border-white/45 bg-black/60 backdrop-blur-[2px]
-                           hover:border-exvia-red hover:bg-black/75
-                           transition-[opacity,transform,color,background-color,border-color] duration-300 px-3"
-              >
-                <span className="text-[0.65rem] sm:text-sm lg:text-base font-geist-mono uppercase tracking-[0.18em] text-white group-hover:text-white transition-colors duration-300">
-                  {zone.label}
-                </span>
-              </a>
-            ))}
+            <div
+              className="flex mx-auto w-full max-w-5xl h-[34vh] sm:h-[40vh] md:h-[46vh] gap-1.5 lg:gap-2"
+              onMouseLeave={() => setLamaAbierta(null)}
+            >
+              {heroConfig.zones.map((zone, i) => {
+                const abierta = lamaAbierta === i;
+                return (
+                  <a
+                    key={zone.href}
+                    href={zone.href}
+                    onMouseEnter={() => setLamaAbierta(i)}
+                    onFocus={() => setLamaAbierta(i)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      // Soltar el bloqueo ANTES de navegar: si no, la página de
+                      // destino se abre con el scroll congelado.
+                      unlockedRef.current = true;
+                      lockedRef.current = false;
+                      document.body.style.overflow = '';
+                      navigate(zone.href);
+                    }}
+                    aria-label={zone.label}
+                    className={cn(
+                      'relative block overflow-hidden border transition-[flex-grow,border-color] duration-[520ms] ease-out-quart',
+                      abierta ? 'border-exvia-red' : 'border-white/35'
+                    )}
+                    style={{ flexGrow: abierta ? 2.6 : 1, flexBasis: 0 }}
+                  >
+                    <img
+                      src={zone.poster}
+                      alt=""
+                      aria-hidden
+                      loading="lazy"
+                      decoding="async"
+                      className={cn(
+                        'absolute inset-0 w-full h-full object-cover transition-[filter,opacity] duration-[520ms] ease-out-quart',
+                        abierta ? 'opacity-0' : 'opacity-100 grayscale contrast-[1.15]'
+                      )}
+                    />
+                    {abierta && (
+                      <video
+                        src={zone.video}
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        aria-hidden
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                    )}
+
+                    <span
+                      aria-hidden
+                      className={cn(
+                        'absolute inset-0 transition-colors duration-[520ms]',
+                        abierta ? 'bg-black/25' : 'bg-black/60'
+                      )}
+                    />
+
+                    {/* Rótulo en vertical con la lama estrecha; se lee de abajo
+                        arriba, como el PRODUCCIONES del logotipo. */}
+                    <span
+                      className={cn(
+                        'absolute left-1/2 bottom-4 font-geist-mono uppercase text-[0.55rem] sm:text-[0.66rem] tracking-[0.22em] text-white whitespace-nowrap transition-opacity duration-300',
+                        abierta ? 'opacity-0' : 'opacity-100'
+                      )}
+                      style={{ writingMode: 'vertical-rl', transform: 'translateX(-50%) rotate(180deg)' }}
+                    >
+                      {zone.label}
+                    </span>
+
+                    {/* Y en horizontal, en grande, cuando se abre */}
+                    <span
+                      className={cn(
+                        'absolute left-4 lg:left-6 bottom-4 lg:bottom-5 right-4 font-display uppercase leading-[0.95] tracking-[-0.01em] text-[#FBF7F5]',
+                        'text-[clamp(1rem,2.4vw,2.1rem)] transition-opacity duration-300 delay-100',
+                        abierta ? 'opacity-100' : 'opacity-0'
+                      )}
+                    >
+                      {zone.label}
+                    </span>
+                  </a>
+                );
+              })}
+            </div>
           </div>
         )}
 

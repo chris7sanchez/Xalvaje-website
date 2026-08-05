@@ -59,6 +59,15 @@ export const paginasConfig: PaginaConfig[] = [
 export interface HeroZone {
   label: string;
   href: string;
+  /**
+   * Fotograma fijo de la lama cerrada y clip que se reproduce al abrirla.
+   *
+   * El vídeo NO se monta hasta que esa lama es la abierta: la portada ya carga
+   * 60 fotogramas del scrub, y cuatro clips reproduciéndose a la vez encima de
+   * eso era pedirle demasiado. Cerrada pesa un fotograma; abierta, cobra vida.
+   */
+  poster: string;
+  video: string;
 }
 
 export interface HeroConfig {
@@ -114,10 +123,10 @@ export const heroConfig: HeroConfig = {
   portadaMovilVideoPoster: "/videos/portada-movil-poster.jpg",
   // Apuntan a rutas, no a anclas: cada una es una página.
   zones: [
-    { label: "Proyectos", href: "/proyectos" },
-    { label: "¿Qué ofrecemos?", href: "/que-ofrecemos" },
-    { label: "¿Quiénes somos?", href: "/quienes-somos" },
-    { label: "Nuestra visión", href: "/nuestra-vision" },
+    { label: "Proyectos", href: "/proyectos", poster: "/images/accesos/proyectos.webp", video: "/videos/accesos/proyectos.mp4" },
+    { label: "¿Qué ofrecemos?", href: "/que-ofrecemos", poster: "/images/accesos/que-ofrecemos.webp", video: "/videos/accesos/que-ofrecemos.mp4" },
+    { label: "¿Quiénes somos?", href: "/quienes-somos", poster: "/images/accesos/quienes-somos.webp", video: "/videos/accesos/quienes-somos.mp4" },
+    { label: "Nuestra visión", href: "/nuestra-vision", poster: "/images/accesos/nuestra-vision.webp", video: "/videos/accesos/nuestra-vision.mp4" },
   ],
 };
 
