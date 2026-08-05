@@ -89,16 +89,15 @@ export function BarraMenu() {
 
         <div className="relative w-full px-6 lg:px-12 flex items-center justify-between gap-4">
           <Link to="/" className="group shrink-0" aria-label="XALVAJE Producciones — Inicio">
-            {/* Al doble largo: 34 y 44 se perdian en una barra de este ancho.
-                El alto de la barra sube con el (--alto-barra), si no el
-                logotipo no cabria. */}
+            {/* Punto medio: 34/44 era ilegible y 56/88 se comía la barra.
+                El alto de la barra va con él (--alto-barra). */}
             <Logo
-              size={56}
+              size={44}
               soloMarca
               className="sm:hidden transition-transform duration-500 ease-out-quart group-hover:scale-105"
             />
             <Logo
-              size={88}
+              size={64}
               produccionesDebajo
               className="hidden sm:inline-flex transition-transform duration-500 ease-out-quart group-hover:scale-105"
             />
@@ -112,7 +111,7 @@ export function BarraMenu() {
             aria-controls="panel-menu"
             className="group flex items-center gap-3 sm:gap-4 py-2 pl-3 transition-transform duration-160 ease-out-quad active:scale-[0.97]"
           >
-            <span className="font-geist-mono uppercase text-[0.62rem] sm:text-[0.7rem] tracking-[0.3em] text-white/80 group-hover:text-white transition-colors">
+            <span className="font-geist-mono uppercase text-[0.85rem] sm:text-[1rem] tracking-[0.28em] text-white/85 group-hover:text-white transition-colors">
               {abierto ? 'Cerrar' : 'Menú'}
             </span>
 

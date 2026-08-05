@@ -117,9 +117,14 @@ export const heroConfig: HeroConfig = {
   // pantalla (se ve el 82 % del ancho) en vez del 26 % que dejaba el 16:9 de
   // escritorio, que además pesaba 3,36 MB.
   scrubFramePathPrefixSmall: "/images/hero-scrub-vert/f-",
-  // Vacías: en móvil vuelve el scrub, ahora con fotogramas verticales.
+  // El móvil vuelve a su VÍDEO vertical propio (503 KB), que es material
+  // rodado para eso. Se había desactivado el 30/07/2026 en 70ab02e para poner
+  // en su lugar los 60 fotogramas verticales; se recupera a petición.
+  // OJO con lo que arrastra: con vídeo, `sinScrub` es cierto en móvil, así que
+  // allí no hay recorrido de fotogramas y el titular y las persianas se ven
+  // desde el primer momento.
   portadaMovil: "",
-  portadaMovilVideo: "",
+  portadaMovilVideo: "/videos/portada-movil.mp4",
   portadaMovilVideoPoster: "/videos/portada-movil-poster.jpg",
   // Apuntan a rutas, no a anclas: cada una es una página.
   zones: [

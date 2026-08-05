@@ -401,12 +401,12 @@ export function Hero() {
         {heroConfig.zones.length > 0 && (
           <div
             className={cn(
-              'absolute inset-x-0 top-[50%] md:top-[42%] -translate-y-1/2 z-30 px-4 sm:px-8 transition-[opacity,transform] duration-700 ease-out',
+              'absolute inset-x-0 top-[54%] -translate-y-1/2 z-30 px-4 sm:px-8 transition-[opacity,transform] duration-700 ease-out',
               showZones ? 'opacity-100 translate-y-[-50%]' : 'opacity-0 translate-y-[-40%] pointer-events-none'
             )}
           >
             <div
-              className="flex mx-auto w-full max-w-5xl h-[34vh] sm:h-[40vh] md:h-[46vh] gap-1.5 lg:gap-2"
+              className="flex mx-auto w-full max-w-5xl h-[30vh] sm:h-[34vh] md:h-[38vh] gap-3 sm:gap-4 lg:gap-6"
               onMouseLeave={() => setLamaAbierta(null)}
             >
               {heroConfig.zones.map((zone, i) => {
@@ -460,7 +460,19 @@ export function Hero() {
                       aria-hidden
                       className={cn(
                         'absolute inset-0 transition-colors duration-[520ms]',
-                        abierta ? 'bg-black/25' : 'bg-black/60'
+                        abierta ? 'bg-black/20' : 'bg-black/60'
+                      )}
+                    />
+
+                    {/* Franja oscura solo bajo el rótulo de la lama abierta: el
+                        rojo sobre metraje claro se perdía, y subir el velo de
+                        toda la ventana apagaba la imagen, que es lo que se ha
+                        venido a ver. [L0] */}
+                    <span
+                      aria-hidden
+                      className={cn(
+                        'absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/85 to-transparent transition-opacity duration-500',
+                        abierta ? 'opacity-100' : 'opacity-0'
                       )}
                     />
 
@@ -479,8 +491,9 @@ export function Hero() {
                     {/* Y en horizontal, en grande, cuando se abre */}
                     <span
                       className={cn(
-                        'absolute left-4 lg:left-6 bottom-4 lg:bottom-5 right-4 font-display uppercase leading-[0.95] tracking-[-0.01em] text-[#FBF7F5]',
-                        'text-[clamp(1rem,2.4vw,2.1rem)] transition-opacity duration-300 delay-100',
+                        'absolute left-4 lg:left-6 bottom-4 lg:bottom-6 right-4 font-display uppercase leading-[0.92] tracking-[-0.015em] text-exvia-red-text',
+                        'text-[clamp(1.35rem,3.4vw,3rem)] transition-opacity duration-300 delay-100',
+                        '[text-shadow:0_2px_16px_rgba(0,0,0,0.9)]',
                         abierta ? 'opacity-100' : 'opacity-0'
                       )}
                     >
@@ -503,7 +516,7 @@ export function Hero() {
         {reelConfig.src && (
           <div
             className={cn(
-              'absolute left-1/2 top-[22%] md:top-[20%] -translate-x-1/2 -translate-y-1/2 z-30 transition-[opacity,transform] duration-700 ease-out',
+              'absolute left-1/2 top-[25%] md:top-[24%] -translate-x-1/2 -translate-y-1/2 z-30 transition-[opacity,transform] duration-700 ease-out',
               showZones ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
             )}
           >
@@ -563,7 +576,11 @@ export function Hero() {
             cuando la escena se oscurece, con una disipación (desenfoque que se
             va + leve ascenso) en lugar de un simple fundido. Queda a la altura
             de la cámara, algo por debajo del centro. */}
-        <div className="absolute inset-x-0 top-[78%] md:top-[64%] -translate-y-1/2 z-20 flex flex-col items-center px-6 lg:px-12 pointer-events-none">
+        {/* REPARTO VERTICAL DE LA PORTADA, medido y no supuesto. De arriba
+            abajo: barra (hasta el 17 %), botón del reel (18-32 %), persianas
+            (35-73 %) y titular (77-91 %). Si se toca cualquiera de los cuatro
+            hay que rehacer la cuenta: es lo único que impide que se pisen. */}
+        <div className="absolute inset-x-0 top-[84%] -translate-y-1/2 z-20 flex flex-col items-center px-6 lg:px-12 pointer-events-none">
           <div
             className={cn(
               'text-center transition-[opacity,transform,filter] ease-out',
@@ -585,11 +602,12 @@ export function Hero() {
           </div>
         </div>
 
-        {/* Aviso de scroll: al centro de la portada y dando saltitos, que es lo
-            único que se ve al entrar además del logotipo. */}
+        {/* Aviso de scroll. Ya NO va al centro: ahí es donde está pintado el
+            XALVAJE de la persiana y el rótulo se le montaba encima. Baja al
+            72 %, que es suelo de la nave y está limpio. */}
         <div
           className={cn(
-            'absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 transition-opacity duration-700 flex flex-col items-center gap-4',
+            'absolute left-1/2 top-[72%] -translate-x-1/2 -translate-y-1/2 z-20 transition-opacity duration-700 flex flex-col items-center gap-4',
             showScrollCue && revealReady ? 'opacity-100' : 'opacity-0 pointer-events-none'
           )}
         >
@@ -598,7 +616,7 @@ export function Hero() {
               drop-shadow, se quedaba por debajo de 3:1. Al agrandar el texto
               el problema se ve mas, no menos. */}
           <span className="rounded-full bg-black/55 backdrop-blur-[2px] px-6 py-2.5 sm:px-8 sm:py-3
-                           text-xs sm:text-base lg:text-lg font-geist-mono uppercase
+                           text-sm sm:text-xl lg:text-2xl font-geist-mono uppercase
                            tracking-[0.3em] sm:tracking-[0.35em] text-white">
             Scroll para explorar
           </span>

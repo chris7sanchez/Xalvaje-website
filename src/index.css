@@ -90,11 +90,11 @@
        el hueco que deja `main` en las páginas interiores y la fila pegajosa de
        categorías de Proyectos. Estaban los tres a 4,5rem escritos a mano y
        cualquier cambio de altura los desincronizaba. */
-    --alto-barra: 6rem;
+    --alto-barra: 5rem;
   }
 
   @media (min-width: 1024px) {
-    :root { --alto-barra: 8.5rem; }
+    :root { --alto-barra: 7rem; }
   }
 
   @media (min-width: 1600px) {
