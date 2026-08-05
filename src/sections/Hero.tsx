@@ -390,7 +390,10 @@ export function Hero() {
         {heroConfig.zones.length > 0 && (
           <div
             className={cn(
-              'absolute inset-x-0 top-[52%] md:top-[38%] z-30 flex justify-center items-center gap-2 sm:gap-6 px-4 transition-[opacity,transform] duration-700 ease-out',
+              // Rejilla, no fila: con la cuarta zona, cuatro cajas seguidas se
+              // salían de la pantalla en móvil (4 x 7,5rem = 480 px sobre 375).
+              // En móvil van 2 x 2 y a partir de md vuelven a la fila de cuatro.
+              'absolute inset-x-0 top-[52%] md:top-[38%] z-30 grid grid-cols-2 md:grid-cols-4 justify-center justify-items-center items-center gap-2 sm:gap-4 lg:gap-5 px-4 mx-auto w-fit transition-[opacity,transform] duration-700 ease-out',
               showZones ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
             )}
           >
@@ -408,7 +411,7 @@ export function Hero() {
                   navigate(zone.href);
                 }}
                 className="group relative flex items-center justify-center text-center
-                           w-[7.5rem] h-24 sm:w-56 sm:h-36 lg:w-72 lg:h-44 xl:w-80 xl:h-48
+                           w-[7.5rem] h-24 sm:w-44 sm:h-28 md:w-40 md:h-28 lg:w-52 lg:h-36 xl:w-60 xl:h-40
                            border border-white/45 bg-black/60 backdrop-blur-[2px]
                            hover:border-exvia-red hover:bg-black/75
                            transition-[opacity,transform,color,background-color,border-color] duration-300 px-3"

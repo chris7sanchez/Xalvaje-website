@@ -117,6 +117,7 @@ export const heroConfig: HeroConfig = {
     { label: "Proyectos", href: "/proyectos" },
     { label: "¿Qué ofrecemos?", href: "/que-ofrecemos" },
     { label: "¿Quiénes somos?", href: "/quienes-somos" },
+    { label: "Nuestra visión", href: "/nuestra-vision" },
   ],
 };
 

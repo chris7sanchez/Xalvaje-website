@@ -85,6 +85,16 @@
     /* Ancho de la columna de contenido. Crece por tramos porque en un iMac el
        ancho fijo de 80rem dejaba cientos de px de negro a cada lado. */
     --ancho-contenido: 80rem;
+
+    /* Alto de la barra superior, en UN solo sitio. Lo consumen la propia barra,
+       el hueco que deja `main` en las páginas interiores y la fila pegajosa de
+       categorías de Proyectos. Estaban los tres a 4,5rem escritos a mano y
+       cualquier cambio de altura los desincronizaba. */
+    --alto-barra: 5rem;
+  }
+
+  @media (min-width: 1024px) {
+    :root { --alto-barra: 6rem; }
   }
 
   @media (min-width: 1600px) {

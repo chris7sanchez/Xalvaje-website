@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import { Navigation } from '@/components/Navigation';
-import { PageNav } from '@/components/PageNav';
+import { BarraMenu } from '@/components/BarraMenu';
 import { PageOverlay } from '@/components/PageOverlay';
 import { Footer } from '@/sections/Footer';
 import { Portada } from '@/pages/Portada';
@@ -30,12 +29,12 @@ function Contenido() {
     <div className="min-h-screen bg-black">
       <ScrollAlCambiarDePagina />
 
-      {/* La portada lleva su barra transparente sobre el fotograma; las páginas
-          interiores, la blanca con las secciones y el "volver". */}
-      {esPortada ? <Navigation /> : <PageNav />}
+      {/* Una sola barra para toda la web. La portada la lleva por encima del
+          fotograma; las interiores dejan hueco debajo. */}
+      <BarraMenu />
 
       {/* Las interiores empiezan bajo la barra, que es fija */}
-      <main className={esPortada ? undefined : 'pt-[4.5rem]'}>
+      <main style={esPortada ? undefined : { paddingTop: 'var(--alto-barra)' }}>
         <Routes>
           <Route path="/" element={<Portada />} />
           <Route path="/proyectos" element={<Proyectos />} />

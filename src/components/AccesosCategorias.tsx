@@ -15,7 +15,8 @@ export function AccesosCategorias({ activa }: { activa?: string }) {
   };
 
   return (
-    <div className="sticky top-[4.5rem] z-30 bg-black/85 backdrop-blur-md border-y border-white/10">
+    <div style={{ top: 'var(--alto-barra)' }}
+      className="sticky z-30 bg-black/85 backdrop-blur-md border-y border-white/10">
       <div className="container-large px-6 lg:px-12">
         <div className="flex items-center gap-2 sm:gap-6 overflow-x-auto py-3 no-scrollbar">
           {categoriasProyectos.map((c) => (
