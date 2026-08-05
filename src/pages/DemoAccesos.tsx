@@ -175,6 +175,89 @@ function Claqueta() {
   );
 }
 
+/* ─────────────── D · PERSIANAS (hover-expand, tipo skiper35) ───────────────
+   Cuatro lamas del mismo ancho con el rótulo en vertical. La que señalas se
+   abre y las otras tres se estrechan; al abrirse recupera el color y el rótulo
+   pasa a horizontal. El reparto va por `flex-grow` desde el estado, no por CSS
+   a secas: hace falta que las NO señaladas también reaccionen, y eso con
+   :hover suelto no se puede expresar. */
+function Persianas() {
+  const [activa, setActiva] = useState<number | null>(null);
+
+  return (
+    <div className="absolute inset-0 flex items-center justify-center px-4">
+      <div
+        className="flex w-full max-w-5xl h-[52%] sm:h-[62%] gap-1.5 lg:gap-2"
+        onMouseLeave={() => setActiva(null)}
+      >
+        {heroConfig.zones.map((z, i) => {
+          const abierta = activa === i;
+          return (
+            <a
+              key={z.href}
+              href={z.href}
+              onClick={(e) => e.preventDefault()}
+              onMouseEnter={() => setActiva(i)}
+              onFocus={() => setActiva(i)}
+              aria-label={z.label}
+              className={cn(
+                'relative block overflow-hidden border transition-[flex-grow,border-color] duration-[520ms] ease-out-quart',
+                abierta ? 'border-exvia-red' : 'border-white/30'
+              )}
+              style={{ flexGrow: abierta ? 2.6 : 1, flexBasis: 0 }}
+            >
+              <video
+                src={MUESTRAS[i]}
+                autoPlay
+                loop
+                muted
+                playsInline
+                aria-hidden
+                className={cn(
+                  'absolute inset-0 w-full h-full object-cover transition-[filter] duration-[520ms] ease-out-quart',
+                  abierta ? 'grayscale-0' : 'grayscale contrast-[1.15]'
+                )}
+              />
+              <span
+                aria-hidden
+                className={cn(
+                  'absolute inset-0 transition-colors duration-[520ms]',
+                  abierta ? 'bg-black/25' : 'bg-black/60'
+                )}
+              />
+
+              {/* Rótulo en vertical mientras la lama está estrecha. Se lee de
+                  abajo arriba, como el PRODUCCIONES del logotipo. */}
+              <span
+                className={cn(
+                  'absolute left-1/2 -translate-x-1/2 bottom-4 font-geist-mono uppercase text-[0.58rem] sm:text-[0.66rem] tracking-[0.22em] text-white whitespace-nowrap',
+                  'transition-opacity duration-300',
+                  abierta ? 'opacity-0' : 'opacity-100'
+                )}
+                style={{ writingMode: 'vertical-rl', transform: 'translateX(-50%) rotate(180deg)' }}
+              >
+                {z.label}
+              </span>
+
+              {/* Y en horizontal, grande, cuando se abre */}
+              <span
+                className={cn(
+                  'absolute left-4 lg:left-6 bottom-4 lg:bottom-5 right-4 font-display uppercase leading-[0.95] tracking-[-0.01em]',
+                  'text-[clamp(1rem,2.2vw,1.9rem)] transition-opacity duration-300 delay-100',
+                  abierta ? 'opacity-100' : 'opacity-0'
+                )}
+                style={{ color: HUESO }}
+              >
+                {z.label}
+              </span>
+            </a>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function DemoAccesos() {
   const [reducido, setReducido] = useState(false);
 
@@ -224,6 +307,14 @@ export function DemoAccesos() {
           nota="Sin cajas. Los rótulos en grande directamente sobre el fotograma; al entrar el cursor la escena se apaga y solo queda encendido el que señalas, con una raya roja que se abre a su izquierda. El más cinematográfico y el más delicado de contraste."
         >
           <Claqueta />
+        </Escenario>
+
+        <Escenario
+          letra="D"
+          titulo="Persianas"
+          nota="La idea del skiper35 que me pasaste, traída a nuestro terreno: cuatro lamas del mismo ancho con el rótulo en vertical, y la que señalas se abre en ventana mientras las otras tres se estrechan. Al abrirse recupera el color y el nombre pasa a horizontal en Anton. Es la que más se parece a una cartelera y la única de las cuatro donde el propio gesto de elegir ya enseña trabajo."
+        >
+          <Persianas />
         </Escenario>
       </div>
     </div>
