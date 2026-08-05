@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { BarraMenu } from '@/components/BarraMenu';
 import { PageOverlay } from '@/components/PageOverlay';
+import { Ambiente } from '@/components/Ambiente';
 import { Footer } from '@/sections/Footer';
 import { Portada } from '@/pages/Portada';
 import { Proyectos } from '@/pages/Proyectos';
@@ -32,6 +33,9 @@ function Contenido() {
       {/* Una sola barra para toda la web. La portada la lleva por encima del
           fotograma; las interiores dejan hueco debajo. */}
       <BarraMenu />
+
+      {/* Ambiente sonoro: solo en la portada */}
+      <Ambiente activo={esPortada} />
 
       {/* Las interiores empiezan bajo la barra, que es fija */}
       <main style={esPortada ? undefined : { paddingTop: 'var(--alto-barra)' }}>
