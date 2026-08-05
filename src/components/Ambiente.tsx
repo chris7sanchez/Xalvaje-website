@@ -31,8 +31,12 @@ const VOLUMEN_AMBIENTE = 0.16;
 const VOLUMEN_PORTON = 0.5;
 /** Lo que tarda el ambiente en entrar del todo, en ms */
 const ENTRADA_MS = 2600;
-/** Retraso del ambiente respecto al portón: entra cuando el portón ya subió */
-const RETRASO_MS = 900;
+/**
+ * Retraso del ambiente respecto al portón: entra a los 3 s, con el portón aún
+ * subiendo (dura 5,7 s). Que se solapen es lo que hace que la calle parezca
+ * estar ya ahí detrás y no aparecer de la nada cuando el portón termina.
+ */
+const RETRASO_MS = 3000;
 
 const MEMORIA = 'xalvaje-sonido';
 
