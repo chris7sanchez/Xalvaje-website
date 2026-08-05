@@ -9,6 +9,7 @@ import { QueOfrecemos } from '@/pages/QueOfrecemos';
 import { QuienesSomos } from '@/pages/QuienesSomos';
 import { Vision } from '@/pages/Vision';
 import { Contacto } from '@/pages/Contacto';
+import { DemoAccesos } from '@/pages/DemoAccesos';
 import { usePageLoad } from '@/hooks/usePageLoad';
 
 /** Al cambiar de página se empieza arriba, no donde estabas en la anterior. */
@@ -42,6 +43,9 @@ function Contenido() {
           <Route path="/quienes-somos" element={<QuienesSomos />} />
           <Route path="/nuestra-vision" element={<Vision />} />
           <Route path="/contacto" element={<Contacto />} />
+          {/* Ruta de trabajo, sin enlazar: comparador de accesos de portada.
+              Se borra en cuanto se elija una de las tres. */}
+          <Route path="/demo-accesos" element={<DemoAccesos />} />
           {/* Cualquier otra URL cae en la portada, no en una pantalla vacía */}
           <Route path="*" element={<Portada />} />
         </Routes>
