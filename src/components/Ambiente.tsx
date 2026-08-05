@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
  * Al primer gesto del visitante suena el portón de garaje subiendo, y detrás
  * entra el wildtrack de calle —coches de fondo, el equipo trabajando en la
  * sala— en bucle y muy por debajo. La idea es que la web tenga sala, no que
- * suene a música de espera: por eso el wildtrack se queda en 0,16 de volumen.
+ * suene a música de espera: por eso el wildtrack se queda en 0,14 de volumen.
  *
  * OJO CON EL AUTOPLAY, que es la trampa de todo esto. Los navegadores no dejan
  * sonar nada hasta que el visitante "activa" la página, y la RUEDA DEL RATÓN NO
@@ -26,9 +26,19 @@ import { cn } from '@/lib/utils';
 const PORTON = '/audio/porton.mp3';
 const WILDTRACK = '/audio/wildtrack.mp3';
 
-/** Volumen final del ambiente. Bajo a propósito: es sala, no banda sonora. */
-const VOLUMEN_AMBIENTE = 0.16;
-const VOLUMEN_PORTON = 0.5;
+/**
+ * Los dos volúmenes, deliberadamente juntos.
+ *
+ * El portón bajó de 0,5 a 0,34 y su archivo se rehízo 6 dB más suave: entre las
+ * dos cosas suena unos 9 dB por debajo de como estaba. La razón no es que
+ * molestase, sino que el escalón del portón al ambiente se oía como un corte.
+ *
+ * El ambiente NO lleva filtro de lejanía. Lo llevó y se retiró: apagaba las
+ * voces hasta volverlas una papilla. Ahora suena a lo que es —mucha gente
+ * trabajando— y lo que lo pone de fondo es el volumen, no el color.
+ */
+const VOLUMEN_AMBIENTE = 0.14;
+const VOLUMEN_PORTON = 0.34;
 /** Lo que tarda el ambiente en entrar del todo, en ms */
 const ENTRADA_MS = 2600;
 /**
