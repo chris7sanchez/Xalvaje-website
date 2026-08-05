@@ -473,3 +473,9 @@
 @media (prefers-reduced-motion: reduce) {
   .animate-\[barra_900ms_ease-in-out_infinite\] { animation: none; height: 60%; }
 }
+
+/* Aguja de la cola de arranque: una vuelta por segundo, como la de verdad. */
+@keyframes aguja {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
