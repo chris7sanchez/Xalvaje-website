@@ -74,3 +74,28 @@ comprobarla. Y ante la duda, preguntar: cuesta una frase.
 - El botón "Ver Todos los Proyectos" no hace nada.
 - El token de GitHub estuvo en texto plano en `.git/config`. Revisar que se
   haya rotado y que el remoto no lo lleve incrustado en la URL.
+
+## Vídeos: el audio se pierde solo si no lo mapeas
+
+`public/videos/reel.mp4` se ha quedado MUDO dos veces (la última, en `c762afc`).
+Siempre por lo mismo: alguien reencoda el vídeo para mejorar la imagen y el
+comando no mapea la pista de audio, así que sale un mp4 sin sonido y nadie lo
+mira antes de commitear.
+
+El máster está en `~/Mirror/CHRISS_REEL.mov` (1920x1080, 92,21 s) y trae **dos
+pistas mono** de PCM 24 bits — la L y la R por separado, como las saca Resolve.
+Coger solo `0:a:0` deja medio sonido; hay que unirlas:
+
+```bash
+ffmpeg -i entrada.mp4 -i ~/Mirror/CHRISS_REEL.mov \
+  -filter_complex "[1:a:0][1:a:1]join=inputs=2:channel_layout=stereo[a]" \
+  -map 0:v:0 -map "[a]" -c:v copy -c:a aac -b:a 192k -movflags +faststart salida.mp4
+```
+
+Y comprobar SIEMPRE antes de commitear cualquier vídeo:
+
+```bash
+ffprobe -v error -show_entries stream=codec_type,channels -of csv=p=0 public/videos/reel.mp4
+```
+
+Tiene que salir una línea `audio` con 2 canales. Si solo sale `video`, está mudo.
