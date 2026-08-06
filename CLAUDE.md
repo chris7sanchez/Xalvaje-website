@@ -102,11 +102,10 @@ Tiene que salir una línea `audio` con 2 canales. Si solo sale `video`, está mu
 
 ## La portada de MÓVIL va con fotogramas VERTICALES. No se toca.
 
-El recorrido de la portada en móvil se hace con **60 fotogramas verticales**
-apuntados desde `heroConfig.scrubFramePathPrefixSmall`. Desde el 06/08/2026 son
-los de `public/images/hero-scrub2-vert/` (864×1536), generados del arte nuevo
-de la nave vista desde la calle. Los antiguos (`hero-scrub-vert`, 720×1280,
-rodados en vertical) siguen en el repo por si hay que volver.
+El recorrido de la portada en móvil se hace con **60 fotogramas verticales de
+720×1280** en `public/images/hero-scrub-vert/`, apuntados desde
+`heroConfig.scrubFramePathPrefixSmall`. Son material rodado en vertical para el
+móvil, **no** un recorte de los de escritorio (que son 1600×900).
 
 **Nunca sustituir ese recorrido por un vídeo, una imagen fija ni los fotogramas
 de escritorio.** En concreto:
@@ -125,25 +124,3 @@ Si alguien pide "el vídeo vertical de la app", preguntar antes de tocar: casi
 seguro se refiere a que el recorrido se vea **en vertical**, y eso ya lo hacen
 los fotogramas. Comprobarlo midiendo — `sips -g pixelWidth -g pixelHeight` sobre
 `public/images/hero-scrub-vert/f-001.webp` — antes de cambiar nada.
-
-
-## hero-scrub2: cómo se generó y cómo regenerarlo
-
-Los 120 fotogramas de `hero-scrub2{,-vert}` NO salen de un vídeo: se compusieron
-el 06/08/2026 desde dos renders de Christian (los .tif de la raíz, sin
-versionar) porque se quedó sin créditos para renderizar el vídeo de apertura.
-La persiana cerrada se disuelve hacia arriba sobre el interior con
-`xfade=transition=smoothup`. Son PROVISIONALES: máster de 1024 px de ancho.
-
-```bash
-# horizontal (1024x576, recorte y=435 que deja fuera el menú quemado del mockup)
-ffmpeg -loop 1 -t 3 -r 25 -i cerrada.png -loop 1 -t 3 -r 25 -i reposo.png \
-  -filter_complex "[0:v][1:v]xfade=transition=smoothup:duration=2.32:offset=0.04" \
-  -frames:v 60 f-%03d.png
-```
-
-Cuando lleguen los másters grandes (≥1920 de ancho por estado) y/o el vídeo real
-de apertura, regenerar y subir la calidad. Los estados del MENÚ DE LUCES viven
-en `public/images/menu-estados/` y en `src/components/MenuLuces.tsx`; siguen
-pendientes de re-export los de Qué Ofrecemos y Nuestra Visión (llegaron
-duplicado y cambiado; llevan luz CSS provisional).

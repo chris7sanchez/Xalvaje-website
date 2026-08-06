@@ -107,21 +107,19 @@ export const heroConfig: HeroConfig = {
   // Respaldo instantáneo mientras cargan los fotogramas: usamos el primer
   // fotograma real (no la foto antigua) para que nunca se vea una imagen
   // que no pertenece al hero nuevo, ni siquiera un instante.
-  backgroundImage: "/images/hero-scrub2/f-001.webp",
+  backgroundImage: "/images/hero-scrub/f-001.webp",
   // Una sola línea: "Contando el odio desde el amor" se retira a petición.
   headlineLines: ["Dando luz a las sombras"],
   tagline: "Productora audiovisual — cortometrajes, largometrajes y contenido de marca",
   scrubFrameCount: 60,
-  scrubFramePathPrefix: "/images/hero-scrub2/f-",
-  // hero-scrub2: el arte NUEVO (la nave vista desde la calle) compuesto el
-  // 06/08/2026 a partir de los renders de Christian — la persiana cerrada
-  // disolviéndose hacia arriba sobre el reposo, 60 fotogramas. PROVISIONAL:
-  // los másters eran de 1024 px de ancho; cuando lleguen los grandes y el
-  // vídeo real de apertura, se regenera (pipeline en CLAUDE.md).
-  // Vertical 864x1536 para móvil, recorte 9:16 centrado en la puerta.
-  scrubFramePathPrefixSmall: "/images/hero-scrub2-vert/f-",
+  scrubFramePathPrefix: "/images/hero-scrub/f-",
+  // Fotogramas VERTICALES para móvil, sacados del vídeo vertical: llenan la
+  // pantalla (se ve el 82 % del ancho) en vez del 26 % que dejaba el 16:9 de
+  // escritorio, que además pesaba 3,36 MB.
+  scrubFramePathPrefixSmall: "/images/hero-scrub-vert/f-",
   // AMBAS VACÍAS A PROPÓSITO. En móvil manda el scrub con los 60 fotogramas
-  // VERTICALES de /images/hero-scrub2-vert (864x1536).
+  // VERTICALES de /images/hero-scrub-vert (720x1280), que es el material
+  // rodado para el móvil.
   //
   // NO poner aquí `portadaMovilVideo`. Parece inofensivo y no lo es: el hero
   // pinta el vídeo EN LUGAR de los fotogramas, pero `sinScrub` no depende de
