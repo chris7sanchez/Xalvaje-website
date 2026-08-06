@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { heroConfig, reelConfig } from '@/config';
+import { MenuLuces } from '@/components/MenuLuces';
 
 // Alto del contenedor de scroll, en "pantallas" (vh). Da el recorrido
 // necesario para que el scrub de fotogramas se sienta gradual, no un salto.
@@ -264,8 +265,6 @@ export function Hero() {
   // tres accesos aparecen al final.
   const showTitular = sinScrub || scrubProgress > 0.19;
   const showZones = sinScrub || scrubProgress > 0.62;
-  /** Qué lama de los accesos está abierta. null = las cuatro por igual. */
-  const [lamaAbierta, setLamaAbierta] = useState<number | null>(null);
   const showScrollCue = !sinScrub && progress < 0.08;
   // Tramo de portada: los fotogramas ya han terminado y la imagen final
   // permanece fija en pantalla.
@@ -387,158 +386,22 @@ export function Hero() {
           />
         </div>
 
-        {/* LAS PERSIANAS. Aparecen sobre el fotograma final: cuatro lamas del
-            mismo ancho con el rótulo en vertical, y la que se señala se abre en
-            ventana mientras las otras tres se estrechan.
-
-            El reparto va por `flex-grow` desde el estado y no por :hover a
-            secas: hace falta que las NO señaladas también reaccionen, y eso el
-            CSS suelto no lo puede expresar.
-
-            Cerrada enseña un fotograma fijo; el <video> solo se monta en la que
-            está abierta. La portada ya carga 60 fotogramas del scrub y cuatro
-            clips a la vez encima de eso era pedirle demasiado. */}
-        {heroConfig.zones.length > 0 && (
-          <div
-            className={cn(
-              'absolute inset-x-0 top-[54%] -translate-y-1/2 z-30 px-4 sm:px-8 transition-[opacity,transform] duration-700 ease-out',
-              showZones ? 'opacity-100 translate-y-[-50%]' : 'opacity-0 translate-y-[-40%] pointer-events-none'
-            )}
-          >
-            <div
-              className="flex mx-auto w-full max-w-5xl h-[30vh] sm:h-[34vh] md:h-[38vh] gap-3 sm:gap-4 lg:gap-6"
-              onMouseLeave={() => setLamaAbierta(null)}
-            >
-              {heroConfig.zones.map((zone, i) => {
-                const abierta = lamaAbierta === i;
-                return (
-                  <a
-                    key={zone.href}
-                    href={zone.href}
-                    onMouseEnter={() => setLamaAbierta(i)}
-                    onFocus={() => setLamaAbierta(i)}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      // Soltar el bloqueo ANTES de navegar: si no, la página de
-                      // destino se abre con el scroll congelado.
-                      unlockedRef.current = true;
-                      lockedRef.current = false;
-                      document.body.style.overflow = '';
-                      navigate(zone.href);
-                    }}
-                    aria-label={zone.label}
-                    className={cn(
-                      'relative block overflow-hidden border transition-[flex-grow,border-color] duration-[520ms] ease-out-quart',
-                      abierta ? 'border-exvia-red' : 'border-white/35'
-                    )}
-                    style={{ flexGrow: abierta ? 2.6 : 1, flexBasis: 0 }}
-                  >
-                    <img
-                      src={zone.poster}
-                      alt=""
-                      aria-hidden
-                      loading="lazy"
-                      decoding="async"
-                      className={cn(
-                        'absolute inset-0 w-full h-full object-cover transition-[filter,opacity] duration-[520ms] ease-out-quart',
-                        abierta ? 'opacity-0' : 'opacity-100 grayscale contrast-[1.15]'
-                      )}
-                    />
-                    {abierta && (
-                      <video
-                        src={zone.video}
-                        autoPlay
-                        loop
-                        muted
-                        playsInline
-                        aria-hidden
-                        className="absolute inset-0 w-full h-full object-cover"
-                      />
-                    )}
-
-                    <span
-                      aria-hidden
-                      className={cn(
-                        'absolute inset-0 transition-colors duration-[520ms]',
-                        abierta ? 'bg-black/20' : 'bg-black/60'
-                      )}
-                    />
-
-                    {/* Franja oscura solo bajo el rótulo de la lama abierta: el
-                        rojo sobre metraje claro se perdía, y subir el velo de
-                        toda la ventana apagaba la imagen, que es lo que se ha
-                        venido a ver. [L0] */}
-                    <span
-                      aria-hidden
-                      className={cn(
-                        'absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/85 to-transparent transition-opacity duration-500',
-                        abierta ? 'opacity-100' : 'opacity-0'
-                      )}
-                    />
-
-                    {/* Rótulo en vertical con la lama estrecha; se lee de abajo
-                        arriba, como el PRODUCCIONES del logotipo. */}
-                    <span
-                      className={cn(
-                        'absolute left-1/2 bottom-4 font-geist-mono uppercase text-[0.55rem] sm:text-[0.66rem] tracking-[0.22em] text-white whitespace-nowrap transition-opacity duration-300',
-                        abierta ? 'opacity-0' : 'opacity-100'
-                      )}
-                      style={{ writingMode: 'vertical-rl', transform: 'translateX(-50%) rotate(180deg)' }}
-                    >
-                      {zone.label}
-                    </span>
-
-                    {/* Y en horizontal, en grande, cuando se abre */}
-                    <span
-                      className={cn(
-                        'absolute left-4 lg:left-6 bottom-4 lg:bottom-6 right-4 font-display uppercase leading-[0.92] tracking-[-0.015em] text-exvia-red-text',
-                        'text-[clamp(1.35rem,3.4vw,3rem)] transition-opacity duration-300 delay-100',
-                        '[text-shadow:0_2px_16px_rgba(0,0,0,0.9)]',
-                        abierta ? 'opacity-100' : 'opacity-0'
-                      )}
-                    >
-                      {zone.label}
-                    </span>
-                  </a>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Reel: en el centro exacto del encuadre, que es donde cae el cruce de
-            la X. Vale para cualquier pantalla porque object-cover centra la
-            imagen, así que el centro del contenedor y el de la X coinciden.
-            Aparece con las zonas: es el momento en que el hero se congela como
-            portada-menú y el visitante está eligiendo a dónde ir.
-            Lleva fondo negro propio: el cruce de la X es la zona MÁS iluminada
-            del fotograma y un botón claro ahí sería invisible. */}
-        {reelConfig.src && (
-          <div
-            className={cn(
-              'absolute left-1/2 top-[25%] md:top-[24%] -translate-x-1/2 -translate-y-1/2 z-30 transition-[opacity,transform] duration-700 ease-out',
-              showZones ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
-            )}
-          >
-            <button
-              type="button"
-              onClick={() => setReelOpen(true)}
-              aria-label={`${reelConfig.label}: vídeo de 90 segundos`}
-              className="group flex flex-col items-center gap-3 focus:outline-none"
-            >
-              <span className="grid place-items-center w-16 h-16 sm:w-20 sm:h-20 rounded-full border border-white/70 bg-black/55 backdrop-blur-sm transition-[background-color,border-color,transform] duration-300 group-active:scale-[0.97] group-active:duration-160 group-hover:bg-black/80 group-hover:border-white group-hover:scale-105 group-focus-visible:ring-2 group-focus-visible:ring-white group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-black/50">
-                {/* Triángulo de play, ligeramente descentrado para que se vea óptico */}
-                <span
-                  aria-hidden
-                  className="ml-1 block w-0 h-0 border-y-[9px] border-y-transparent border-l-[15px] border-l-white transition-transform duration-300 group-hover:scale-110"
-                />
-              </span>
-              <span className="px-2.5 py-1 rounded-full bg-black/55 backdrop-blur-sm text-[0.65rem] sm:text-xs font-geist-mono uppercase tracking-[0.22em] text-white">
-                {reelConfig.label}
-              </span>
-            </button>
-          </div>
-        )}
+        {/* EL MENÚ DE LUCES (elegido en /demo-menu): sobre el fotograma final,
+            cada esquina enciende su estado de luz renderizado y VER REEL se
+            revela dentro del haz cenital por cercanía. Sustituye a las
+            persianas Y al botón circular del reel: la cenital es el botón. */}
+        <MenuLuces
+          visible={showZones}
+          alIr={(ruta) => {
+            // Soltar el bloqueo ANTES de navegar: si no, la página de destino
+            // se abre con el scroll congelado.
+            unlockedRef.current = true;
+            lockedRef.current = false;
+            document.body.style.overflow = '';
+            navigate(ruta);
+          }}
+          alReel={() => setReelOpen(true)}
+        />
 
         {/* Role labels on sides */}
         {heroConfig.roles[0] && (
