@@ -537,6 +537,113 @@ function PlatoAOscuras() {
   );
 }
 
+
+/* ═══════════ VI · LOS RENDERS DE CHRISTIAN ═══════════
+   El mismo juego de luces, pero con los ESTADOS RENDERIZADOS de verdad que
+   entregó Christian el 06/08/2026 (los .tif de la raíz del proyecto), en vez
+   de recortes CSS. Cada hover cruza a su imagen con el parpadeo de encendido.
+
+   Inventario medido de los seis TIF:
+   · PORTADA.tif        -> estado de reposo (usado como base)
+   · PROYECTOS.tif      -> luz izquierda        [OK, montado]
+   · QUIENES SOMOS.tif  -> centro cálido        [OK, montado]
+   · VER REEL.tif       -> haz central          [OK, montado]
+   · QUE ÉS XALVAJE.tif -> DUPLICADO EXACTO de VER REEL (PSNR infinito)
+   · NUESTRA VISION.tif -> es la persiana CERRADA, no la luz azul
+   Faltan por re-exportar: Qué Ofrecemos y Nuestra Visión (azul). Mientras,
+   esos dos llevan una luz CSS provisional sobre el reposo. */
+const RENDERS = {
+  reposo: '/images/menu-estados/reposo.webp',
+  proyectos: '/images/menu-estados/proyectos.webp',
+  quienes: '/images/menu-estados/quienes-somos.webp',
+  reel: '/images/menu-estados/ver-reel.webp',
+};
+
+type EstadoReal = 'proyectos' | 'ofrecemos' | 'quienes' | 'vision' | null;
+const ESQUINAS: { clave: Exclude<EstadoReal, null>; etiqueta: string; pos: string; real: boolean }[] = [
+  { clave: 'proyectos', etiqueta: 'Proyectos', pos: 'left-[6%] top-[12%]', real: true },
+  { clave: 'ofrecemos', etiqueta: '¿Qué ofrecemos?', pos: 'right-[6%] top-[12%]', real: false },
+  { clave: 'quienes', etiqueta: '¿Quiénes somos?', pos: 'left-[6%] bottom-[10%]', real: true },
+  { clave: 'vision', etiqueta: 'Nuestra visión', pos: 'right-[6%] bottom-[10%]', real: false },
+];
+
+function RendersReales() {
+  const caja = useRef<HTMLDivElement>(null);
+  const [foco, setFoco] = useState<EstadoReal>(null);
+  const [cerca, setCerca] = useState(false);
+
+  return (
+    <div
+      ref={caja}
+      className="absolute inset-0"
+      onMouseMove={(e) => {
+        const r = caja.current?.getBoundingClientRect();
+        if (!r) return;
+        const dx = e.clientX - (r.left + r.width / 2);
+        const dy = e.clientY - (r.top + r.height * 0.4);
+        setCerca(Math.hypot(dx * 1.5, dy) < r.height * 0.3);
+      }}
+      onMouseLeave={() => { setFoco(null); setCerca(false); }}
+    >
+      {/* Base: el reposo renderizado */}
+      <img src={RENDERS.reposo} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover" />
+
+      {/* Estados reales: crossfade con encendido de tungsteno */}
+      <img src={RENDERS.proyectos} alt="" aria-hidden className={cn('absolute inset-0 w-full h-full object-cover transition-opacity duration-200', foco === 'proyectos' ? 'opacity-100 animate-[encender_600ms_ease-out]' : 'opacity-0')} />
+      <img src={RENDERS.quienes} alt="" aria-hidden className={cn('absolute inset-0 w-full h-full object-cover transition-opacity duration-200', foco === 'quienes' ? 'opacity-100 animate-[encender_600ms_ease-out]' : 'opacity-0')} />
+      <img src={RENDERS.reel} alt="" aria-hidden className={cn('absolute inset-0 w-full h-full object-cover transition-opacity duration-200', cerca && foco === null ? 'opacity-100 animate-[encender_600ms_ease-out]' : 'opacity-0')} />
+
+      {/* Provisionales hasta el re-export: luz CSS sobre el reposo */}
+      <span aria-hidden className={cn('absolute inset-0 transition-opacity duration-200 pointer-events-none', foco === 'vision' ? 'opacity-100 animate-[encender_600ms_ease-out]' : 'opacity-0')}>
+        <span className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 18% 30% at 79% 58%, rgba(110,165,255,0.55), transparent 75%)', mixBlendMode: 'screen' }} />
+        <span className="absolute inset-0 bg-black/35" style={{ WebkitMaskImage: 'radial-gradient(ellipse 22% 36% at 79% 58%, transparent 40%, #000 100%)', maskImage: 'radial-gradient(ellipse 22% 36% at 79% 58%, transparent 40%, #000 100%)' }} />
+      </span>
+      <span aria-hidden className={cn('absolute inset-0 transition-opacity duration-200 pointer-events-none', foco === 'ofrecemos' ? 'opacity-100 animate-[encender_600ms_ease-out]' : 'opacity-0')}>
+        <span className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 34% 24% at 55% 12%, rgba(255,255,255,0.4), transparent 75%)', mixBlendMode: 'screen' }} />
+        <span className="absolute inset-0 bg-black/35" style={{ WebkitMaskImage: 'radial-gradient(ellipse 40% 30% at 55% 12%, transparent 40%, #000 100%)', maskImage: 'radial-gradient(ellipse 40% 30% at 55% 12%, transparent 40%, #000 100%)' }} />
+      </span>
+
+      {/* Esquinas */}
+      {ESQUINAS.map((e) => (
+        <button
+          key={e.clave}
+          type="button"
+          onMouseEnter={() => setFoco(e.clave)}
+          onFocus={() => setFoco(e.clave)}
+          className={cn(
+            'absolute font-display uppercase leading-none tracking-[-0.01em] transition-[color,transform,opacity] duration-300',
+            'text-[clamp(0.85rem,2vw,1.8rem)]', e.pos,
+            foco === e.clave ? 'text-exvia-red-text scale-110' : foco === null ? 'text-[#FBF7F5]' : 'text-[#FBF7F5]/30'
+          )}
+          style={{ textShadow: '0 2px 14px rgba(0,0,0,0.92)' }}
+        >
+          {e.etiqueta}
+          {!e.real && foco === e.clave && (
+            <span className="block mt-1 font-geist-mono text-[0.45rem] tracking-[0.24em] text-white/50 normal-case">
+              luz provisional — falta el render
+            </span>
+          )}
+        </button>
+      ))}
+
+      {/* VER REEL en el haz, por cercanía */}
+      <button
+        type="button"
+        aria-label="Ver el reel completo"
+        className={cn(
+          'absolute left-1/2 top-[40%] -translate-x-1/2 -translate-y-1/2',
+          'font-display uppercase leading-none text-[clamp(1.4rem,3.6vw,3rem)]',
+          'transition-[opacity,filter,transform] duration-500 ease-out-quart',
+          cerca && foco === null ? 'opacity-100 blur-0 scale-100 text-[#FBF7F5]' : 'opacity-0 blur-[10px] scale-95 pointer-events-none text-white'
+        )}
+        style={{ textShadow: '0 0 30px rgba(255,235,200,0.9), 0 0 70px rgba(255,220,160,0.5), 0 2px 10px rgba(0,0,0,0.8)' }}
+      >
+        Ver reel
+      </button>
+    </div>
+  );
+}
+
 export function DemoMenu() {
   return (
     <div className="bg-black pb-24">
@@ -555,6 +662,15 @@ export function DemoMenu() {
       </div>
 
       <div className="flex flex-col gap-16 lg:gap-24">
+        <Escenario
+          letra="VI"
+          titulo="Los renders de Christian"
+          gesto="encender focos"
+          nota="El mismo juego que el plató a oscuras, pero con TUS estados renderizados en vez de recortes CSS: cada hover cruza a su imagen con el parpadeo de encendido. Montados: reposo, Proyectos (luz izquierda), Quiénes Somos (centro cálido) y el haz de VER REEL por cercanía. Qué Ofrecemos y Nuestra Visión llevan luz provisional: el TIF de Qué Ofrecemos es un duplicado exacto del de Ver Reel y el de Nuestra Visión contiene la persiana cerrada."
+        >
+          <RendersReales />
+        </Escenario>
+
         <Escenario
           letra="V"
           titulo="El plató a oscuras"
