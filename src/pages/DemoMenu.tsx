@@ -373,6 +373,149 @@ function MesaDeLuz() {
   );
 }
 
+
+/* ═══════════ V · EL PLATÓ A OSCURAS ═══════════
+   La X como mapa, pero con LUZ DE VERDAD: cada esquina enciende el foco del
+   plató que le corresponde, con parpadeo de tungsteno al encender. Nuestra
+   Visión lleva gel azul, como pidió Christian. VER REEL no es un botón: son
+   letras que se revelan en el haz central cuando el ratón se acerca.
+
+   Las coordenadas de cada foco (cx, cy, r, en % del encuadre) están puestas A
+   OJO sobre f-060 y son lo primero que habrá que afinar: cada una es una
+   línea. */
+/* OJO: los radios van como ELIPSE (rx ry) y no como circle. Dos razones: los
+   porcentajes de radio son CSS inválido en circle —el navegador tiraba la
+   declaración entera y ni máscara ni gel se aplicaban—, y además el haz de un
+   foco es una elipse vertical, no un círculo. */
+const FOCOS = [
+  // Mismo orden que heroConfig.zones: Proyectos, Qué ofrecemos, Quiénes somos, Nuestra visión
+  { cx: '13%', cy: '55%', rx: '20%', ry: '34%', tinte: 'rgba(255,185,110,0.35)', pos: 'left-[6%] top-[14%]',  nota: 'foco izquierdo + brazo de la X' },
+  { cx: '56%', cy: '15%', rx: '32%', ry: '26%', tinte: 'rgba(255,200,140,0.30)', pos: 'right-[6%] top-[14%]', nota: 'focos de atrás' },
+  { cx: '26%', cy: '79%', rx: '21%', ry: '26%', tinte: 'rgba(255,185,110,0.32)', pos: 'left-[6%] bottom-[12%]', nota: 'director y cámara' },
+  { cx: '78%', cy: '62%', rx: '17%', ry: '27%', tinte: 'rgba(110,165,255,0.5)',  pos: 'right-[6%] bottom-[12%]', nota: 'los hombres de la derecha, gel azul' },
+];
+
+function PlatoAOscuras() {
+  const caja = useRef<HTMLDivElement>(null);
+  const [foco, setFoco] = useState<number | null>(null);
+  const [cerca, setCerca] = useState(false);
+
+  return (
+    <div
+      ref={caja}
+      className="absolute inset-0"
+      onMouseMove={(e) => {
+        const r = caja.current?.getBoundingClientRect();
+        if (!r) return;
+        const dx = e.clientX - (r.left + r.width / 2);
+        const dy = e.clientY - (r.top + r.height * 0.44);
+        setCerca(Math.hypot(dx, dy) < Math.min(r.width, r.height) * 0.22);
+      }}
+      onMouseLeave={() => { setFoco(null); setCerca(false); }}
+    >
+      {/* El plató se apaga: cuanto más eliges, más oscuro el resto */}
+      <span
+        aria-hidden
+        className={cn(
+          'absolute inset-0 transition-colors duration-700',
+          foco !== null || cerca ? 'bg-black/82' : 'bg-black/50'
+        )}
+      />
+
+      {/* Un recorte de luz por sección. La imagen revelada es EL MISMO
+          fotograma, así que lo que se enciende es la nave de verdad. */}
+      {FOCOS.map((f, i) => (
+        <span key={i} aria-hidden className={cn(foco === i ? 'opacity-100' : 'opacity-0', 'absolute inset-0 transition-opacity duration-200')}>
+          <span
+            className={cn('absolute inset-0 bg-cover bg-center', foco === i && 'animate-[encender_700ms_ease-out]')}
+            style={{
+              backgroundImage: `url(${FOTOGRAMA})`,
+              WebkitMaskImage: `radial-gradient(ellipse ${f.rx} ${f.ry} at ${f.cx} ${f.cy}, #000 45%, transparent 100%)`,
+              maskImage: `radial-gradient(ellipse ${f.rx} ${f.ry} at ${f.cx} ${f.cy}, #000 45%, transparent 100%)`,
+            }}
+          />
+          {/* El gel: color del foco, fundido en pantalla para que tiña la luz
+              y no pinte encima */}
+          <span
+            className="absolute inset-0"
+            style={{
+              background: `radial-gradient(ellipse ${f.rx} ${f.ry} at ${f.cx} ${f.cy}, ${f.tinte}, transparent 72%)`,
+              mixBlendMode: 'screen',
+            }}
+          />
+        </span>
+      ))}
+
+      {/* El haz central, para VER REEL por cercanía */}
+      <span aria-hidden className={cn(cerca ? 'opacity-100' : 'opacity-0', 'absolute inset-0 transition-opacity duration-300')}>
+        <span
+          className={cn('absolute inset-0 bg-cover bg-center', cerca && 'animate-[encender_700ms_ease-out]')}
+          style={{
+            backgroundImage: `url(${FOTOGRAMA})`,
+            WebkitMaskImage: 'radial-gradient(ellipse 18% 42% at 50% 38%, #000 40%, transparent 100%)',
+            maskImage: 'radial-gradient(ellipse 18% 42% at 50% 38%, #000 40%, transparent 100%)',
+          }}
+        />
+      </span>
+
+      {/* Los brazos de la X, finos, uniendo centro y esquinas */}
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none" aria-hidden>
+        {['M50 44 L12 12', 'M50 44 L88 12', 'M50 44 L12 88', 'M50 44 L88 88'].map((d, i) => {
+          const idx = [0, 1, 2, 3][i];
+          return (
+            <path
+              key={d}
+              d={d}
+              stroke={foco === idx ? '#DA5C40' : '#FBF7F5'}
+              strokeWidth={foco === idx ? 0.9 : 0.35}
+              opacity={foco === null || foco === idx ? 0.7 : 0.15}
+              vectorEffect="non-scaling-stroke"
+              className="transition-[stroke,opacity,stroke-width] duration-300"
+            />
+          );
+        })}
+      </svg>
+
+      {/* Las cuatro esquinas */}
+      {Z.map((z, i) => (
+        <button
+          key={z.href}
+          type="button"
+          onMouseEnter={() => setFoco(i)}
+          onFocus={() => setFoco(i)}
+          className={cn(
+            'absolute font-display uppercase leading-none tracking-[-0.01em] transition-[color,transform,opacity] duration-300',
+            'text-[clamp(0.85rem,2vw,1.8rem)]',
+            FOCOS[i].pos,
+            foco === i ? 'text-exvia-red-text scale-110' : foco === null ? 'text-[#FBF7F5]' : 'text-[#FBF7F5]/35'
+          )}
+          style={{ textShadow: '0 2px 14px rgba(0,0,0,0.92)' }}
+        >
+          {z.label}
+        </button>
+      ))}
+
+      {/* VER REEL: no es un botón a la vista, son letras que aparecen dentro
+          del haz cuando pasas cerca */}
+      <button
+        type="button"
+        aria-label="Ver el reel completo"
+        className={cn(
+          'absolute left-1/2 top-[44%] -translate-x-1/2 -translate-y-1/2',
+          'font-display uppercase leading-none tracking-[0.02em] text-[clamp(1.5rem,4vw,3.4rem)]',
+          'transition-[opacity,filter,transform,letter-spacing] duration-500 ease-out-quart',
+          cerca
+            ? 'opacity-100 blur-0 scale-100 text-[#FBF7F5]'
+            : 'opacity-0 blur-[10px] scale-95 pointer-events-none text-white'
+        )}
+        style={{ textShadow: '0 0 30px rgba(255,235,200,0.9), 0 0 70px rgba(255,220,160,0.5), 0 2px 10px rgba(0,0,0,0.8)' }}
+      >
+        Ver reel
+      </button>
+    </div>
+  );
+}
+
 export function DemoMenu() {
   return (
     <div className="bg-black pb-24">
@@ -391,6 +534,15 @@ export function DemoMenu() {
       </div>
 
       <div className="flex flex-col gap-16 lg:gap-24">
+        <Escenario
+          letra="V"
+          titulo="El plató a oscuras"
+          gesto="encender focos"
+          nota="La X como mapa, con luz de verdad. Cada esquina enciende SU foco del plató —con el parpadeo de una lámpara de tungsteno al arrancar—: Proyectos el foco izquierdo con su brazo de la X, Quiénes Somos al director y la cámara, Qué Ofrecemos los focos de atrás, y Nuestra Visión a los hombres de la derecha con gel AZUL. VER REEL no es un botón: son letras que se revelan dentro del haz central cuando el ratón se acerca. Las posiciones de los focos están puestas a ojo y se afinan en una línea cada una."
+        >
+          <PlatoAOscuras />
+        </Escenario>
+
         <Escenario
           letra="I"
           titulo="La moviola"

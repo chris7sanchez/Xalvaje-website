@@ -479,3 +479,15 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+/* Encendido de foco de tungsteno: dos parpadeos y se queda. El primer golpe
+   de luz nunca es limpio en una lampara de verdad. */
+@keyframes encender {
+  0% { opacity: 0; }
+  7% { opacity: 0.85; }
+  13% { opacity: 0.1; }
+  22% { opacity: 1; }
+  30% { opacity: 0.45; }
+  42% { opacity: 1; }
+  100% { opacity: 1; }
+}
