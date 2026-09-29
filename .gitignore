@@ -30,6 +30,19 @@ yarn-error.log*
 /*.MOV
 /*.MP4
 
+# Archivos de diseño/mockup sueltos en la raíz (.psd, .tif, capturas, PNGs de
+# referencia): no son parte de la web, solo aumentan el repo. Pasó el
+# 29/09/2026 — un .psd llegó a tener un token de API incrustado y bloqueó el
+# push por GitHub secret scanning. Las imágenes que sí usa la web están en
+# public/images/, que no se toca aquí (el patrón es solo raíz, "/").
+/*.psd
+/*.tif
+/*.tiff
+/*.png
+/*.jpg
+/*.jpeg
+/*.zip
+
 # Carpetas de trabajo y copias de seguridad locales
 _to_delete/
 _imagenes-originales-backup/
