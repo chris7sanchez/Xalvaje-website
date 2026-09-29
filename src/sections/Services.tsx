@@ -2,17 +2,12 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
-import { useServiceParallax } from '@/hooks/useMouseParallax';
-import { useHoverCapaz } from '@/hooks/useHoverCapaz';
 import { servicesConfig, type ServiceItem } from '@/config';
 
 function ServiceRow({ service }: { service: ServiceItem }) {
-  const [isHovered, setIsHovered] = useState(false);
-  const hoverCapaz = useHoverCapaz();
   const [showBrands, setShowBrands] = useState(false);
   // Desplegable de la fila (solo actua en movil)
   const [abierto, setAbierto] = useState(false);
-  const { containerRef, getTransform } = useServiceParallax();
   const navigate = useNavigate();
 
   const goTo = (href: string) => {
@@ -21,19 +16,16 @@ function ServiceRow({ service }: { service: ServiceItem }) {
   };
 
   return (
-    <div
-      ref={containerRef}
-      className="relative border-t border-white/10 transition-colors duration-300 hover:bg-white/[0.03]"
-      onMouseEnter={() => hoverCapaz && setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <div className="px-1 py-5 lg:py-[4.5rem]">
+    <div className="relative border-t border-white/10 transition-colors duration-300 hover:bg-white/[0.03]">
+      <div className="px-1 py-6 lg:py-12">
         <div className="flex flex-row items-baseline gap-3 lg:gap-10">
           {/* Sin numeracion: se quito de las fichas de Nosotros y de los
               encabezados de categoria de Proyectos, y aqui era el mismo
-              recurso repetido. */}
+              recurso repetido. Sin imagen al pasar el raton: era la unica
+              pieza puramente decorativa de la seccion, y el titulo a tamaño
+              de cartel ya hace ese trabajo por si solo. */}
 
-          <div className="flex-1 lg:max-w-xl">
+          <div className="flex-1">
             {/* En móvil la fila es un desplegable: solo el título ocupa sitio y
                 el detalle se abre al tocar. Así la sección baja a la mitad sin
                 recortar ni una palabra. En escritorio está todo visible y este
@@ -44,7 +36,7 @@ function ServiceRow({ service }: { service: ServiceItem }) {
               aria-expanded={abierto}
               className="w-full flex items-baseline justify-between gap-3 text-left lg:pointer-events-none"
             >
-              <h3 className="font-display uppercase text-white leading-[1.02] tracking-[0.04em] text-[clamp(1.25rem,2.6vw,2.9rem)]">
+              <h3 className="font-display uppercase text-white leading-[0.92] tracking-[0.01em] text-[clamp(2.25rem,6.4vw,6rem)]">
                 {service.title}
               </h3>
               <span
@@ -113,25 +105,6 @@ function ServiceRow({ service }: { service: ServiceItem }) {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Imagen que asoma al pasar el ratón, con paralaje suave */}
-      <div
-        className={cn(
-          'hidden lg:block absolute right-0 top-1/2 -translate-y-1/2 w-80 h-52 xl:w-[26rem] xl:h-64 overflow-hidden pointer-events-none z-10',
-          'transition-opacity duration-300',
-          isHovered ? 'opacity-100' : 'opacity-0'
-        )}
-        style={getTransform(50, 6)}
-      >
-        <img
-          loading="lazy"
-          decoding="async"
-          src={service.image}
-          alt=""
-          aria-hidden
-          className="w-full h-full object-cover"
-        />
       </div>
     </div>
   );

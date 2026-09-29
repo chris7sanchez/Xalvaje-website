@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { heroConfig, reelConfig } from '@/config';
+import { useHoverCapaz } from '@/hooks/useHoverCapaz';
 
 // Alto del contenedor de scroll, en "pantallas" (vh). Da el recorrido
 // necesario para que el scrub de fotogramas se sienta gradual, no un salto.
@@ -69,6 +70,9 @@ export function Hero() {
   // overflow:'' y descongelaría el hero justo al abrir el reel.
   const reelOpenRef = useRef(false);
   const navigate = useNavigate();
+  /** Qué lama de los accesos está abierta. null = las cuatro por igual. */
+  const [lamaAbierta, setLamaAbierta] = useState<number | null>(null);
+  const hoverCapaz = useHoverCapaz();
 
   const frameCount = heroConfig.scrubFrameCount;
 
@@ -264,8 +268,6 @@ export function Hero() {
   // tres accesos aparecen al final.
   const showTitular = sinScrub || scrubProgress > 0.19;
   const showZones = sinScrub || scrubProgress > 0.62;
-  /** Qué lama de los accesos está abierta. null = las cuatro por igual. */
-  const [lamaAbierta, setLamaAbierta] = useState<number | null>(null);
   const showScrollCue = !sinScrub && progress < 0.08;
   // Tramo de portada: los fotogramas ya han terminado y la imagen final
   // permanece fija en pantalla.
@@ -415,10 +417,18 @@ export function Hero() {
                   <a
                     key={zone.href}
                     href={zone.href}
-                    onMouseEnter={() => setLamaAbierta(i)}
+                    onMouseEnter={() => hoverCapaz && setLamaAbierta(i)}
                     onFocus={() => setLamaAbierta(i)}
                     onClick={(e) => {
                       e.preventDefault();
+                      // En táctil no hay hover: el primer toque abre la lama
+                      // (así se ve el vídeo y la etiqueta grande, que si no
+                      // nunca llegan a mostrarse) y solo un segundo toque
+                      // navega. En ratón, abierta ya está puesta por el hover.
+                      if (!hoverCapaz && lamaAbierta !== i) {
+                        setLamaAbierta(i);
+                        return;
+                      }
                       // Soltar el bloqueo ANTES de navegar: si no, la página de
                       // destino se abre con el scroll congelado.
                       unlockedRef.current = true;
@@ -440,8 +450,8 @@ export function Hero() {
                       loading="lazy"
                       decoding="async"
                       className={cn(
-                        'absolute inset-0 w-full h-full object-cover transition-[filter,opacity] duration-[520ms] ease-out-quart',
-                        abierta ? 'opacity-0' : 'opacity-100 grayscale contrast-[1.15]'
+                        'absolute inset-0 w-full h-full object-cover transition-opacity duration-[520ms] ease-out-quart',
+                        abierta ? 'opacity-0' : 'opacity-100'
                       )}
                     />
                     {abierta && (
@@ -456,45 +466,35 @@ export function Hero() {
                       />
                     )}
 
+                    {/* Velo tenue siempre puesto: deja ver el color real del
+                        metraje (antes se apagaba con grayscale+contraste) y
+                        solo se aclara un poco más al abrir. */}
                     <span
                       aria-hidden
                       className={cn(
                         'absolute inset-0 transition-colors duration-[520ms]',
-                        abierta ? 'bg-black/20' : 'bg-black/60'
+                        abierta ? 'bg-black/20' : 'bg-black/35'
                       )}
                     />
 
-                    {/* Franja oscura solo bajo el rótulo de la lama abierta: el
-                        rojo sobre metraje claro se perdía, y subir el velo de
-                        toda la ventana apagaba la imagen, que es lo que se ha
-                        venido a ver. [L0] */}
+                    {/* Franja oscura permanente bajo el rótulo: la etiqueta
+                        tiene que leerse tanto cerrada como abierta, no solo
+                        al pasar el ratón. */}
                     <span
                       aria-hidden
-                      className={cn(
-                        'absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/85 to-transparent transition-opacity duration-500',
-                        abierta ? 'opacity-100' : 'opacity-0'
-                      )}
+                      className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/85 to-transparent"
                     />
 
-                    {/* Rótulo en vertical con la lama estrecha; se lee de abajo
-                        arriba, como el PRODUCCIONES del logotipo. */}
+                    {/* Rótulo horizontal y legible siempre por defecto (antes
+                        era texto vertical de 8-10px, casi invisible); crece y
+                        pasa a rojo de marca al abrir la lama. */}
                     <span
                       className={cn(
-                        'absolute left-1/2 bottom-4 font-geist-mono uppercase text-[0.55rem] sm:text-[0.66rem] tracking-[0.22em] text-white whitespace-nowrap transition-opacity duration-300',
-                        abierta ? 'opacity-0' : 'opacity-100'
-                      )}
-                      style={{ writingMode: 'vertical-rl', transform: 'translateX(-50%) rotate(180deg)' }}
-                    >
-                      {zone.label}
-                    </span>
-
-                    {/* Y en horizontal, en grande, cuando se abre */}
-                    <span
-                      className={cn(
-                        'absolute left-4 lg:left-6 bottom-4 lg:bottom-6 right-4 font-display uppercase leading-[0.92] tracking-[-0.015em] text-exvia-red-text',
-                        'text-[clamp(1.35rem,3.4vw,3rem)] transition-opacity duration-300 delay-100',
+                        'absolute left-3 lg:left-6 bottom-3 lg:bottom-6 right-3 font-display uppercase leading-[0.95] tracking-[-0.01em] transition-[font-size,color] duration-300',
                         '[text-shadow:0_2px_16px_rgba(0,0,0,0.9)]',
-                        abierta ? 'opacity-100' : 'opacity-0'
+                        abierta
+                          ? 'text-[clamp(1.35rem,3.4vw,3rem)] text-exvia-red-text'
+                          : 'text-[clamp(0.8rem,1.7vw,1.15rem)] text-white'
                       )}
                     >
                       {zone.label}

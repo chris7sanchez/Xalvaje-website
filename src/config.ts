@@ -294,6 +294,9 @@ export const categoriasProyectos: CategoriaProyectos[] = [
   { slug: "cortometrajes", titulo: "Cortometrajes", coincideCon: ["Cortometraje", "Cortometraje premiado"] },
   { slug: "campanas", titulo: "Campañas creativas", coincideCon: ["Campaña"] },
   { slug: "fotografia", titulo: "Fotografía", coincideCon: [] },
+  // Igual que Fotografia: seccion propia (Fragmentos.tsx), no se pinta dentro
+  // de Portfolio, así que coincideCon va vacío.
+  { slug: "fragmentos", titulo: "Fragmentos", coincideCon: [] },
 ];
 
 // Sección SERVICIOS: lista de cuatro servicios con el mismo lenguaje que
@@ -381,6 +384,16 @@ export interface ProjectItem {
   sinopsis?: string[];
   /** Carrusel de fotos propio (solo para el proyecto destacado, ej. PRISMA) */
   carouselImages?: string[];
+  /** Premio o mención obtenida, si la hay. Ej. "1er Premio", "Premio del público". */
+  premio?: string;
+  /** Concurso o festival en el que se obtuvo el premio. */
+  concurso?: string;
+  /** Ficha técnica: duración tal cual figura en el vídeo publicado. */
+  duracion?: string;
+  /** Reparto, formato "Personaje — Actor/actriz". Solo si consta en los créditos publicados. */
+  reparto?: string[];
+  /** Créditos de equipo: { rol, nombre }. Solo roles que constan en los créditos publicados. */
+  creditos?: { rol: string; nombre: string }[];
 }
 
 export interface PortfolioCTA {
@@ -429,6 +442,9 @@ export const portfolioConfig: PortfolioConfig = {
       aspecto: 939 / 1400,
       hoverImage: "/images/pantera-2b.webp",
       youtubeUrl: "https://www.youtube.com/watch?v=XBYdj9WHbXI",
+      premio: "1er Premio",
+      concurso: "Concurso Corto en 60 segundos de Culturainquieta e Iberdrola — Vuelta al Cole",
+      duracion: "1'",
     },
     {
       title: "El Mejor Regalo",
@@ -438,6 +454,15 @@ export const portfolioConfig: PortfolioConfig = {
       aspecto: 832 / 1248,
       hoverImage: "/images/regalo-3b.webp",
       youtubeUrl: "https://www.youtube.com/watch?v=UObXpwbo0RQ",
+      premio: "1er Premio",
+      concurso: "Concurso Corto Navidad en 60 segundos de Culturainquieta e Iberdrola",
+      duracion: "1'",
+      reparto: ["Luis — Juan Hernández", "Félix — Albert Muntanyola"],
+      creditos: [
+        { rol: "Escrito y dirigido por", nombre: "Christian Sánchez" },
+        { rol: "Ayudante de dirección", nombre: "Ángel Lara" },
+        { rol: "Producción ejecutiva", nombre: "Patricia López" },
+      ],
     },
     {
       title: "El Viaje Continúa...",
@@ -447,6 +472,9 @@ export const portfolioConfig: PortfolioConfig = {
       aspecto: 933 / 1400,
       hoverImage: "/images/viaje-1b.webp",
       youtubeUrl: "https://www.youtube.com/watch?v=KE3xAOQLitA",
+      premio: "Premio del público",
+      concurso: "Concurso de cortometrajes LGTBI de OUIGO",
+      duracion: "4' 05''",
       sinopsis: [
         "Cris viaja en tren de Madrid al pueblo. Ha terminado su primer curso en la universidad y ahora es tiempo de regresar con la familia y los amigos de toda la vida para las vacaciones.",
         "En el tren se encuentra con su profesora Julia, que, al apreciar en Cris una apariencia y una actitud tan distintas a las que la tiene acostumbrada en clase, le ofrece ir a tomar algo para compartir un rato de charla en la cafetería.",
@@ -454,12 +482,19 @@ export const portfolioConfig: PortfolioConfig = {
     },
     {
       title: "Papá no es",
-      category: "Cortometraje",
+      category: "Cortometraje premiado",
       year: "2020",
       image: "/images/papa-4a.webp",
       aspecto: 933 / 1400,
       hoverImage: "/images/papa-4b.webp",
       youtubeUrl: "https://youtu.be/54oR1p9xxM8",
+      premio: "Mención especial",
+      concurso: "Concurso de cortometrajes de Navidad en 60 segundos",
+      duracion: "1' 31''",
+      sinopsis: [
+        "Cada 25 de diciembre, a medianoche, Papá Noel sale a repartir felicidad por todas las casas… pero ¿qué pasa si un día \"alguien\" exige también su lugar?",
+      ],
+      creditos: [{ rol: "Escrito y dirigido por", nombre: "Christian Sánchez" }],
     },
     {
       title: "Vamos Tú Puedes",
@@ -469,15 +504,36 @@ export const portfolioConfig: PortfolioConfig = {
       aspecto: 788 / 1400,
       hoverImage: "/images/vamos-5b.webp",
       youtubeUrl: "https://www.youtube.com/watch?v=uzKOL_YLpF8",
+      duracion: "4' 02''",
+      sinopsis: [
+        "Abel reúne el valor para contarle a su amigo Ernesto quién es realmente, durante un viaje en tren.",
+      ],
     },
     {
+      // Año y categoría corregidos: el vídeo ya está publicado en YouTube
+      // (comprobado directamente en la página, 2025-10-11), no "en producción".
       title: "Añadas en Reserva",
       category: "Cortometraje",
-      year: "En producción",
+      year: "2025",
       image: "/images/anadas-cartel.webp",
       aspecto: 1024 / 1536,
       hoverImage: "/images/reserva-6b.webp",
       youtubeUrl: "https://www.youtube.com/watch?v=JwBHxL6ZHUI",
+      duracion: "8' 39''",
+      reparto: [
+        "Ángel Lara",
+        "Guillermo de los Santos",
+        "Martín Arboledas",
+        "Alejandro Martínez",
+      ],
+      creditos: [
+        { rol: "Dirección y guion", nombre: "Christian Sánchez" },
+        { rol: "Fotografía", nombre: "Ángel Lara" },
+        { rol: "Arte", nombre: "Víctor Sirocco" },
+        { rol: "Montaje", nombre: "Christian Sánchez" },
+        { rol: "Sonido", nombre: "Davide Cipolat" },
+        { rol: "Música", nombre: "Christian Sánchez" },
+      ],
     },
 
     // CAMPAÑAS CREATIVAS

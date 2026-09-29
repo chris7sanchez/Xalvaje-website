@@ -23,6 +23,16 @@ interface Project {
   carouselImages?: string[];
   /** Sinopsis que se lee sobre el vídeo, en la ventana del proyecto */
   sinopsis?: string[];
+  /** Premio o mención obtenida, si la hay. */
+  premio?: string;
+  /** Concurso o festival en el que se obtuvo el premio. */
+  concurso?: string;
+  /** Ficha técnica: duración tal cual figura en el vídeo publicado. */
+  duracion?: string;
+  /** Reparto, formato "Personaje — Actor/actriz". Solo si consta en los créditos publicados. */
+  reparto?: string[];
+  /** Créditos de equipo: { rol, nombre }. Solo roles que constan en los créditos publicados. */
+  creditos?: { rol: string; nombre: string }[];
 }
 
 function FeaturedPrisma({ project, isVisible }: { project: Project; isVisible: boolean }) {
@@ -136,7 +146,12 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
   const [showVideo, setShowVideo] = useState(false);
   const [reproduciendo, setReproduciendo] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [fichaAbierta, setFichaAbierta] = useState(false);
   const hoverCapaz = useHoverCapaz();
+
+  const tieneFicha = Boolean(
+    project.duracion || (project.reparto && project.reparto.length > 0) || (project.creditos && project.creditos.length > 0)
+  );
 
   const tieneVideo = Boolean(project.videoSrc || project.youtubeUrl);
 
@@ -286,6 +301,13 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
                   {project.title}
                 </h3>
 
+                {project.premio && (
+                  <p className="mt-3 text-xs sm:text-sm font-geist-mono uppercase tracking-[0.15em] text-exvia-red-text">
+                    {project.premio}
+                    {project.concurso && <span className="text-white/60 normal-case tracking-normal font-sans"> — {project.concurso}</span>}
+                  </p>
+                )}
+
                 {project.sinopsis && project.sinopsis.length > 0 && (
                   <div className="mt-5 space-y-3 max-w-2xl">
                     {project.sinopsis.map((parrafo) => (
@@ -293,6 +315,47 @@ function ProjectCard({ project, index, isVisible }: { project: Project; index: n
                         {parrafo}
                       </p>
                     ))}
+                  </div>
+                )}
+
+                {/* CTA doble: ver el corto (abajo, sobre el vídeo) y, aparte,
+                    desplegar la ficha técnica sin salir de esta ventana. */}
+                {tieneFicha && (
+                  <button
+                    type="button"
+                    onClick={() => setFichaAbierta((v) => !v)}
+                    aria-expanded={fichaAbierta}
+                    className="group mt-5 inline-flex items-center gap-3 border-b border-exvia-red/50 pb-1.5 text-xs font-geist-mono uppercase tracking-[0.22em] text-exvia-red-text hover:border-exvia-red hover:text-white transition-colors"
+                  >
+                    Ficha técnica
+                    <span aria-hidden className={cn('transition-transform duration-300', fichaAbierta && 'rotate-45')}>
+                      +
+                    </span>
+                  </button>
+                )}
+
+                {tieneFicha && fichaAbierta && (
+                  <div className="mt-4 max-w-2xl border-t border-white/10 pt-4 space-y-3">
+                    {project.duracion && (
+                      <p className="text-xs font-geist-mono uppercase tracking-[0.15em] text-white/50">
+                        Duración <span className="text-white/80 normal-case tracking-normal font-sans">{project.duracion}</span>
+                      </p>
+                    )}
+                    {project.reparto && project.reparto.length > 0 && (
+                      <div>
+                        <p className="text-xs font-geist-mono uppercase tracking-[0.15em] text-white/50">Reparto</p>
+                        <p className="mt-1 text-sm text-white/80 leading-relaxed">{project.reparto.join(' · ')}</p>
+                      </div>
+                    )}
+                    {project.creditos && project.creditos.length > 0 && (
+                      <div className="space-y-1">
+                        {project.creditos.map((c) => (
+                          <p key={c.rol} className="text-sm text-white/80 leading-relaxed">
+                            <span className="text-white/50">{c.rol}:</span> {c.nombre}
+                          </p>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
