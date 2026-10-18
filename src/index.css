@@ -5,7 +5,7 @@
 /* Geist Font Faces */
 @font-face {
   font-family: 'Geist';
-  src: url('https://cdn.prod.website-files.com/68befb9aa58b429a9ce06d7f/68bf1778983b9c9184da501f_Geist-Regular.ttf') format('truetype');
+  src: url('/fonts/Geist-Regular.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -13,7 +13,7 @@
 
 @font-face {
   font-family: 'Geist';
-  src: url('https://cdn.prod.website-files.com/68befb9aa58b429a9ce06d7f/68bf1778794a69efb67a03b9_Geist-Medium.ttf') format('truetype');
+  src: url('/fonts/Geist-Medium.ttf') format('truetype');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -21,7 +21,7 @@
 
 @font-face {
   font-family: 'GeistMono';
-  src: url('https://cdn.prod.website-files.com/68befb9aa58b429a9ce06d7f/68bf17d1bd4c1ee371204d67_GeistMono-Medium.ttf') format('truetype');
+  src: url('/fonts/GeistMono-Medium.ttf') format('truetype');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -490,4 +490,14 @@
   30% { opacity: 0.45; }
   42% { opacity: 1; }
   100% { opacity: 1; }
+}
+
+/* Muro 3D (Qué ofrecemos): vaivén de las columnas. Sustituye a la animación
+   con `motion` del 3D Marquee original de Aceternity. */
+@keyframes muro3d-abajo { from { transform: translateY(0); } to { transform: translateY(100px); } }
+@keyframes muro3d-arriba { from { transform: translateY(0); } to { transform: translateY(-100px); } }
+.muro3d-abajo { animation: muro3d-abajo 10s ease-in-out infinite alternate; }
+.muro3d-arriba { animation: muro3d-arriba 15s ease-in-out infinite alternate; }
+@media (prefers-reduced-motion: reduce) {
+  .muro3d-abajo, .muro3d-arriba { animation: none; }
 }
