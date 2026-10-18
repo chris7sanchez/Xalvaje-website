@@ -49,7 +49,9 @@ const FUENTE = {
   script: "'Christiangraphy Font', Christiangraphy, 'Great Vibes', cursive",
   engraved: "'Academy Engraved LET', 'Cinzel Decorative', serif",
   arkadelphia: "'Arkadelphia Demo', 'Cinzel Decorative', serif",
-  kokonor: "Kokonor, Comforter, cursive",
+  /* Kokonor es tibetana, sin latinas: su PowerPoint la sustituye por una
+     serif italica elegante — eso es lo que Christian ve y eligio. */
+  kokonor: "'Cormorant Garamond', 'Playfair Display', Georgia, serif",
   courier: "'Courier New', monospace",
 } as const;
 
@@ -113,7 +115,7 @@ const LAMINAS: Lamina[] = [
         { runs: [{ t: '                nuestra propia existencia.', f: 'kokonor', pt: 28, c: 'FFFFFF', i: true, spc: -0.05 }] },
       ]},
       /* Su brochazo rojo bajo «nuestra propia existencia» */
-      { tipo: 'forma', x: 61.7, y: 88.4, w: 36.2, h: 9.7, color: 'C00000', alpha: 0.82 },
+      { tipo: 'forma', x: 66.0, y: 91.8, w: 31.5, h: 0.9, color: 'C00000', alpha: 0.9 },
     ],
   },
   {
@@ -220,7 +222,7 @@ function CajaTexto({ pieza }: { pieza: Extract<Pieza, { tipo: 'caja' }> }) {
                   fontSize: cuerpo(r.pt),
                   color: `#${r.c}`,
                   fontStyle: r.i ? 'italic' : 'normal',
-                  fontWeight: r.b ? 700 : r.f === 'jost' ? 300 : 400,
+                  fontWeight: r.b ? 700 : r.f === 'jost' ? 300 : r.f === 'kokonor' ? 500 : 400,
                   letterSpacing: r.spc ? `${r.spc}em` : undefined,
                   ...(r.res
                     ? {
