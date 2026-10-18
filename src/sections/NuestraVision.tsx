@@ -165,16 +165,27 @@ const LAMINAS: Lamina[] = [
     ],
   },
   {
-    num: '05', nombre: 'EL QUINTO: CONTAR', tinte: 'DA5C40',
+    num: '05', nombre: '', tinte: 'DA5C40',
     piezas: [
       { tipo: 'video', plano: 'pareja', x: 68.3, y: 17.3, w: 28.5, ratio: 3.8 / 1.58 },
-      { tipo: 'caja', x: 4.5, y: 14.7, w: 62, parrafos: [{ runs: [{ t: 'XALVAJE viene a contar esas historias.', f: 'jost', pt: 20, c: 'FFFFFF' }] }] },
-      { tipo: 'caja', x: 4.5, y: 24.3, w: 62, parrafos: [{ runs: [{ t: 'LAS QUE NOS ATRAVIESAN.', f: 'anton', pt: 30, c: 'FBF7F5' }] }] },
-      { tipo: 'caja', x: 8.3, y: 33.9, w: 62, parrafos: [{ runs: [{ t: 'LAS QUE NOS INCOMODAN.', f: 'anton', pt: 36, c: 'FBF7F5' }] }] },
-      { tipo: 'caja', x: 12.0, y: 43.5, w: 62, parrafos: [{ runs: [{ t: 'LAS QUE NOS TRANSFORMAN.', f: 'anton', pt: 42, c: 'FBF7F5' }] }] },
-      { tipo: 'caja', x: 15.8, y: 54.4, w: 72, parrafos: [{ runs: [{ t: 'LAS QUE NO NOS ATREVEMOS A CONTAR.', f: 'anton', pt: 48, c: 'DA5C40' }] }] },
-      { tipo: 'caja', x: 20.5, y: 74.0, w: 62, parrafos: [{ runs: [{ t: 'Porque hay historias que NO VIENEN A ENTRETENERNOS.', f: 'cormorant', pt: 28, c: 'FFFFFF', i: true }] }] },
-      { tipo: 'caja', x: 46.5, y: 80.9, w: 51, parrafos: [{ runs: [{ t: 'VIENEN A RECORDARNOS QUIÉNES SOMOS.', f: 'anton', pt: 40, c: 'FBF7F5' }] }] },
+      { tipo: 'caja', x: 3.4, y: 8.0, w: 62, parrafos: [{ runs: [{ t: 'XALVAJE viene a contar esas historias.', f: 'jost', pt: 20, c: 'FFFFFF' }] }] },
+      { tipo: 'caja', x: 3.4, y: 16.7, w: 62, parrafos: [{ runs: [{ t: 'LAS QUE NOS ATRAVIESAN.', f: 'anton', pt: 30, c: 'FBF7F5' }] }] },
+      { tipo: 'caja', x: 7.2, y: 23.5, w: 62, parrafos: [{ runs: [{ t: 'LAS QUE NOS INCOMODAN.', f: 'anton', pt: 36, c: 'FBF7F5' }] }] },
+      { tipo: 'caja', x: 12.0, y: 32.4, w: 62, parrafos: [{ runs: [{ t: 'LAS QUE NOS TRANSFORMAN.', f: 'anton', pt: 42, c: 'FBF7F5' }] }] },
+      /* El color va DENTRO de la frase: NO y ATREVEMOS en su rojo */
+      { tipo: 'caja', x: 18.0, y: 44.0, w: 53, parrafos: [{ runs: [
+        { t: 'LAS QUE ', f: 'anton', pt: 48, c: 'FBF7F5' },
+        { t: 'NO', f: 'anton', pt: 48, c: 'C00000' },
+        { t: ' NOS ', f: 'anton', pt: 48, c: 'FBF7F5' },
+        { t: 'ATREVEMOS', f: 'anton', pt: 48, c: 'C00000' },
+        { t: ' A CONTAR.', f: 'anton', pt: 48, c: 'FBF7F5' },
+      ]}]},
+      /* El hueco grande antes de las dos ultimas frases es parte del diseno */
+      { tipo: 'caja', x: 3.4, y: 78.0, w: 70, parrafos: [{ runs: [{ t: 'Porque hay historias que NO VIENEN A ENTRETENERNOS.', f: 'cormorant', pt: 28, c: 'FFFFFF', i: true }] }] },
+      { tipo: 'caja', x: 12.4, y: 87.5, w: 86, parrafos: [{ runs: [
+        { t: 'VIENEN A ', f: 'anton', pt: 40, c: 'FBF7F5' },
+        { t: 'RECORDARNOS QUIÉNES SOMOS.', f: 'typew', pt: 30, c: '000000', spc: 0.2, res: 'C00000' },
+      ]}]},
     ],
   },
 ];
@@ -293,13 +304,15 @@ export function NuestraVision() {
             className="relative mt-14 lg:mt-20 lg:aspect-[16/9] lg:overflow-hidden"
             style={{ containerType: 'inline-size' }}
           >
-            <span
-              aria-hidden
-              className="block lg:absolute lg:left-[4.5%] lg:top-[4.7%] mb-4 lg:mb-0 font-geist-mono uppercase text-[0.72rem] tracking-[0.55em]"
-              style={{ color: `#${l.tinte}` }}
-            >
-              {l.num} · {l.nombre}
-            </span>
+            {l.nombre && (
+              <span
+                aria-hidden
+                className="block lg:absolute lg:left-[4.5%] lg:top-[4.7%] mb-4 lg:mb-0 font-geist-mono uppercase text-[0.72rem] tracking-[0.55em]"
+                style={{ color: `#${l.tinte}` }}
+              >
+                {l.num} · {l.nombre}
+              </span>
+            )}
 
             {/* El orden de las piezas es el z-order de su diapositiva */}
             {l.piezas.map((p, i) => {
