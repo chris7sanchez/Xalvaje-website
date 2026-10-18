@@ -12,6 +12,7 @@ import { Vision } from '@/pages/Vision';
 import { Contacto } from '@/pages/Contacto';
 import { DemoReel } from '@/pages/DemoReel';
 import { DemoMenu } from '@/pages/DemoMenu';
+import { DemoVision } from '@/pages/DemoVision';
 import { usePageLoad } from '@/hooks/usePageLoad';
 
 /** Al cambiar de página se empieza arriba, no donde estabas en la anterior. */
@@ -52,6 +53,7 @@ function Contenido() {
               Se borra en cuanto se elija una de las tres. */}
           <Route path="/demo-reel" element={<DemoReel />} />
           <Route path="/demo-menu" element={<DemoMenu />} />
+          <Route path="/demo-vision" element={<DemoVision />} />
           {/* Cualquier otra URL cae en la portada, no en una pantalla vacía */}
           <Route path="*" element={<Portada />} />
         </Routes>

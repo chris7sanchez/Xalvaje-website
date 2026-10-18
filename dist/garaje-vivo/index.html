@@ -1,0 +1,678 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>XALVAJE · garaje vivo (prototipo)</title>
+<style>
+  html, body { margin: 0; background: #000; color: #fff; font-family: -apple-system, system-ui, sans-serif; }
+  #tramo { position: relative; height: 350vh; }
+  #escena { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
+  #gl, #fx, #humo { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  /* el humo vivo del final: la propia imagen moviéndose donde hay humo */
+  #humo { pointer-events: none; opacity: 0; }
+  /* el fotograma del recorrido: lo coloca JS encima de su sitio dentro de la escena */
+  #fotograma { position: absolute; left: 0; top: 0; display: block; object-fit: fill; opacity: 0; }
+  #fx { pointer-events: none; }
+  #panel {
+    position: absolute; left: 14px; bottom: 14px; z-index: 5; font-size: 12px; line-height: 1.5;
+    background: rgba(0,0,0,.62); border: 1px solid rgba(255,255,255,.15); padding: 10px 12px; border-radius: 6px;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); max-width: 260px;
+  }
+  #panel b { letter-spacing: .12em; font-size: 11px; }
+  #panel label { display: flex; gap: 6px; align-items: center; cursor: pointer; }
+  #panel button { margin: 4px 4px 0 0; background: #7A0C0F; color: #fff; border: 0; padding: 4px 8px; border-radius: 3px; font-size: 11px; cursor: pointer; }
+  #panel .nota { opacity: .65; margin-top: 6px; }
+  #panel.oculto > *:not(#plegar) { display: none; }
+  #plegar { position: absolute; right: 6px; top: 4px; background: none !important; padding: 0 4px !important; }
+  #despues { min-height: 100vh; display: grid; place-items: center; background: #0b0b0b; color: #aaa; }
+</style>
+</head>
+<body>
+<div id="tramo">
+  <div id="escena">
+    <canvas id="gl"></canvas>
+    <img id="fotograma" alt="">
+    <canvas id="humo"></canvas>
+    <canvas id="fx"></canvas>
+    <div id="panel">
+      <button id="plegar" title="Plegar">–</button>
+      <b>GARAJE VIVO · PROTOTIPO</b>
+      <div class="nota">Mueve el ratón para cambiar el punto de vista. Baja con el scroll para que se abra la puerta.</div>
+      <label><input type="checkbox" id="cBombilla" checked> Bombilla que parpadea</label>
+      <label><input type="checkbox" id="cCoches" checked> Coches por el callejón</label>
+      <label><input type="checkbox" id="cViento" checked> Viento con hojas</label>
+      <label><input type="checkbox" id="cLluvia" checked> Lluvia (ciclo: empieza, amaina, tormenta, para)</label>
+      <div class="nota">Tiempo: <span id="estadoClima">seco</span></div>
+      <label><input type="checkbox" id="cNiebla" checked> Bruma</label>
+      <label>Profundidad <input type="range" id="rProf" min="0" max="60" value="28" style="flex:1"></label>
+      <button id="bCoche">Pasa un coche</button><button id="bRafaga">Ráfaga</button><button id="bApagon">Parpadeo</button>
+    </div>
+  </div>
+</div>
+<section id="despues">Aquí seguiría la web (el menú de la portada).</section>
+
+<script>
+(() => {
+  // ───────────── Datos de cada encuadre (en coordenadas de la imagen, 0-1) ─────────────
+  // La escena viva usa el fotograma 1 AMPLIADO por los bordes (relleno con IA):
+  // la cámara empieza más lejos y, al hacer scroll, se acerca hasta el encuadre
+  // exacto del recorrido (marco = dónde está el fotograma 1 dentro, en px).
+  const ENCUADRES = {
+    h: {
+      color: '/garaje-vivo/color_h_ext.jpg', depth: '/garaje-vivo/depth_h_ext.png', frames: '/images/hero-scrub/f-', img: [2226, 1381],
+      marco: [153, 129, 1920, 1080],
+      lamp: [0.5078, 0.1341],            // bombilla sobre la persiana
+      lampFar: [0.0938, 0.4117],         // farola del fondo del callejón
+      pool: [0.50, 0.3437, 0.2933, 0.4067],  // charco de luz de la bombilla: centro y radios
+      floorGlow: [0.50, 0.8207, 0.2588, 0.0782],
+      alley: [0.08, 0.25, 0.21, 0.80],
+      floorY: 0.7542,
+      prof: 1, hojaEsc: [0.45, 1.35],   // hojas: tamaño junto a la puerta y abajo del todo
+      // el coche de verdad (del vídeo original, fotograma a fotograma, estabilizado
+      // sobre el fotograma 1): x, y, ancho, alto dentro de la imagen ampliada
+      coche: '/garaje-vivo/coche_h.mp4', cocheRect: [0.06873, 0.24403, 0.27314, 0.63143],
+      flecha: [153 + 211, 129 + 557, 62, 129 + 800],
+    },
+    v: {
+      color: '/garaje-vivo/color_v_ext.jpg', depth: '/garaje-vivo/depth_v_ext.png', frames: '/images/hero-scrub-vert/f-', img: [1080, 1952],
+      marco: [90, 160, 900, 1600],
+      lamp: [0.5133, 0.3279],
+      lampFar: [0.5275, 0.1672],          // farola de arriba a la derecha
+      pool: [0.4833, 0.4262, 0.3333, 0.2131],
+      floorGlow: [0.50, 0.6721, 0.375, 0.1311],
+      alley: [0.08, 0.41, 0.22, 0.58],
+      floorY: 0.5738,
+      // en vertical el suelo es muy profundo: las hojas junto a la puerta, diminutas;
+      // y sin ratón, el punto de vista necesita moverse más para notarse
+      prof: 2.4, hojaEsc: [0.12, 1.4],
+      coche: '/garaje-vivo/coche_v.mp4', cocheRect: [0.08333, 0.33197, 0.61481, 0.56967],
+      flecha: [90 + 153, 160 + 764, 34, 160 + 950],
+      pista: [[90 + 457, 160 + 1190, 210, 46], [90 + 457, 160 + 1130, 160, 35], [90 + 457, 160 + 1083, 120, 26]],
+    },
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const cv = $('gl'), fx = $('fx'), img = $('fotograma'), tramo = $('tramo');
+  const ctrl = {
+    bombilla: $('cBombilla'), coches: $('cCoches'), viento: $('cViento'), lluvia: $('cLluvia'), niebla: $('cNiebla'), prof: $('rProf'),
+  };
+  $('plegar').onclick = () => $('panel').classList.toggle('oculto');
+  // en el móvil el panel tapaba media escena: empieza plegado
+  if (innerWidth < 600) $('panel').classList.add('oculto');
+
+  let E = null, modo = null;                     // encuadre activo
+  const ahora = () => performance.now() / 1000;
+
+  // ───────────── WebGL ─────────────
+  const gl = cv.getContext('webgl', { antialias: false, premultipliedAlpha: false });
+  if (!gl) { document.body.insertAdjacentHTML('afterbegin', '<p style="position:fixed;z-index:9;padding:20px">Sin WebGL</p>'); return; }
+
+  const VS = `attribute vec2 p; varying vec2 vUv; void main(){ vUv = p*0.5+0.5; vUv.y = 1.0-vUv.y; gl_Position = vec4(p,0.,1.); }`;
+  const FS = `
+    precision highp float;
+    varying vec2 vUv;
+    uniform sampler2D uColor, uDepth, uCoche;
+    uniform vec4 uCocheRect;
+    uniform float uCocheOn;
+    uniform vec2 uRes, uImg, uMouse, uT;
+    uniform float uS;
+    uniform float uStrength, uTime, uLamp, uLampFar, uCar, uCarDir, uRain, uFog, uFlecha, uPista;
+    uniform vec4 uFlechaPos, uP0, uP1, uP2;
+    uniform vec2 uLampPos, uLampFarPos;
+    uniform vec4 uPool, uFloor, uAlley;
+    float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453); }
+    float noise(vec2 p){ vec2 i=floor(p), f=fract(p); vec2 u=f*f*(3.-2.*f);
+      return mix(mix(hash(i),hash(i+vec2(1,0)),u.x), mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),u.x), u.y); }
+    float fbm(vec2 p){ float v=0., a=.5; for(int i=0;i<4;i++){ v+=a*noise(p); p*=2.03; a*=.5; } return v; }
+    float elipse(vec2 uv, vec4 e){ vec2 d=(uv-e.xy)/e.zw; return clamp(1.-dot(d,d), 0., 1.); }
+  // FLECHA DE LUZ VIEJA dentro de la caja de los interruptores del pilar: tres
+  // chevrones hacia arriba detrás de un plástico sucio, ámbar apagado. Se
+  // enciende de abajo arriba, aguanta, se apaga y vuelve (cada 3,2 s), con el
+  // zumbido y las caídas de un cebador cansado. La caja entera se ilumina un
+  // poco desde dentro; fuera de ella apenas sale luz.
+  float segD(vec2 p, vec2 a, vec2 b){ vec2 pa=p-a, ba=b-a; float h=clamp(dot(pa,ba)/dot(ba,ba),0.,1.); return length(pa-ba*h); }
+  vec3 neon(vec2 P, float t){
+    vec2 C = uFlechaPos.xy; float H = uFlechaPos.z;
+    if (abs(P.x-C.x) > H*1.6 || abs(P.y-C.y) > H*1.6) return vec3(0.);
+    float w = H*0.55, hc = H*0.24, r = H*0.05;
+    float ciclo = fract(t/3.2);
+    float enc = 1.0 - smoothstep(0.86, 0.9, ciclo);
+    float tt = floor(t*14.);
+    float fallo = step(0.92, fract(sin(tt*12.9898)*43758.5)) * (0.5 + 0.5*fract(sin(tt*78.2)*9183.1));
+    float zumbido = (0.9 + 0.1*sin(t*50.)) * (1.0 - 0.75*fallo);
+    float caja = 1.0 - smoothstep(0.9, 1.2, max(abs(P.x-C.x)/(H*0.42), abs(P.y-C.y)/(H*0.76)));
+    vec3 acc = vec3(0.);
+    float media = 0.;
+    for (int i=0; i<3; i++){
+      float fi = float(i);
+      vec2 p = P - (C + vec2(0., H*0.34 - fi*H*0.34));   // i = 0 abajo
+      float d = min(segD(p, vec2(-w*0.5, hc*0.5), vec2(0., -hc*0.5)), segD(p, vec2(0., -hc*0.5), vec2(w*0.5, hc*0.5)));
+      float on = smoothstep(fi*0.04, fi*0.04 + 0.06, ciclo) * enc;   // arranca de abajo arriba
+      media += on / 3.;
+      float tubo = smoothstep(r*1.3, r*0.2, d);
+      float halo = exp(-d/(r*2.5))*0.35;
+      acc += on * (vec3(1.0,0.66,0.32)*tubo*0.75 + vec3(0.95,0.42,0.12)*halo);
+    }
+    acc *= mix(0.25, 1.0, caja);                       // la luz se queda en la caja
+    acc += vec3(0.5,0.24,0.07) * 0.10 * caja * media;  // la caja se ilumina por dentro
+    acc *= 0.75 + 0.25*noise(P*0.35);                  // plástico sucio
+    return acc * zumbido * 0.8;
+  }
+  // MÓVIL: la flecha en el SUELO, como las luces de aproximación de una pista:
+  // tres chevrones ámbar viejos empotrados en el asfalto mojado (con su
+  // perspectiva: el lejano más pequeño), que se encienden de cerca hacia la
+  // puerta, con zumbido y caídas, su reflejo alargado hacia la cámara y la
+  // lluvia rizando la luz. La lluvia y las hojas (otra capa) pasan por encima.
+  float chevD(vec2 q, vec4 c){
+    q -= c.xy;
+    vec2 a = vec2(-c.z*0.5, c.w*0.5), b = vec2(0., -c.w*0.5), e = vec2(c.z*0.5, c.w*0.5);
+    return min(segD(q, a, b), segD(q, b, e));
+  }
+  vec3 pista(vec2 uvP, float t){
+    // Los chevrones son RÍGIDOS: se mueven enteros con la profundidad del central
+    // (si siguiera la profundidad de cada píxel, el suelo, que se aleja hacia
+    // arriba, lo inclinaría al mover el punto de vista). Van siempre rectos.
+    vec2 P0 = uvP * uImg;
+    if (P0.y < uP2.y - uP2.w*3. - 60. || P0.y > uP0.y + uP0.w*6. + 60. || abs(P0.x - uP0.x) > uP0.z*0.6 + 60.) return vec3(0.);
+    float ciclo = fract(t/2.6);
+    float tt = floor(t*12.);
+    float fallo = step(0.93, fract(sin(tt*12.9898)*43758.5)) * (0.5 + 0.5*fract(sin(tt*78.2)*9183.1));
+    float zumbido = (0.9 + 0.1*sin(t*47.)) * (1.0 - 0.7*fallo);
+    // los tres se mueven JUNTOS (profundidad del central): siempre en fila
+    vec2 Pg = (uvP + uMouse * uStrength * (texture2D(uDepth, uP1.xy / uImg).r - 0.42)) * uImg;
+    vec3 acc = vec3(0.);
+    for (int i=0; i<3; i++){
+      vec4 c = i == 0 ? uP0 : (i == 1 ? uP1 : uP2);
+      vec2 P = Pg;
+      float riza = 0.8 + 0.2*noise(P*0.07 + vec2(0., t*1.6));
+      float fi = float(i);
+      float on = smoothstep(fi*0.16, fi*0.16 + 0.05, ciclo) * (1.0 - smoothstep(0.78, 0.84, ciclo));
+      float r = c.z*0.028;
+      float d = chevD(P, c);
+      float tubo = smoothstep(r*1.2, r*0.25, d);
+      float halo = exp(-d/(r*2.2))*0.38;
+      // reflejo en el agua: la luz se alarga hacia abajo (hacia quien mira)
+      float dy = P.y - c.y;
+      float estela = exp(-chevD(vec2(P.x, c.y + dy*0.3), c)/(r*1.5)) * smoothstep(0., c.w*0.4, dy) * exp(-dy/(c.w*2.6)) * 0.3;
+      acc += on * (vec3(1.0,0.62,0.25)*tubo*0.85 + vec3(0.95,0.42,0.12)*(halo + estela)*riza);
+    }
+    return acc * zumbido;
+  }
+    void main(){
+      // de píxel de pantalla a píxel de imagen: escala y desplazamiento que
+      // calcula JS (así el acercamiento del scroll cuadra con el fotograma)
+      vec2 uv = ((vUv*uRes - uT) / uS) / uImg;
+      float d = texture2D(uDepth, uv).r;
+      vec2 off = uMouse * uStrength * (d - 0.42);
+      vec2 uv2 = clamp(uv + off, 0.001, 0.999);
+      vec3 col = texture2D(uColor, uv2).rgb;
+
+      // El coche de verdad: vídeo estabilizado con su máscara debajo (mitad de
+      // arriba = imagen, mitad de abajo = cuánto se ve). Solo cambia lo que
+      // toca el coche y la luz de sus faros; el pilar y la persiana no se mueven.
+      if (uCocheOn > 0.001) {
+        vec2 cp = (uv2 - uCocheRect.xy) / uCocheRect.zw;
+        if (cp.x > 0. && cp.x < 1. && cp.y > 0. && cp.y < 1.) {
+          float cy = clamp(cp.y * 0.5, 0.002, 0.498);
+          vec3 cc = texture2D(uCoche, vec2(cp.x, cy)).rgb;
+          float a = texture2D(uCoche, vec2(cp.x, cy + 0.5)).r;
+          col = mix(col, cc, a * uCocheOn);
+        }
+      }
+
+      // Bombilla: si baja, se apaga su charco de luz (persiana y reflejo del suelo)
+      float pool = max(elipse(uv2, uPool), elipse(uv2, uFloor)*0.9);
+      col *= 1.0 - pool*(1.0-uLamp)*0.72;
+      vec2 dl = (uv2-uLampPos)*vec2(uImg.x/uImg.y,1.);
+      col += vec3(1.,.82,.55) * uLamp * exp(-dot(dl,dl)*900.) * 0.35;
+      vec2 df = (uv2-uLampFarPos)*vec2(uImg.x/uImg.y,1.);
+      col *= 1.0 - (1.0-uLampFar)*exp(-dot(df,df)*60.)*0.8;
+
+      // Faros: una banda de luz cruza la boca del callejón y resbala por el suelo mojado
+      float inten = sin(3.14159*clamp(uCar,0.,1.)); inten *= inten;
+      if (inten > 0.001) {
+        float t = uCarDir > 0. ? uCar : 1.-uCar;
+        float bx = mix(uAlley.x-0.04, uAlley.z+0.06, t);
+        float enCallejon = step(uAlley.y, uv2.y)*step(uv2.y, uAlley.w)*smoothstep(uAlley.z+0.05, uAlley.z-0.01, uv2.x);
+        // la luz de unos faros: más fuerte abajo, a la altura del coche, y se
+        // multiplica sobre la textura (ilumina lo que hay, no pinta blanco encima)
+        float banda = exp(-pow((uv2.x-bx)/0.06, 2.)) * exp(-pow((uv2.y-(uAlley.w-0.12))/0.30, 2.));
+        float suelo = smoothstep(uAlley.w-0.10, 1.0, uv2.y) * exp(-pow((uv2.x-mix(-0.05,0.45,t))/0.14, 2.));
+        float luz = inten * (banda*enCallejon*2.0 + suelo*1.6);
+        col *= 1.0 + luz * vec3(1.,.95,.85);
+        col += vec3(1.,.93,.80) * luz * 0.04;
+        col *= 1.0 + inten * 0.12 * smoothstep(0.40, 0.0, uv2.x);
+      }
+
+      // Bruma que se mueve despacio, más en el fondo que delante
+      if (uFog > 0.) {
+        float n = fbm(uv2*vec2(3.,5.) + vec2(uTime*0.025, uTime*0.01));
+        col += vec3(.55,.5,.45) * n * uFog * 0.07 * (1.0 - d);
+      }
+      if (uFlecha > 0.001 && uPista > 0.5) {
+        col += pista(uv, uTime) * uFlecha;
+      } else if (uFlecha > 0.001) {
+        vec2 P = uv2 * uImg;
+        col += neon(P, uTime) * uFlecha;
+        float yF = uFlechaPos.w;
+        if (P.y > yF) {
+          vec2 Pr = vec2(P.x + (noise(P*0.04 + vec2(0., uTime*0.8)) - 0.5)*uFlechaPos.z*0.18, 2.0*yF - P.y);
+          col += neon(Pr, uTime) * uFlecha * 0.10 * smoothstep(yF + uFlechaPos.z*3.0, yF, P.y);
+        }
+      }
+      // Lluvia: algo más oscuro y frío
+      col = mix(col, col*vec3(.86,.9,.98), uRain*0.6);
+      // Grano de película
+      col += (hash(vUv*uRes + fract(uTime)*91.) - 0.5) * 0.035;
+      gl_FragColor = vec4(col, 1.);
+    }`;
+  function sh(t, src){ const o = gl.createShader(t); gl.shaderSource(o, src); gl.compileShader(o);
+    if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(o)); return o; }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(prog);
+  gl.useProgram(prog);
+  const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(prog, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  const U = {}; ['uColor','uDepth','uRes','uImg','uMouse','uStrength','uTime','uLamp','uLampFar','uCar','uCarDir','uRain','uFog','uLampPos','uLampFarPos','uPool','uFloor','uAlley','uCoche','uCocheRect','uCocheOn','uS','uT','uFlecha','uFlechaPos','uPista','uP0','uP1','uP2']
+    .forEach((n) => U[n] = gl.getUniformLocation(prog, n));
+  function textura(unidad, imagen){ const t = gl.createTexture(); gl.activeTexture(gl.TEXTURE0+unidad); gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, imagen); return t; }
+  const carga = (src) => new Promise((ok, mal) => { const i = new Image(); i.onload = () => ok(i); i.onerror = mal; i.src = src; });
+
+  let fotos = [];
+  const cocheVid = document.createElement('video');
+  cocheVid.muted = true; cocheVid.playsInline = true; cocheVid.preload = 'auto'; cocheVid.setAttribute('playsinline', '');
+  const texCoche = gl.createTexture();
+  gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, texCoche);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  async function ponerEncuadre(m){
+    if (m === modo) return; modo = m; E = ENCUADRES[m];
+    const [c, d] = await Promise.all([carga(E.color), carga(E.depth)]);
+    textura(0, c); textura(1, d);
+    gl.uniform1i(U.uColor, 0); gl.uniform1i(U.uDepth, 1);
+    gl.uniform2f(U.uImg, E.img[0], E.img[1]);
+    gl.uniform2f(U.uLampPos, E.lamp[0], E.lamp[1]); gl.uniform2f(U.uLampFarPos, E.lampFar[0], E.lampFar[1]);
+    gl.uniform4f(U.uPool, ...E.pool); gl.uniform4f(U.uFloor, ...E.floorGlow); gl.uniform4f(U.uAlley, ...E.alley);
+    // el coche: vídeo pequeño que se sube como textura solo mientras pasa
+    cocheVid.src = E.coche; cocheVid.load();
+    gl.uniform4f(U.uCocheRect, ...E.cocheRect); gl.uniform1i(U.uCoche, 2);
+    gl.uniform4f(U.uFlechaPos, ...E.flecha);
+    gl.uniform1f(U.uPista, E.pista ? 1 : 0);
+    if (E.pista) { gl.uniform4f(U.uP0, ...E.pista[0]); gl.uniform4f(U.uP1, ...E.pista[1]); gl.uniform4f(U.uP2, ...E.pista[2]); }
+    gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, texCoche);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 1, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, new Uint8Array([0,0,0]));
+    fotos = Array.from({ length: 60 }, (_, i) => { const f = new Image(); f.src = `${E.frames}${String(i+1).padStart(3,'0')}.webp`; return f; });
+    img.src = fotos[0].src;
+  }
+
+  // ───────────── HUMO VIVO del final (otro WebGL, sobre el último fotograma) ─────────────
+  // La propia imagen en directo: el humo que YA está en el fotograma se mueve
+  // (sube, se enrosca y respira), y encima pasa una bruma blanda, redonda, de
+  // la luz de la escena. Una máscara hecha a mano (humo_mask_*.png) dice dónde
+  // hay humo en la imagen: fuera los brazos de la X, la gente, los focos y los
+  // textos, que no se deforman nunca. Sin vídeos (subirlos en cada fotograma
+  // era lo que daba tirones) y a resolución reducida: el humo es blando.
+  const humo = (() => {
+    const cvH = $('humo');
+    const g = cvH.getContext('webgl', { alpha: true, premultipliedAlpha: true, antialias: false });
+    const nada = { cargar(){}, tam(){}, pinta(){} };
+    if (!g) return nada;
+    const FSH = `
+  precision mediump float;
+  varying vec2 vUv;
+  uniform sampler2D uImg, uMask, uLuz, uDep;
+  uniform vec2 uRes, uT, uTam, uMouse, uCruce;
+  uniform float uS, uTime;
+  float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453); }
+  float noise(vec2 p){ vec2 i=floor(p), f=fract(p); vec2 u=f*f*(3.-2.*f);
+    return mix(mix(hash(i),hash(i+vec2(1,0)),u.x), mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),u.x), u.y); }
+  float fbm(vec2 p){ float v=0., a=.5; mat2 r = mat2(.8,.6,-.6,.8);
+    for(int i=0;i<3;i++){ v+=a*noise(p); p=r*p*2.03+vec2(1.7,9.2); a*=.5; } return v; }
+  vec2 curl(vec2 p){ const float e = 0.2;
+    float a = noise(p+vec2(0.,e)), b = noise(p-vec2(0.,e)), c = noise(p+vec2(e,0.)), d = noise(p-vec2(e,0.));
+    return vec2(a-b, c-d) / (2.*e); }
+  void main(){
+    // la misma viñeta que el Hero pone encima de los fotogramas
+    vec2 dc = (vUv - 0.5) / 0.7071;
+    float vig = 1.0 - 0.55*clamp((length(dc) - 0.45)/0.55, 0., 1.);
+    vec2 uv = ((vUv*uRes - uT) / uS) / uTam;
+    if (uv.x < 0. || uv.y < 0. || uv.x > 1. || uv.y > 1.) { gl_FragColor = vec4(0.); return; }
+    vec4 mk = texture2D(uMask, uv);
+    float m = mk.r, zona = mk.g, viga = mk.b;
+    if (m + zona < 0.02) { gl_FragColor = vec4(0.); return; }
+    float t = uTime;
+    vec2 asp = vec2(uTam.x/uTam.y, 1.);
+    vec2 p = uv*asp;
+    // 1) el humo que ya está en la imagen fluye: sube y se enrosca (dos fases
+    //    que se relevan para que nunca salte)
+    vec2 vel = vec2(0., -0.6) + curl(p*1.7 + vec2(0., t*0.07))*0.6 + curl(p*3.9 - vec2(t*0.05, 0.))*0.25;
+    vel /= asp;
+    float f1 = fract(t/4.), f2 = fract(t/4. + 0.5);
+    float w = abs(2.*f1 - 1.);
+    float amp = 0.10 * m;
+    vec3 c = mix(texture2D(uImg, uv - vel*amp*(f1-0.5)).rgb, texture2D(uImg, uv - vel*amp*(f2-0.5)).rgb, w);
+    float br = noise(p*1.3 + vec2(t*0.08, -t*0.12));
+    // la luz de detrás de la X respira: sube y baja despacio, y con ella todo el humo
+    float respira = 0.5 + 0.5*sin(t*0.85) * sin(t*0.31 + 1.7);
+    c *= 1.0 + m*(0.7*(br - 0.42) + 0.35*(respira - 0.5));
+    // 2) bancos de humo que cruzan delante, iluminados por el contraluz de la X:
+    //    más claros que la imagen donde les da la luz (así se VEN moverse)
+    vec2 q = p*1.4 + vec2(t*0.05, t*0.19) + curl(p*1.0 + vec2(t*0.09, 0.))*0.45 + uMouse*0.03;
+    float niebla = smoothstep(0.42, 0.72, fbm(q));
+    vec3 luz = texture2D(uLuz, uv).rgb;
+    float ll = dot(luz, vec3(.3,.5,.2));
+    float ciclo = 0.72 + 0.28*sin(t*0.15)*sin(t*0.051 + 1.3);
+    float cerca = smoothstep(0.45, 0.75, texture2D(uDep, uv).r);
+    float fa = clamp(niebla * zona * ciclo * (0.35 + 2.4*ll) * (0.75 + 0.5*respira) * mix(1., 0.3, cerca), 0., 0.88);
+    vec3 fc = luz*1.9 + vec3(0.05, 0.045, 0.04);
+    // 3) haces de luz: salen del cruce de la X (la luz está detrás) y se cuelan
+    //    por los huecos; los brazos de la X los tapan. Se mueven con el humo.
+    vec2 dr = (uv - uCruce) * asp;
+    float ang = atan(dr.y, dr.x);
+    float dist = length(dr);
+    float haz = noise(vec2(ang*6.0, t*0.35)) * 0.6 + noise(vec2(ang*15.0 + 3.1, t*0.55 + 7.0)) * 0.4;
+    haz = smoothstep(0.45, 0.85, haz);
+    float caida = exp(-dist*2.4) * smoothstep(0.03, 0.14, dist);
+    float rayos = haz * caida * (1.0 - viga) * zona * (0.55 + 0.45*niebla) * ciclo * mix(1., 0.3, cerca);
+    vec3 cr = vec3(1.0, 0.86, 0.66) * rayos * (0.6 + 0.7*respira);
+    vec3 rgb = (c*m*(1.-fa) + fc*fa) + cr;
+    float alfa = m + fa*(1.-m);
+    gl_FragColor = vec4(rgb * vig, clamp(alfa + rayos*0.35, 0., 1.));
+  }`;
+    const s1 = g.createShader(g.VERTEX_SHADER); g.shaderSource(s1, VS); g.compileShader(s1);
+    const s2 = g.createShader(g.FRAGMENT_SHADER); g.shaderSource(s2, FSH); g.compileShader(s2);
+    if (!g.getShaderParameter(s2, g.COMPILE_STATUS)) { console.error(g.getShaderInfoLog(s2)); return nada; }
+    const pr = g.createProgram(); g.attachShader(pr, s1); g.attachShader(pr, s2); g.linkProgram(pr); g.useProgram(pr);
+    const b = g.createBuffer(); g.bindBuffer(g.ARRAY_BUFFER, b);
+    g.bufferData(g.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), g.STATIC_DRAW);
+    const l = g.getAttribLocation(pr, 'p'); g.enableVertexAttribArray(l); g.vertexAttribPointer(l, 2, g.FLOAT, false, 0, 0);
+    const u = {}; ['uImg','uMask','uLuz','uDep','uRes','uT','uTam','uMouse','uCruce','uS','uTime'].forEach((n) => u[n] = g.getUniformLocation(pr, n));
+    const tex = (unidad, im) => { const t = g.createTexture(); g.activeTexture(g.TEXTURE0+unidad); g.bindTexture(g.TEXTURE_2D, t);
+      g.texParameteri(g.TEXTURE_2D, g.TEXTURE_WRAP_S, g.CLAMP_TO_EDGE); g.texParameteri(g.TEXTURE_2D, g.TEXTURE_WRAP_T, g.CLAMP_TO_EDGE);
+      g.texParameteri(g.TEXTURE_2D, g.TEXTURE_MIN_FILTER, g.LINEAR); g.texParameteri(g.TEXTURE_2D, g.TEXTURE_MAG_FILTER, g.LINEAR);
+      g.texImage2D(g.TEXTURE_2D, 0, g.RGBA, g.RGBA, g.UNSIGNED_BYTE, im); };
+    let tam = [1,1], listo = false, k = 1;
+    // el humo es blando: se pinta a menos resolución y el navegador lo estira
+    const RES = 0.6;
+    return {
+      async cargar(m){
+        listo = false;
+        const [fo, mk, lz, dp] = await Promise.all([carga((m === 'v' ? '/images/hero-scrub-vert/f-060.webp' : '/images/hero-scrub/f-060.webp')), carga(`/garaje-vivo/humo_mask_${m}.png`), carga(`/garaje-vivo/luz_${m}_f60.jpg`), carga(`/garaje-vivo/depth_${m}_f60.png`)]);
+        g.useProgram(pr); tex(0, fo); tex(1, mk); tex(2, lz); tex(3, dp);
+        g.uniform1i(u.uImg, 0); g.uniform1i(u.uMask, 1); g.uniform1i(u.uLuz, 2); g.uniform1i(u.uDep, 3);
+        tam = m === 'v' ? [900, 1600] : [1920, 1080]; g.uniform2f(u.uTam, tam[0], tam[1]);
+        g.uniform2f(u.uCruce, 0.5, m === 'v' ? 1257/2560 : 710/1440);
+        listo = true;
+      },
+      tam(w, h){ cvH.width = Math.round(w*RES); cvH.height = Math.round(h*RES); k = cvH.width / w;
+        g.viewport(0, 0, cvH.width, cvH.height); g.useProgram(pr); g.uniform2f(u.uRes, cvH.width, cvH.height); },
+      pinta(t, on, rx, ry, rw, mouse, dpr){
+        cvH.style.opacity = on;
+        if (!listo || on <= 0.001) return;
+        g.useProgram(pr);
+        const e = dpr*k;
+        g.uniform1f(u.uS, rw*e/tam[0]); g.uniform2f(u.uT, rx*e, ry*e);
+        g.uniform1f(u.uTime, t); g.uniform2f(u.uMouse, mouse[0], mouse[1]);
+        g.clearColor(0,0,0,0); g.clear(g.COLOR_BUFFER_BIT);
+        g.drawArrays(g.TRIANGLE_STRIP, 0, 4);
+      },
+    };
+  })();
+
+  // ───────────── Tamaño ─────────────
+  const ctx = fx.getContext('2d');
+  let W = 0, H = 0, dpr = 1;
+  function medir(){
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = cv.clientWidth; H = cv.clientHeight;
+    cv.width = Math.round(W*dpr); cv.height = Math.round(H*dpr); fx.width = cv.width; fx.height = cv.height;
+    gl.viewport(0, 0, cv.width, cv.height); gl.uniform2f(U.uRes, cv.width, cv.height);
+    humo.tam(cv.width, cv.height);
+    const m = W/H < 0.8 ? 'v' : 'h';
+    if (m !== modo) humo.cargar(m);
+    ponerEncuadre(m);
+  }
+  window.addEventListener('resize', medir);
+
+  // Cámara: pantalla = T + px_imagen * s (en px CSS). t = 0 lejos (imagen
+  // ampliada entera, con un 6 % de margen para el punto de vista), t = 1 cerca
+  // (el fotograma 1 ocupa la pantalla igual que el <img> del recorrido).
+  let cam = { s: 1, tx: 0, ty: 0 };
+  function camara(t){
+    const [We, He] = E.img, [ox, oy, fw, fh] = E.marco;
+    const s0 = Math.max(W/We, H/He) * 1.06;
+    const t0x = W/2 - We/2*s0, t0y = H/2 - He/2*s0;
+    const s1 = Math.max(W/fw, H/fh);
+    const t1x = W/2 - fw/2*s1 - ox*s1, t1y = H/2 - fh/2*s1 - oy*s1;
+    const e = t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2)/2;     // suave al empezar y al acabar
+    const s = s0 * Math.pow(s1/s0, e);
+    // el desplazamiento sigue a la escala para que el fotograma crezca sin derrapar
+    const k = (s - s0) / ((s1 - s0) || 1);
+    cam = { s, tx: t0x + (t1x - t0x)*k, ty: t0y + (t1y - t0y)*k };
+    return cam;
+  }
+  function aPantalla(x, y){ return [cam.tx + x*E.img[0]*cam.s, cam.ty + y*E.img[1]*cam.s]; }
+
+  // ───────────── Ratón (o deriva lenta en el móvil) ─────────────
+  // Punto de vista: ratón en escritorio; en el móvil, el dedo (unos segundos
+  // tras tocar), el giroscopio si el teléfono lo da, y si no, una deriva lenta.
+  let raton = [0,0], objetivo = [0,0], hayRaton = false, ultimoToque = -99, hayGiro = false, giro = [0,0];
+  window.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') { hayRaton = true; objetivo = [ (e.clientX/W)*2-1, (e.clientY/H)*2-1 ]; } });
+  window.addEventListener('touchmove', (e) => { const p = e.touches[0]; if (!p) return; ultimoToque = ahora();
+    objetivo = [ (p.clientX/W)*2-1, (p.clientY/H)*2-1 ]; }, { passive: true });
+  window.addEventListener('deviceorientation', (e) => { if (e.gamma == null) return; hayGiro = true;
+    giro = [Math.max(-1, Math.min(1, e.gamma/20)), Math.max(-1, Math.min(1, (e.beta-50)/20))]; });
+  // iPhone: el giroscopio pide permiso, y solo se puede pedir al tocar
+  window.addEventListener('touchend', function pedir(){
+    const D = window.DeviceOrientationEvent;
+    if (D && typeof D.requestPermission === 'function') D.requestPermission().catch(() => {});
+    window.removeEventListener('touchend', pedir);
+  });
+
+  // ───────────── La vida: bombilla, coches, viento ─────────────
+  let lamp = 1, lampFar = 1, guion = [], guionFar = [];
+  function parpadeo(lista, t0){ let t = t0; const n = 2 + Math.floor(Math.random()*4);
+    for (let i = 0; i < n; i++){ lista.push([t, 0.08 + Math.random()*0.45]); t += 0.04 + Math.random()*0.10; lista.push([t, 1]); t += 0.05 + Math.random()*0.18; } }
+  let proxBombilla = ahora() + 3, proxFar = ahora() + 7;
+  // El coche ya no está en el recorrido: aparece a veces, como una incidencia más.
+  let cocheActivo = false, proxCoche = ahora() + 5;
+  function pasaCoche(){
+    if (cocheActivo) return;
+    cocheVid.currentTime = 0;
+    cocheVid.play().then(() => { cocheActivo = true; }).catch(() => {});
+  }
+  cocheVid.addEventListener('ended', () => { cocheActivo = false; proxCoche = ahora() + 8 + Math.random()*10; });
+  let rafaga = 0, rafagaFin = 0, proxRafaga = ahora() + 2;
+  function nuevaRafaga(){ rafagaFin = ahora() + 2 + Math.random()*2.5; }
+  $('bCoche').onclick = pasaCoche; $('bRafaga').onclick = nuevaRafaga; $('bApagon').onclick = () => parpadeo(guion, ahora());
+
+  // Hojas: fotos reales recortadas de los vídeos de Grok sobre negro
+  // (hojas.png: 27 hojas × 3 luces — sombra, media, bajo la bombilla; algo
+  // desaturadas porque es de noche). Giran en 3D al rodar y dejan estela.
+  const atlas = new Image(); atlas.src = '/garaje-vivo/hojas.png?v=3';
+  const SPR = 96, NHOJAS = 27;
+  const bichos = [];
+  function nuevaHoja(desdeIzq){
+    const [, ySuelo] = aPantalla(0.5, E.floorY);
+    const u = Math.pow(Math.random(), 0.8) * 0.92;              // 0 = junto a la puerta, 1 = abajo
+    const y = ySuelo + u*(H - ySuelo);
+    // perspectiva: diminutas junto a la puerta, grandes delante
+    const esc = E.hojaEsc[0] + (E.hojaEsc[1] - E.hojaEsc[0]) * Math.pow(u, 1.3);
+    bichos.push({ x: desdeIzq ? -30 : Math.random()*W, y, vx: 0, r: Math.random()*6.28, vr: 0, giro: Math.random()*6.28,
+      t: Math.random()*100, esc, tam: 17 * esc * (0.7 + Math.random()*0.6), spr: Math.floor(Math.random()*NHOJAS), suelo: y });
+  }
+  // Lluvia
+  // El tiempo: empieza a llover, llueve, amaina, tormenta, para… y vuelta a empezar
+  const CLIMA = [
+    ['seco', 0, 8], ['empieza a llover', 0.3, 14], ['llueve', 0.55, 14], ['amaina', 0.18, 12],
+    ['llueve mucho', 1.0, 18], ['para', 0, 7], ['seco', 0, 25],
+  ];
+  let fase = 0, finFase = ahora() + CLIMA[0][2], lluviaI = 0;
+  const gotas = [], salpicas = [];
+  function preparaLluvia(){ gotas.length = 0; const n = Math.round(W*H/1700); for (let i = 0; i < n; i++) gotas.push({ x: Math.random()*W, y: Math.random()*H, v: 900 + Math.random()*700, l: 10 + Math.random()*16, a: 0.08 + Math.random()*0.22 }); }
+
+  // ───────────── Scroll ─────────────
+  let avance = 0;
+  function medirScroll(){ const r = tramo.getBoundingClientRect(); const rec = r.height - innerHeight; avance = rec > 0 ? Math.max(0, Math.min(1, -r.top/rec)) : 0; }
+  window.addEventListener('scroll', medirScroll, { passive: true });
+
+  // ───────────── Bucle ─────────────
+  let antes = ahora(), lluviaLista = false, fotoActual = -1;
+  function paso(){
+    const t = ahora(), dt = Math.min(0.05, t - antes); antes = t;
+    if (!E) { requestAnimationFrame(paso); return; }
+
+    // ratón suavizado; sin ratón, deriva lenta
+    if (!hayRaton && t - ultimoToque > 3){
+      objetivo = hayGiro ? giro : [Math.sin(t*0.11)*1.0 + Math.sin(t*0.031)*0.3, Math.sin(t*0.07+1)*0.55];
+    }
+    raton[0] += (objetivo[0]-raton[0]) * 0.05; raton[1] += (objetivo[1]-raton[1]) * 0.05;
+
+    // bombilla
+    if (ctrl.bombilla.checked && t > proxBombilla){ parpadeo(guion, t); proxBombilla = t + 5 + Math.random()*8; }
+    if (ctrl.bombilla.checked && t > proxFar){ parpadeo(guionFar, t); proxFar = t + 9 + Math.random()*10; }
+    while (guion.length && guion[0][0] <= t) lamp = guion.shift()[1];
+    while (guionFar.length && guionFar[0][0] <= t) lampFar = guionFar.shift()[1];
+    const zumbido = 1 - 0.025*Math.random();
+
+    // coches
+    // (solo con la escena quieta: si ya se ha empezado a bajar, el fotograma del
+    // recorrido tapa esa zona y el coche se vería a medias por sus bordes)
+    if (ctrl.coches.checked && !cocheActivo && t > proxCoche && avance < 0.005){ proxCoche = t + 3; pasaCoche(); }
+    if (cocheActivo && cocheVid.readyState >= 2){
+      gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, texCoche);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, cocheVid);
+    }
+    const car = 0, dir = 1;   // (los faros sintéticos se quitaron: ahora pasa el coche de verdad)
+
+    // viento
+    if (ctrl.viento.checked && t > proxRafaga){ nuevaRafaga(); proxRafaga = t + 7 + Math.random()*8; }
+    const quiere = t < rafagaFin ? 1 : 0.08;
+    rafaga += (quiere - rafaga) * Math.min(1, dt*1.5);
+
+    // scroll: la escena viva se funde con el fotograma 1 y luego manda el recorrido
+    // 1) la cámara se acerca desde lejos hasta el encuadre del recorrido (14 % del tramo)
+    // 2) a la vez, el fotograma del recorrido se pone encima de su sitio y crece con ella
+    const acerca = Math.min(1, avance/0.14);
+    camara(acerca);
+    const funde = Math.min(1, avance/0.012);
+    const p = Math.min(1, avance/0.85);
+    const idx = Math.min(59, Math.round(p*59));
+    if (idx !== fotoActual && fotos[idx] && fotos[idx].complete){ img.src = fotos[idx].src; fotoActual = idx; }
+    const [ox, oy, fw, fh] = E.marco;
+    img.style.left = (cam.tx + ox*cam.s) + 'px'; img.style.top = (cam.ty + oy*cam.s) + 'px';
+    img.style.width = (fw*cam.s) + 'px'; img.style.height = (fh*cam.s) + 'px';
+    const borde = (3*(1 - acerca)).toFixed(2);       // bordes fundidos mientras hay escena alrededor
+    if (img.dataset.borde !== borde){
+      img.dataset.borde = borde;
+      const mk = acerca >= 1 ? 'none' : `linear-gradient(to right, transparent, #000 ${borde}%, #000 ${100-borde}%, transparent), linear-gradient(to bottom, transparent, #000 ${borde}%, #000 ${100-borde}%, transparent)`;
+      img.style.webkitMaskImage = mk; img.style.maskImage = mk;
+      img.style.webkitMaskComposite = 'source-in'; img.style.maskComposite = 'intersect';
+    }
+    img.style.opacity = funde;
+    cv.style.opacity = acerca >= 1 ? 0 : 1;
+    // dentro: el humo de alrededor de la X sigue vivo en el último fotograma
+    const humoOn = Math.max(0, Math.min(1, (p - 0.9)/0.1));
+    humo.pinta(t, humoOn, cam.tx + ox*cam.s, cam.ty + oy*cam.s, fw*cam.s, raton, dpr);
+    const vidaFuera = Math.max(0, Math.min(1, (avance - 0.12)/0.3));   // lluvia y hojas siguen al principio de la apertura
+
+    // shader
+    gl.uniform2f(U.uMouse, raton[0]*(1-funde), raton[1]*(1-funde));
+    gl.uniform1f(U.uS, cam.s*dpr); gl.uniform2f(U.uT, cam.tx*dpr, cam.ty*dpr);
+    gl.uniform1f(U.uStrength, ctrl.prof.value/1000 * E.prof);
+    gl.uniform1f(U.uTime, t);
+    gl.uniform1f(U.uLamp, (ctrl.bombilla.checked ? lamp : 1) * zumbido);
+    gl.uniform1f(U.uLampFar, ctrl.bombilla.checked ? lampFar : 1);
+    gl.uniform1f(U.uCar, car); gl.uniform1f(U.uCarDir, dir);
+    gl.uniform1f(U.uCocheOn, cocheActivo ? 1 - funde : 0);
+    // tiempo: cambia de fase y la intensidad se acerca despacio a la de la fase
+    if (t > finFase){ fase = (fase + 1) % CLIMA.length; finFase = t + CLIMA[fase][2]; }
+    const quiereLluvia = ctrl.lluvia.checked ? CLIMA[fase][1] : 0;
+    lluviaI += (quiereLluvia - lluviaI) * Math.min(1, dt*0.35);
+    const estado = ctrl.lluvia.checked ? CLIMA[fase][0] : 'apagada';
+    if ($('estadoClima').textContent !== estado) $('estadoClima').textContent = estado;
+    gl.uniform1f(U.uRain, lluviaI);
+    gl.uniform1f(U.uFlecha, 1 - Math.min(1, avance / 0.02));
+    gl.uniform1f(U.uFog, ctrl.niebla.checked ? 1 : 0);
+    if (acerca < 1) gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+    // capa de partículas
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    fx.style.opacity = 1 - vidaFuera;
+    // lo de delante se mueve más con el ratón que el fondo
+    const px = -raton[0]*(1-funde)*ctrl.prof.value*0.45*E.prof, py = -raton[1]*(1-funde)*ctrl.prof.value*0.25*E.prof;
+
+    if (ctrl.viento.checked){
+      if (rafaga > 0.5 && Math.random() < dt*9) nuevaHoja(true);
+      if (bichos.length < 6 && Math.random() < dt*0.3) nuevaHoja(false);
+      for (let i = bichos.length-1; i >= 0; i--){
+        const b = bichos[i]; b.t += dt;
+        const empuje = rafaga * (260 + 120*Math.sin(b.t*1.7 + i)) * b.esc;   // lejos, más despacio en pantalla
+        b.vx += (empuje - b.vx) * dt * 1.6;
+        const alto = Math.max(0, rafaga*14*b.esc*Math.abs(Math.sin(b.t*3.1 + i)));
+        b.vr += ((b.vx/(40*b.esc)) * 1.4 - b.vr) * dt * 2;
+        b.r += b.vr * dt; b.x += b.vx * dt;
+        const y = b.suelo - alto;
+        if (b.x > W + 40) { bichos.splice(i, 1); continue; }
+        if (!atlas.complete) continue;
+        // luz según lo cerca que esté del charco de la bombilla
+        const [cx0, cy0] = aPantalla(E.floorGlow[0], E.floorGlow[1]);
+        const dLuz = Math.hypot((b.x - cx0)/(W*0.35), (y - cy0)/(H*0.25));
+        const fila = lamp < 0.5 ? 0 : (dLuz < 0.6 ? 2 : dLuz < 1.3 ? 1 : 0);
+        b.giro += (Math.abs(b.vx)/30 + 0.3) * dt;            // da vueltas al rodar
+        const plano = Math.max(0.12, Math.abs(Math.cos(b.giro)));
+        const lado = b.tam*2;
+        const pinta = (dx, dy, alfa, sy, f) => {
+          ctx.save(); ctx.globalAlpha = alfa; ctx.translate(b.x + px + dx, y + py + dy); ctx.rotate(b.r); ctx.scale(1, sy);
+          ctx.drawImage(atlas, b.spr*SPR, f*SPR, SPR, SPR, -lado/2, -lado/2, lado, lado); ctx.restore();
+        };
+        // sombra: la misma hoja, oscura y aplastada contra el suelo
+        ctx.save(); ctx.globalAlpha = 0.35; ctx.translate(b.x + px + 2, b.suelo + py + b.tam*0.25); ctx.scale(1, 0.25); ctx.rotate(b.r);
+        ctx.drawImage(atlas, b.spr*SPR, 0, SPR, SPR, -lado/2, -lado/2, lado, lado); ctx.restore();
+        // estela de movimiento cuando va deprisa
+        const v = Math.min(1, Math.abs(b.vx)/(220*b.esc));
+        if (v > 0.2){ pinta(-b.vx*0.020, 0, 0.18*v, plano, fila); pinta(-b.vx*0.010, 0, 0.3*v, plano, fila); }
+        pinta(0, 0, 0.95, plano, fila);
+      }
+    } else bichos.length = 0;
+
+    if (lluviaI > 0.01){
+      if (!lluviaLista){ preparaLluvia(); lluviaLista = true; }
+      const activas = Math.round(gotas.length * lluviaI);
+      const [lx, ly] = aPantalla(E.lamp[0], E.lamp[1]);
+      const [, ySuelo] = aPantalla(0.5, E.floorY);
+      const viento = 40 + lluviaI*90 + rafaga*160;
+      ctx.lineWidth = 1;
+      for (let k = 0; k < activas; k++){
+        const g = gotas[k];
+        g.y += g.v*(0.8 + 0.4*lluviaI)*dt; g.x += viento*dt;
+        if (g.y > H || g.x > W + 20){
+          if (g.y > ySuelo && Math.random() < 0.25 + 0.5*lluviaI) salpicas.push({ x: g.x, y: Math.min(H-2, ySuelo + Math.random()*(H-ySuelo)), t: 0 });
+          g.y = -20 - Math.random()*H*0.2; g.x = Math.random()*W*1.1 - W*0.1;
+        }
+        const cerca = Math.max(0, 1 - Math.hypot(g.x-lx, (g.y-ly)*0.6)/(W*0.35));   // brillan bajo la bombilla
+        ctx.strokeStyle = `rgba(210,220,235,${g.a*(0.55 + 0.45*lluviaI)*(0.5 + cerca*1.6)})`;
+        ctx.beginPath(); ctx.moveTo(g.x + px*0.6, g.y + py*0.6); ctx.lineTo(g.x - g.l*viento/1000 + px*0.6, g.y - g.l*(0.7 + 0.6*lluviaI) + py*0.6); ctx.stroke();
+      }
+      for (let i = salpicas.length-1; i >= 0; i--){
+        const s = salpicas[i]; s.t += dt; if (s.t > 0.25){ salpicas.splice(i, 1); continue; }
+        ctx.strokeStyle = `rgba(220,225,235,${0.35*(1 - s.t/0.25)})`;
+        ctx.beginPath(); ctx.ellipse(s.x + px, s.y + py, 2 + s.t*28, 0.6 + s.t*7, 0, 0, 6.283); ctx.stroke();
+      }
+    } else { lluviaLista = false; salpicas.length = 0; }
+
+    requestAnimationFrame(paso);
+  }
+  medir(); medirScroll();
+  requestAnimationFrame(paso);
+})();
+</script>
+</body>
+</html>
