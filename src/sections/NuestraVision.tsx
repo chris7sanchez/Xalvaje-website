@@ -151,10 +151,17 @@ const LAMINAS: Lamina[] = [
   },
 ];
 
-/** Cuerpo de letra: en escritorio, proporcional al lienzo (1pt = 1/9,6 cqw,
- *  que es la equivalencia exacta con el PPTX de 13,33 pulgadas); en móvil el
- *  lienzo es estrecho y manda el suelo en rem para no bajar de legible. */
-const cuerpo = (pt: number) => `max(${(pt * 0.045).toFixed(2)}rem, ${(pt / 9.6).toFixed(2)}cqw)`;
+/** Cuerpo de letra: en escritorio, proporcional al lienzo. La equivalencia
+ *  exacta con el PPTX era 1pt = 1/9,6 cqw; se sirve un 12 % más grande (/8,6)
+ *  porque en pantalla, con el texto sobre vídeo, lo pedía la lectura
+ *  (18/10/2026). En móvil manda el suelo en rem para no bajar de legible. */
+const cuerpo = (pt: number) => `max(${(pt * 0.054).toFixed(2)}rem, ${(pt / 8.6).toFixed(2)}cqw)`;
+
+/** Las sombras que hacen legible el texto sobre el vídeo [L0]: el claro lleva
+ *  sombra oscura; el NEGRO de Christian lleva halo de luz (tinta estampada
+ *  retroiluminada: se lee sobre cualquier fondo sin dejar de ser negra). */
+const SOMBRA_CLARO = '0 2px 14px rgba(0,0,0,0.85), 0 0 3px rgba(0,0,0,0.6)';
+const SOMBRA_NEGRO = '0 0 8px rgba(251,247,245,0.95), 0 0 22px rgba(251,247,245,0.65)';
 
 function TextoCaja({ caja }: { caja: Caja }) {
   return (
@@ -178,6 +185,7 @@ function TextoCaja({ caja }: { caja: Caja }) {
               fontStyle: r.i ? 'italic' : 'normal',
               fontWeight: r.b ? 700 : r.f === 'jost' ? 300 : 400,
               letterSpacing: r.spc ? `${r.spc}em` : undefined,
+              textShadow: r.c === '000000' ? SOMBRA_NEGRO : SOMBRA_CLARO,
             }}
           >
             {r.t}
@@ -277,6 +285,14 @@ export function NuestraVision() {
                   poster={`/videos/vision/${l.ventana.plano}.jpg`}
                   loop muted playsInline preload="none"
                   className="absolute left-0 top-[-8%] w-full h-[116%] object-cover"
+                />
+                {/* Velo de contraste [L0]: oscurece un punto los bordes del
+                    plano, que es donde caen las cajas de texto, y deja el
+                    centro casi intacto para que el vídeo respire. */}
+                <span
+                  aria-hidden
+                  className="absolute inset-0 pointer-events-none"
+                  style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0.45), rgba(0,0,0,0.1) 32%, rgba(0,0,0,0.1) 62%, rgba(0,0,0,0.48))' }}
                 />
               </span>
             </span>
