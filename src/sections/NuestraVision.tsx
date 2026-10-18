@@ -190,15 +190,18 @@ const LAMINAS: Lamina[] = [
   },
 ];
 
-/** Equivalencia EXACTA con su PPTX: 1pt = 1/9,6 cqw del lienzo. El suelo en
- *  rem solo manda en móvil, donde el lienzo es estrecho. */
-const cuerpo = (pt: number) => `max(${(pt * 0.05).toFixed(2)}rem, ${(pt / 9.6).toFixed(2)}cqw)`;
+/** Equivalencia EXACTA con su PPTX: el lienzo mide 13,33 pulgadas = 959,76pt,
+ *  asi que 1pt = anchoLamina/959,76 px. La escala la mide un ResizeObserver y
+ *  vive en --ptpx en cada lamina (cqw fallaba en Safari y todo caia al suelo
+ *  en rem: se veia a la mitad, 18/10/2026). El suelo en rem solo manda en
+ *  movil. */
+const cuerpo = (pt: number) => `max(calc(${pt} * var(--ptpx, 0.125rem)), ${(pt * 0.05).toFixed(2)}rem)`;
 
 function CajaTexto({ pieza }: { pieza: Extract<Pieza, { tipo: 'caja' }> }) {
   return (
     <div
-      className="relative lg:absolute mb-5 lg:mb-0 lg:w-[var(--w)]"
-      style={{ left: `${pieza.x}%`, top: `${pieza.y}%`, ['--w' as string]: `${pieza.w}%` }}
+      className="relative lg:absolute mb-5 lg:mb-0 lg:w-[var(--w)] lg:left-[var(--x)] lg:top-[var(--y)]"
+      style={{ ['--x' as string]: `${pieza.x}%`, ['--y' as string]: `${pieza.y}%`, ['--w' as string]: `${pieza.w}%` }}
     >
       {pieza.parrafos.map((p, pi) =>
         p.runs.length === 0 ? (
@@ -246,6 +249,21 @@ function CajaTexto({ pieza }: { pieza: Extract<Pieza, { tipo: 'caja' }> }) {
 export function NuestraVision() {
   const seccion = useRef<HTMLElement>(null);
   const [quieto] = useState(menosMovimiento);
+
+  /* La escala tipografica de cada lamina: px por punto del PPTX. */
+  useEffect(() => {
+    const s = seccion.current;
+    if (!s) return;
+    const laminas = Array.from(s.querySelectorAll<HTMLElement>('[data-lamina]'));
+    const medir = () => {
+      for (const l of laminas) l.style.setProperty('--ptpx', `${(l.clientWidth / 959.76).toFixed(4)}px`);
+    };
+    medir();
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(medir) : null;
+    laminas.forEach((l) => ro?.observe(l));
+    window.addEventListener('resize', medir);
+    return () => { ro?.disconnect(); window.removeEventListener('resize', medir); };
+  }, []);
 
   /* Las ventanas: abrirse al entrar, paralaje dentro, reproducir lo cercano. */
   useEffect(() => {
@@ -301,8 +319,8 @@ export function NuestraVision() {
         {LAMINAS.map((l) => (
           <article
             key={l.num}
+            data-lamina
             className="relative mt-14 lg:mt-20 lg:aspect-[16/9] lg:overflow-hidden"
-            style={{ containerType: 'inline-size' }}
           >
             {l.nombre && (
               <span
@@ -322,8 +340,8 @@ export function NuestraVision() {
                     key={i}
                     data-ventana
                     aria-hidden
-                    className="relative lg:absolute block my-5 lg:my-0 w-full lg:w-[var(--w)] ring-1 ring-inset ring-white/15"
-                    style={{ left: `${p.x}%`, top: `${p.y}%`, ['--w' as string]: `${p.w}%`, aspectRatio: String(p.ratio) }}
+                    className="relative lg:absolute block my-5 lg:my-0 w-full lg:w-[var(--w)] lg:left-[var(--x)] lg:top-[var(--y)] ring-1 ring-inset ring-white/15"
+                    style={{ ['--x' as string]: `${p.x}%`, ['--y' as string]: `${p.y}%`, ['--w' as string]: `${p.w}%`, aspectRatio: String(p.ratio) }}
                   >
                     <span data-abre className="absolute inset-0 overflow-hidden" style={{ clipPath: 'inset(50% 0 50% 0)' }}>
                       <video
